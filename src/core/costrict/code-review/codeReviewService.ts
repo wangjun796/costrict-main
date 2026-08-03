@@ -1,0 +1,1061 @@
+/**
+ * Code Review Service
+ *
+ * Core business logic service for code review functionality.
+ * Manages the complete lifecycle of code review tasks.
+ * Features:
+ * - Review task management
+ * - Result polling and caching
+ * - Issue status synchronization
+ * - WebView communication
+ * - Comment service coordination
+ */
+
+import * as vscode from "vscode"
+import path from "node:path"
+import type { AxiosRequestConfig } from "axios"
+import { ExtensionMessage, RooCodeEventName } from "@roo-code/types"
+
+import { ReviewTask, UpdateIssueStatusResponse } from "./types"
+import { updateIssueStatusAPI, getPrompt, getIssueByTaskId } from "./api"
+import { ReviewComment } from "./reviewComment"
+import { HistoryManager } from "./HistoryManager"
+import { CostrictAuthConfig, CostrictAuthService } from "../auth"
+
+import {
+	ReviewIssue,
+	IssueStatus,
+	ReviewTaskStatus,
+	ReviewTarget,
+	ReviewTaskData,
+	ReviewTargetType,
+} from "../../../shared/codeReview"
+import { Package } from "../../../shared/package"
+
+import { createLogger, ILogger } from "../../../utils/logger"
+import { t } from "../../../i18n"
+import { CommentService, type CommentThreadInfo } from "../../../integrations/comment"
+import type { ClineProvider } from "../../webview/ClineProvider"
+import type { Task } from "../../task/Task"
+import { TelemetryService } from "@roo-code/telemetry"
+import { CodeReviewErrorType, type TelemetryErrorType } from "../telemetry"
+import { fileExistsAtPath } from "../../../utils/fs"
+import { isJetbrainsPlatform } from "../../../utils/platform"
+import { defaultModeSlug, type Mode } from "../../../shared/modes"
+
+import {
+	buildReviewRequestOptions,
+	getReviewReportJsonPath,
+	resolveFromReportFile,
+	resolveFromReportText,
+} from "./common/reviewIssueResolver"
+/**
+ * Code Review Service - Singleton
+ *
+ * Manages code review tasks, polling, caching, and status synchronization.
+ * Coordinates with ClineProvider for WebView communication and CommentService for UI integration.
+ */
+export class CodeReviewService {
+	// Singleton pattern
+	private static instance: CodeReviewService | null = null
+
+	// Dependencies
+	private clineProvider: ClineProvider | null = null
+	private commentService: CommentService | null = null // TODO: Change to CommentService when implemented
+	private historyManager: HistoryManager
+
+	// Task management
+	private currentTask: ReviewTask | null = null
+	private prevMode: string = ""
+	// Issue management and caching
+	private cachedIssues: Map<string, ReviewIssue> = new Map()
+	private currentActiveIssueId: string | null = null
+	private logger: ILogger
+	private taskList: Map<string, string> = new Map()
+	private historyTaskId: string | null = null
+	private disposeTaskLifecycle: (() => void) | null = null
+	/**
+	 * Private constructor for singleton pattern
+	 */
+	private constructor() {
+		this.logger = createLogger(Package.outputChannel)
+		this.historyManager = new HistoryManager()
+	}
+
+	/**
+	 * Update task state uniformly
+	 */
+	private updateTaskState(updates: Partial<ReviewTask>): void {
+		if (!this.currentTask) {
+			this.currentTask = {
+				taskId: "",
+				isCompleted: false,
+				progress: 0,
+				total: 0,
+			}
+		}
+
+		if (updates.isCompleted === true && updates.error === undefined) {
+			this.currentTask = { ...this.currentTask, ...updates, error: undefined }
+		} else {
+			this.currentTask = { ...this.currentTask, ...updates }
+		}
+
+		// Send unified status update message
+		this.sendReviewTaskUpdateMessage(this.getTaskStatusFromState(), {
+			issues: this.getAllCachedIssues(),
+			progress: this.currentTask.progress,
+			error: this.currentTask.error?.message,
+		})
+	}
+
+	/**
+	 * Get task status from current task state
+	 */
+	private getTaskStatusFromState(): ReviewTaskStatus {
+		if (!this.currentTask) return ReviewTaskStatus.INITIAL
+		if (this.currentTask.error) return ReviewTaskStatus.ERROR
+		if (this.currentTask.isCompleted) return ReviewTaskStatus.COMPLETED
+		if (this.currentTask.progress > 0) return ReviewTaskStatus.RUNNING
+		return ReviewTaskStatus.INITIAL
+	}
+
+	/**
+	 * Get singleton instance
+	 *
+	 * @param clineProvider - ClineProvider instance for WebView communication
+	 * @returns CodeReviewService singleton instance
+	 */
+	static getInstance(): CodeReviewService {
+		if (CodeReviewService.instance === null) {
+			CodeReviewService.instance = new CodeReviewService()
+		}
+		return CodeReviewService.instance
+	}
+
+	/**
+	 * Set ClineProvider dependency
+	 *
+	 * @param clineProvider - ClineProvider instance
+	 */
+	setProvider(clineProvider: ClineProvider): void {
+		this.clineProvider = clineProvider
+	}
+
+	getProvider(): ClineProvider | null {
+		return this.clineProvider
+	}
+
+	/**
+	 * Check if API provider supports code review
+	 *
+	 * @returns boolean - true if provider supports code review, false otherwise
+	 */
+	async checkApiProviderSupport(): Promise<boolean> {
+		const provider = this.getProvider()!
+		const { apiConfiguration } = await provider.getState()
+		if (apiConfiguration.apiProvider !== "costrict") {
+			vscode.window.showInformationMessage(t("common:review.tip.api_provider_not_support"))
+			return false
+		}
+		return true
+	}
+
+	/**
+	 * Set CommentService dependency
+	 *
+	 * @param commentService - CommentService instance or null
+	 */
+	setCommentService(commentService: CommentService | null): void {
+		this.commentService = commentService
+	}
+
+	async buildReviewPrompt(mode: "review" | "security-review", arguments_: string): Promise<string> {
+		const { language } = await this.clineProvider!.getState()
+		const isZh = language === "zh-CN" || language === "zh-TW"
+		if (mode === "security-review") {
+			if (isZh) {
+				return (
+					"# 安全代码审查\n\n请使用 Skill 工具加载 `security-review` 技能来对以下内容执行安全代码审查：" +
+					arguments_ +
+					"\n\n使用默认配置，全程无需再次确认。全程请使用中文进行回答与文件写入。"
+				)
+			}
+			return (
+				"# Code Security Review\n\nPlease use the Skill tool to load the `security-review` skill to perform a security review on: " +
+				arguments_ +
+				"\n\nUse default configuration throughout the process without re-confirmation. Please respond and write all files in English throughout the entire process."
+			)
+		}
+		if (isZh) {
+			return (
+				"# 代码审查\n\n请使用 Skill 工具加载 `review` 技能来对以下内容执行代码审查：" +
+				arguments_ +
+				"\n\n使用默认配置，全程无需再次确认。全程请使用中文进行回答与文件写入。"
+			)
+		}
+		return (
+			"# Code Review\n\nPlease use the Skill tool to load the `review` skill to perform a code review on: " +
+			arguments_ +
+			"\n\nUse default configuration throughout the process without re-confirmation. Please respond and write all files in English throughout the entire process."
+		)
+	}
+
+	private async getRequestOptions(): Promise<AxiosRequestConfig> {
+		if (!this.clineProvider) {
+			return {}
+		}
+		const { apiConfiguration, language } = await this.clineProvider.getState()
+		const apiKey = apiConfiguration.costrictAccessToken || ""
+		const baseURL = apiConfiguration.costrictBaseUrl || CostrictAuthConfig.getInstance().getDefaultApiBaseUrl()
+		return buildReviewRequestOptions({ apiKey, baseURL, language: language || "en" })
+	}
+
+	private getRestoreMode(mode: string): Mode {
+		return mode === "review" || mode === "security-review" || mode === "subreview" ? "code" : mode
+	}
+
+	public async handleAuthError() {
+		if (!this.clineProvider) return
+		this.sendReviewTaskUpdateMessage(ReviewTaskStatus.ERROR, {
+			issues: [],
+			progress: 0,
+			error: t("common:review.tip.login_expired"),
+		})
+		await CostrictAuthService.openStatusBarLoginTip({
+			errorTitle: t("common:review.statusbar.login_expired"),
+		})
+		this.recordReviewError(CodeReviewErrorType.AuthError as TelemetryErrorType)
+	}
+
+	public async startReview(target: ReviewTarget, mode: Mode = "review") {
+		const visibleProvider = this.getProvider()
+		if (visibleProvider) {
+			const chatMessage = target.data
+				?.map((item) => {
+					const { file_path, line_range } = item
+					if (target.type === ReviewTargetType.FILE) {
+						return `@/${file_path}`
+					} else if (target.type === ReviewTargetType.FOLDER) {
+						return `@/${file_path}/`
+					} else if (target.type === ReviewTargetType.CODE && line_range) {
+						return `@/${file_path}:${line_range[0]}-${line_range[1]}`
+					}
+					return ""
+				})
+				.join(" ")
+
+			const finalMessage = await this.buildReviewPrompt(mode as "review" | "security-review", chatMessage ?? "")
+
+			await this.createReviewTask(finalMessage, target, { mode })
+		}
+	}
+
+	public async createReviewTask(
+		message: string,
+		targets: ReviewTarget,
+		options?: {
+			mode?: Mode
+			onTaskComplete?: () => void
+		},
+	) {
+		const provider = this.getProvider()
+		if (!provider) {
+			return
+		}
+
+		this.reset()
+
+		this.updateTaskState({
+			isCompleted: false,
+			progress: 0.001, // use 0.001 to indicate running
+			total: 0,
+		})
+		this.prevMode = (await provider.getMode()) ?? defaultModeSlug
+		const taskMode = options?.mode ?? "review"
+		this.logger.debug(`[CodeReview] createReviewTask: prevMode=${this.prevMode}, taskMode=${taskMode}`)
+		await provider.handleModeSwitch(taskMode)
+		const modeAfterSwitch = await provider.getMode()
+		this.logger.debug(`[CodeReview] createReviewTask: mode after handleModeSwitch=${modeAfterSwitch}`)
+		const task = await provider.createTask(message, undefined, undefined, {
+			costrictWorkflowMode: taskMode,
+		})
+		const modeAfterCreateTask = await provider.getMode()
+		this.logger.debug(
+			`[CodeReview] createReviewTask: mode after createTask=${modeAfterCreateTask}, taskMode=${taskMode}`,
+		)
+		const trackedTaskId = task.taskId
+		let trackedTask: Task = task
+		let completionHandled = false
+		let delegatedChildTaskId: string | null = null
+		let abortHandlingTimeout: NodeJS.Timeout | undefined
+		const boundTaskInstanceIds = new Set<string>()
+		const listenerDisposers: Array<() => void> = []
+
+		// Set timeout based on mode: 3 hours for security-review, 15 minutes for others
+		const timeoutMs = taskMode === "security-review" ? 180 * 60 * 1000 : 60 * 60 * 1000
+		const timeoutId = setTimeout(() => {
+			void handleTaskFailure(new Error(t("common:review.tip.task_timeout")))
+		}, timeoutMs)
+
+		this.updateTaskState({ timeoutId })
+
+		const clearAbortHandlingTimeout = () => {
+			if (abortHandlingTimeout) {
+				clearTimeout(abortHandlingTimeout)
+				abortHandlingTimeout = undefined
+			}
+		}
+
+		const disposeLifecycleListeners = () => {
+			clearAbortHandlingTimeout()
+			const disposers = listenerDisposers.splice(0)
+			for (const dispose of disposers.reverse()) {
+				dispose()
+			}
+		}
+
+		const releaseTaskLifecycle = () => {
+			disposeLifecycleListeners()
+			if (this.disposeTaskLifecycle === releaseTaskLifecycle) {
+				this.disposeTaskLifecycle = null
+			}
+		}
+
+		this.disposeTaskLifecycle = releaseTaskLifecycle
+
+		const resetMode = async () => {
+			const restoreMode = this.getRestoreMode(this.prevMode)
+			this.logger.debug(
+				`[CodeReview] resetMode: restoring from ${this.prevMode} to ${restoreMode} (task=${trackedTask.taskId})`,
+			)
+			await provider.handleModeSwitch(restoreMode)
+			trackedTask.updateMode(restoreMode)
+			this.prevMode = ""
+		}
+
+		const handleTaskFailure = async (error: Error) => {
+			if (completionHandled || this.currentTask?.isCompleted) {
+				releaseTaskLifecycle()
+				clearTimeout(timeoutId)
+				return
+			}
+			completionHandled = true
+			clearTimeout(timeoutId)
+			releaseTaskLifecycle()
+			this.updateTaskState({
+				error,
+				isCompleted: true,
+			})
+			await resetMode()
+		}
+
+		const handleCompletion = async () => {
+			if (completionHandled) {
+				this.logger.debug("[CodeReview] Completion already handled, skipping")
+				return
+			}
+			completionHandled = true
+
+			try {
+				this.logger.debug("[CodeReview] Review Task completed")
+
+				const workspace = String(provider.cwd)
+				const requestOptions = await this.getRequestOptions()
+				const jsonPath = getReviewReportJsonPath(workspace, taskMode as Mode)
+				this.logger.debug(`[CodeReview] Reading review report from ${jsonPath}`)
+
+				if (!(await fileExistsAtPath(jsonPath))) {
+					throw new Error(`Review report not found at ${jsonPath}`)
+				}
+
+				const resolveResult = await resolveFromReportFile(jsonPath, {
+					source: "classic",
+					reviewTarget: targets,
+					workspace,
+					requestOptions,
+				})
+
+				if (!resolveResult?.issues || resolveResult.issues.length === 0) {
+					throw new Error(t("common:review.tip.get_review_result_failed"))
+				}
+
+				const { issues, review_task_id, title, conclusion } = resolveResult
+				this.logger.debug(`[CodeReview] Resolved ${issues.length} issues from review report`)
+
+				const existsResults = await Promise.all(
+					issues.map((issue) => fileExistsAtPath(path.resolve(provider.cwd, issue.file_path))),
+				)
+				const validIssues = issues.filter((_, index) => existsResults[index])
+
+				this.updateCachedIssues(validIssues)
+				if (validIssues.length > 0 && review_task_id) {
+					await this.historyManager.addEntry(review_task_id, title, conclusion)
+				}
+
+				this.updateTaskState({
+					taskId: review_task_id,
+					isCompleted: true,
+					progress: 1,
+					total: validIssues.length,
+					error: undefined,
+				})
+			} catch (error) {
+				this.logger.error("[CodeReview] Failed to complete task:", error)
+				this.updateTaskState({
+					error: error as Error,
+					isCompleted: true,
+				})
+			} finally {
+				clearTimeout(timeoutId)
+				releaseTaskLifecycle()
+
+				setTimeout(async () => {
+					this.logger.debug(
+						`[CodeReview] handleCompletion setTimeout(500ms) firing: about to call resetMode()`,
+					)
+					await resetMode()
+					await provider.removeClineFromStack()
+					await provider.refreshWorkspace()
+					options?.onTaskComplete?.()
+
+					// Switch to code review page if report was generated
+					const hasValidReport = this.currentTask?.taskId && this.getAllCachedIssues().length > 0
+					if (hasValidReport) {
+						provider.postMessageToWebview({
+							type: "action",
+							action: "codeReviewButtonClicked",
+						})
+					}
+				}, 500)
+			}
+		}
+
+		const bindTaskInstance = (taskInstance: Task) => {
+			if (taskInstance.taskId !== trackedTaskId || boundTaskInstanceIds.has(taskInstance.instanceId)) {
+				return
+			}
+
+			trackedTask = taskInstance
+			boundTaskInstanceIds.add(taskInstance.instanceId)
+			clearAbortHandlingTimeout()
+			this.logger.debug(
+				`[CodeReview] Binding lifecycle to task instance ${taskInstance.taskId}.${taskInstance.instanceId}`,
+			)
+
+			const onMessage = ({ message: msg }: { message: any }) => {
+				if (!completionHandled && msg.type === "say" && !msg.partial && msg.say === "completion_result") {
+					this.logger.debug("[CodeReview] Detected completion via Message event (completion_result)")
+					void handleCompletion()
+				}
+			}
+
+			const onTaskCompleted = () => {
+				this.logger.debug("[CodeReview] Detected completion via TaskCompleted event")
+				void handleCompletion()
+			}
+
+			const onTaskStarted = () => {
+				delegatedChildTaskId = null
+				this.updateTaskState({
+					isCompleted: false,
+					progress: 0.001, // use 0.001 to indicate running
+				})
+			}
+
+			const onTaskAskResponded = () => {
+				const messageCount = taskInstance.clineMessages.length
+				let progress = 0
+				if (messageCount <= 10) {
+					progress = messageCount * 0.05
+				} else {
+					progress = Math.min(0.5 + (messageCount - 10) * 0.02, 0.95)
+				}
+				this.updateTaskState({
+					progress: Math.round(progress * 100) / 100,
+				})
+			}
+
+			const onTaskResumable = async () => {
+				if (completionHandled || delegatedChildTaskId) return
+				await handleTaskFailure(new Error(t("common:review.tip.service_unavailable")))
+			}
+
+			const onTaskIdle = async () => {
+				if (completionHandled || delegatedChildTaskId) return
+				await handleTaskFailure(new Error(t("common:review.tip.service_unavailable")))
+			}
+
+			const onTaskAborted = () => {
+				if (completionHandled) return
+				if (this.currentTask?.isCompleted) {
+					releaseTaskLifecycle()
+					clearTimeout(timeoutId)
+					return
+				}
+				if (delegatedChildTaskId) {
+					this.logger.debug("[CodeReview] Ignoring TaskAborted because review task is delegated")
+					return
+				}
+				clearAbortHandlingTimeout()
+				abortHandlingTimeout = setTimeout(() => {
+					void handleTaskFailure(new Error(t("common:review.tip.task_cancelled")))
+				}, 60_000)
+			}
+
+			taskInstance.on(RooCodeEventName.Message, onMessage as any)
+			taskInstance.on(RooCodeEventName.TaskCompleted, onTaskCompleted)
+			taskInstance.on(RooCodeEventName.TaskStarted, onTaskStarted)
+			taskInstance.on(RooCodeEventName.TaskAskResponded, onTaskAskResponded)
+			taskInstance.on(RooCodeEventName.TaskResumable, onTaskResumable)
+			taskInstance.on(RooCodeEventName.TaskIdle, onTaskIdle)
+			taskInstance.on(RooCodeEventName.TaskAborted, onTaskAborted)
+
+			listenerDisposers.push(() => {
+				taskInstance.off(RooCodeEventName.Message, onMessage as any)
+				taskInstance.off(RooCodeEventName.TaskCompleted, onTaskCompleted)
+				taskInstance.off(RooCodeEventName.TaskStarted, onTaskStarted)
+				taskInstance.off(RooCodeEventName.TaskAskResponded, onTaskAskResponded)
+				taskInstance.off(RooCodeEventName.TaskResumable, onTaskResumable)
+				taskInstance.off(RooCodeEventName.TaskIdle, onTaskIdle)
+				taskInstance.off(RooCodeEventName.TaskAborted, onTaskAborted)
+			})
+		}
+
+		const onTaskCreated = (createdTask: any) => {
+			if (completionHandled || createdTask.taskId !== trackedTaskId) {
+				return
+			}
+			bindTaskInstance(createdTask as Task)
+		}
+
+		const onTaskDelegated = (parentTaskId: string, childTaskId: string) => {
+			if (completionHandled || parentTaskId !== trackedTaskId) {
+				return
+			}
+			delegatedChildTaskId = childTaskId
+			clearAbortHandlingTimeout()
+			this.logger.debug(`[CodeReview] Review task delegated to child task ${childTaskId}`)
+		}
+
+		const onTaskDelegationResumed = (parentTaskId: string, childTaskId: string) => {
+			if (completionHandled || parentTaskId !== trackedTaskId) {
+				return
+			}
+			if (delegatedChildTaskId === childTaskId) {
+				delegatedChildTaskId = null
+			}
+			clearAbortHandlingTimeout()
+			this.logger.debug(`[CodeReview] Review task resumed after child task ${childTaskId}`)
+			const resumedTask = provider.getCurrentTask()
+			if (resumedTask?.taskId === trackedTaskId) {
+				bindTaskInstance(resumedTask)
+			}
+		}
+
+		provider.on(RooCodeEventName.TaskCreated, onTaskCreated)
+		provider.on(RooCodeEventName.TaskDelegated, onTaskDelegated)
+		provider.on(RooCodeEventName.TaskDelegationResumed, onTaskDelegationResumed)
+		listenerDisposers.push(() => {
+			provider.off(RooCodeEventName.TaskCreated, onTaskCreated)
+			provider.off(RooCodeEventName.TaskDelegated, onTaskDelegated)
+			provider.off(RooCodeEventName.TaskDelegationResumed, onTaskDelegationResumed)
+		})
+
+		bindTaskInstance(task)
+
+		// Switch to chat tab for all review tasks
+		provider.postMessageToWebview({
+			type: "action",
+			action: "switchTab",
+			tab: "chat",
+		})
+	}
+	// ===== Task Management Methods =====
+
+	public reset() {
+		this.disposeTaskLifecycle?.()
+		this.disposeTaskLifecycle = null
+		if (this.currentTask) {
+			if (this.currentTask.timeoutId) {
+				clearTimeout(this.currentTask.timeoutId)
+			}
+		}
+
+		this.updateTaskState({
+			taskId: "",
+			isCompleted: false,
+			progress: 0,
+			total: 0,
+			error: undefined,
+			timeoutId: undefined,
+		})
+
+		this.clearCache()
+		this.currentActiveIssueId = null
+		this.commentService?.clearAllCommentThreads()
+	}
+
+	public async getIssues(report: string, target: ReviewTarget) {
+		const workspace = this.clineProvider?.cwd || ""
+		const requestOptions = await this.getRequestOptions()
+		return resolveFromReportText(report, {
+			source: "classic",
+			reviewTarget: target,
+			workspace,
+			requestOptions,
+		})
+	}
+	/**
+	 * Abort current running task
+	 */
+	abortCurrentTask(): void {
+		this.disposeTaskLifecycle?.()
+		this.disposeTaskLifecycle = null
+		// Clear cache
+		this.clearCache()
+
+		// Reset state
+		this.currentTask = null
+		this.currentActiveIssueId = null
+	}
+
+	/**
+	 * Cancel current running task
+	 *
+	 * Stops polling for new results but keeps current results and marks task as completed
+	 */
+	async cancelCurrentTask(): Promise<void> {
+		const provider = this.getProvider()
+		try {
+			if (!provider) {
+				throw new Error("No active provider")
+			}
+
+			// Check if there's a current task
+			if (!this.currentTask) {
+				throw new Error("No active task to cancel")
+			}
+			this.completeTask()
+			await provider?.removeClineFromStack()
+			await provider?.refreshWorkspace()
+		} finally {
+			const prevMode = this.getRestoreMode(this.prevMode)
+			this.prevMode = ""
+			await provider?.handleModeSwitch(prevMode)
+		}
+	}
+
+	// ===== Issue Management Methods =====
+
+	/**
+	 * Update issue status on server (pure API call)
+	 *
+	 * @param issueId - Issue ID to update
+	 * @param taskId - Task ID
+	 * @param status - New status to set
+	 * @returns API response
+	 * @throws Error if API call fails
+	 */
+	private async updateIssueStatusOnServer(
+		issueId: string,
+		taskId: string,
+		status: IssueStatus,
+	): Promise<UpdateIssueStatusResponse> {
+		const requestOptions = await this.getRequestOptions()
+
+		this.logger.debug(`Calling API to update issue status: issueId=${issueId}, taskId=${taskId}`)
+
+		const result = await updateIssueStatusAPI(issueId, taskId, status, {
+			...requestOptions,
+		})
+
+		return result
+	}
+
+	/**
+	 * Collapse comment thread for an issue
+	 *
+	 * @param issueId - Issue ID
+	 */
+	public async collapseCommentThread(issueId: string): Promise<void> {
+		await this.commentService?.collapseCommentThread(issueId)
+	}
+
+	/**
+	 * Set active issue for comment thread creation
+	 *
+	 * @param issueId - Issue ID to set as active
+	 */
+	async setActiveIssue(issueId: string): Promise<void> {
+		// Check if the issue exists in cache
+		const issue = this.getCachedIssue(issueId)
+		if (!issue) {
+			throw new Error(`Issue ${issueId} not found`)
+		}
+		// Auto-ignore current active issue if it exists and is different
+		if (this.currentActiveIssueId && this.currentActiveIssueId !== issueId) {
+			const currentIssue = this.getCachedIssue(this.currentActiveIssueId)
+			if (currentIssue?.status === IssueStatus.INITIAL) {
+				await this.autoIgnoreCurrentIssue()
+			}
+			// Note: No longer disposing comment thread to preserve comments
+		}
+
+		// Set new active issue
+		this.currentActiveIssueId = issueId
+
+		// Create comment thread info for CommentService integration
+		const commentInfo = this.createCommentThreadInfo(issue)
+
+		// Create or focus comment thread if CommentService is available
+		if (this.commentService) {
+			await this.commentService.focusOrCreateCommentThread(commentInfo)
+		}
+	}
+
+	/**
+	 * Update issue status both locally and on server
+	 *
+	 * @param issueId - Issue ID to update
+	 * @param status - New status to set
+	 */
+	async updateIssueStatus(issueId: string, status: IssueStatus): Promise<void> {
+		this.logger.debug(`Updating issue status: issueId=${issueId}, status=${status}`)
+		// Check if the issue exists in cache
+		const issue = this.getCachedIssue(issueId)
+		if (!issue) {
+			this.logger.error(`Issue not found in cache: ${issueId}`)
+			throw new Error(`Issue ${issueId} not found`)
+		}
+
+		// Check if task is active
+		if (!this.currentTask) {
+			this.logger.error("No active task found when updating issue status")
+			throw new Error("No active task")
+		}
+
+		try {
+			// Call API to update issue status on server
+			const result = await this.updateIssueStatusOnServer(issueId, this.currentTask.taskId, status)
+
+			// Check if API call was successful
+			if (!result.success) {
+				this.logger.error(`API call failed to update issue status: ${result.message}`)
+				throw new Error(`Failed to update issue status: ${result.message}`)
+			}
+			this.logger.debug(`Successfully updated issue status on server: issueId=${issueId}, status=${status}`)
+
+			// Collapse comment thread after successful status update
+			await this.collapseCommentThread(issueId)
+
+			// Create updated issue copy and update cache only after successful API call
+			const updatedIssue = { ...issue, status }
+			this.updateCachedIssues([updatedIssue])
+
+			// Update current active issue if this was the active one and status changed
+			if (this.currentActiveIssueId === issueId && status !== IssueStatus.INITIAL) {
+				this.currentActiveIssueId = null
+			}
+			if (status === IssueStatus.ACCEPT) {
+				this.fixWithAI(issue, result.data.slide_line)
+			}
+
+			// Send status update message to WebView
+			this.sendMessageToWebview({
+				type: "issueStatusUpdated",
+				values: {
+					issueId,
+					status,
+					issue: updatedIssue,
+				},
+			})
+		} catch (error) {
+			this.logger.error(`Failed to update issue status: issueId=${issueId}, error=${error}`)
+			if (error.name === "AuthError") {
+				await this.handleAuthError()
+				return
+			}
+			this.recordReviewError(CodeReviewErrorType.UpdateIssueError as TelemetryErrorType)
+			throw error
+		}
+	}
+
+	private async fixWithAI(issue: ReviewIssue, slideLine: number) {
+		const workspaceEdit = new vscode.WorkspaceEdit()
+		const { file_path, start_line, end_line, fix_code } = issue
+		if (fix_code) {
+			const startLine = start_line - 1 + slideLine
+			const endLine = end_line - 1 + slideLine
+			const absolutePath = path.resolve(this.clineProvider!.cwd, file_path)
+			workspaceEdit.replace(vscode.Uri.file(absolutePath), new vscode.Range(startLine, 0, endLine, 0), fix_code)
+			await vscode.workspace.applyEdit(workspaceEdit)
+		}
+	}
+
+	/**
+	 * Update history issue status and refresh history view
+	 * This method replaces the logic in acceptIssue and rejectIssue
+	 * when contextValue is not "Initial"
+	 *
+	 * @param issueId - Issue ID to update
+	 * @param taskId - Task ID (contextValue from comment)
+	 * @param status - New status to set (ACCEPT or REJECT)
+	 */
+	public async updateHistoryIssueStatus(issueId: string, taskId: string, status: IssueStatus): Promise<void> {
+		this.logger.debug(`Updating history issue status: issueId=${issueId}, taskId=${taskId}, status=${status}`)
+
+		try {
+			const result = await this.updateIssueStatusOnServer(issueId, taskId, status)
+
+			if (!result.success) {
+				this.logger.error(`Failed to update issue status on server: ${result.message}`)
+				throw new Error(`Failed to update issue status: ${result.message}`)
+			}
+
+			this.logger.debug(`Successfully updated issue status on server: issueId=${issueId}, status=${status}`)
+
+			await this.collapseCommentThread(issueId)
+
+			const issuesResult = await this.getReviewHistoryById(taskId)
+			if (issuesResult) {
+				this.sendMessageToWebview({
+					type: "reviewIssueByIdLoaded",
+					values: {
+						reviewTaskId: taskId,
+						issues: issuesResult.issues,
+					},
+				})
+			}
+		} catch (error) {
+			this.logger.error(`Failed to update history issue status: issueId=${issueId}, error=${error}`)
+			if (error.name === "AuthError") {
+				await this.handleAuthError()
+				return
+			}
+			this.recordReviewError(CodeReviewErrorType.UpdateIssueError as TelemetryErrorType)
+			throw error
+		}
+	}
+
+	// ===== State Query Methods =====
+
+	/**
+	 * Get cached issue by ID
+	 *
+	 * @param issueId - Issue ID to retrieve
+	 * @returns Cached issue or null if not found
+	 */
+	getCachedIssue(issueId: string): ReviewIssue | null {
+		return this.cachedIssues.get(issueId) || null
+	}
+
+	// ===== Cache Management Methods =====
+
+	/**
+	 * Update cached issues with new issues
+	 *
+	 * @param issues - Issues array to add to cache
+	 */
+	private updateCachedIssues(issues: ReviewIssue[]): void {
+		for (const issue of issues) {
+			this.cachedIssues.set(issue.id, issue)
+		}
+	}
+
+	/**
+	 * Clear all cached issues
+	 */
+	private clearCache(): void {
+		this.cachedIssues.clear()
+	}
+
+	/**
+	 * Get all cached issues as array
+	 *
+	 * @returns Array of all cached issues
+	 */
+	public getAllCachedIssues(): ReviewIssue[] {
+		return Array.from(this.cachedIssues.values())
+	}
+
+	public async getReviewHistory() {
+		return await this.historyManager.loadAll()
+	}
+
+	public async askWithAI(id: string, taskId?: string) {
+		const provider = this.getProvider()
+		if (!provider) {
+			return
+		}
+		this.historyTaskId = taskId || null
+		const requestOptions = await this.getRequestOptions()
+		const { data } = await getPrompt(id, requestOptions)
+
+		const task = await provider.createTask(data.prompt, undefined, undefined, undefined, { mode: "code" })
+		await provider.postMessageToWebview({
+			type: "action",
+			action: "switchTab",
+			tab: "chat",
+		})
+		this.taskList.set(task.taskId, id)
+	}
+
+	public async checkAndAcceptIssueByTaskId(taskId: string) {
+		if (!taskId || !this.taskList.has(taskId)) {
+			return
+		}
+		const issueId = this.taskList.get(taskId)!
+		if (this.historyTaskId) {
+			await this.updateIssueStatusOnServer(issueId, this.historyTaskId, IssueStatus.ACCEPT)
+		} else {
+			await this.updateIssueStatus(issueId, IssueStatus.ACCEPT)
+		}
+		this.taskList.delete(taskId)
+	}
+
+	// ===== Polling Methods =====
+
+	/**
+	 * Complete current task
+	 */
+	private completeTask(): void {
+		if (!this.currentTask) {
+			return
+		}
+
+		this.currentTask.isCompleted = true
+		this.currentTask.error = undefined
+
+		// Send task completed message with unified event
+		this.sendReviewTaskUpdateMessage(ReviewTaskStatus.COMPLETED, {
+			issues: this.getAllCachedIssues(),
+			progress: this.currentTask.progress,
+		})
+	}
+
+	// ===== Private Helper Methods =====
+
+	/**
+	 * Send message to WebView through ClineProvider
+	 *
+	 * @param message - Message object to send
+	 */
+	private sendMessageToWebview(message: ExtensionMessage): void {
+		if (!this.clineProvider) {
+			console.warn("ClineProvider not available, cannot send message to webview")
+			return
+		}
+		this.clineProvider.postMessageToWebview(message)
+	}
+
+	/**
+	 * Auto-ignore current active issue
+	 */
+	private async autoIgnoreCurrentIssue(): Promise<void> {
+		if (!this.currentActiveIssueId) {
+			return
+		}
+
+		try {
+			await this.updateIssueStatus(this.currentActiveIssueId, IssueStatus.IGNORE)
+		} catch (error) {
+			this.logger.error("Failed to auto-ignore current issue:", error)
+			// Don't throw error to prevent blocking the main flow
+		}
+	}
+
+	/**
+	 * Create comment thread info object for CommentService integration
+	 *
+	 * @param issue - Review issue to create comment info for
+	 * @returns CommentThreadInfo object
+	 */
+	private createCommentThreadInfo(issue: ReviewIssue, taskId?: string): CommentThreadInfo {
+		const iconPath = vscode.Uri.joinPath(
+			this.clineProvider!.contextProxy.extensionUri,
+			"assets",
+			"costrict",
+			"logo.svg",
+		)
+		const cwd = this.clineProvider!.cwd
+		return {
+			issueId: issue.id,
+			fileUri: vscode.Uri.file(path.resolve(cwd, issue.file_path)),
+			range: new vscode.Range(issue.start_line - 1, 0, issue.end_line - 1, Number.MAX_SAFE_INTEGER),
+			comment: new ReviewComment(
+				issue.id,
+				new vscode.MarkdownString(`${issue.title ? `### ${issue.title}\n\n` : ""}${issue.message}`),
+				vscode.CommentMode.Preview,
+				{ name: "CoStrict", iconPath },
+				undefined,
+				isJetbrainsPlatform() ? issue.id : (taskId ?? "Intial"),
+			),
+		}
+	}
+
+	/**
+	 * Send task update message
+	 *
+	 * @param status - Task status
+	 * @param data - Task data
+	 */
+	public sendReviewTaskUpdateMessage(status: ReviewTaskStatus, data: ReviewTaskData): void {
+		this.sendMessageToWebview({
+			type: "reviewTaskUpdate",
+			values: {
+				status,
+				data,
+			},
+		})
+	}
+
+	public pushErrorToWebview(error: any): void {
+		this.sendReviewTaskUpdateMessage(ReviewTaskStatus.ERROR, {
+			issues: [],
+			progress: 0,
+			error: error.message,
+		})
+	}
+
+	public async deleteReviewHistoryItem(reviewTaskId: string): Promise<void> {
+		await this.historyManager.deleteEntry(reviewTaskId)
+	}
+
+	public async getReviewHistoryById(reviewTaskId: string): Promise<{ issues: ReviewIssue[] } | null> {
+		const requestOptions = await this.getRequestOptions()
+		try {
+			const result = await getIssueByTaskId(reviewTaskId, requestOptions)
+			if (result.success && result.data) {
+				return { issues: result.data.issues }
+			}
+			return null
+		} catch (error) {
+			this.logger.error(`Failed to get issues for task ${reviewTaskId}: ${error}`)
+			return null
+		}
+	}
+
+	public async showReviewComment(issue: ReviewIssue, taskId?: string): Promise<void> {
+		if (!this.commentService) {
+			throw new Error("Comment service not available")
+		}
+
+		const commentInfo = this.createCommentThreadInfo(issue, taskId)
+		await this.commentService.focusOrCreateCommentThread(commentInfo)
+	}
+
+	private recordReviewError(type: TelemetryErrorType) {
+		TelemetryService.instance.captureError(`CodeReviewError_${type}`)
+	}
+
+	public async dispose(): Promise<void> {
+		this.disposeTaskLifecycle?.()
+		this.disposeTaskLifecycle = null
+		this.currentTask = null
+		this.cachedIssues.clear()
+		this.currentActiveIssueId = null
+		this.commentService?.dispose()
+		await this.historyManager.dispose()
+	}
+}

@@ -1,0 +1,176 @@
+{
+	"reasoning": {
+		"thinking": "思考",
+		"seconds": "{{count}} 秒",
+		"thinkingMessages": [
+			"正在思考...",
+			"构建思路中...",
+			"分析问题中...",
+			"整理信息...",
+			"思考中...",
+			"正在推理...",
+			"构思中..."
+		]
+	},
+	"greeting": "CoStrict 能为您做什么？",
+	"aboutMe": "得益于最新的代理编码能力突破，我可以逐步处理复杂的软件开发任务。通过允许我创建和编辑文件、探索复杂项目、使用浏览器以及执行终端命令（在您授予权限后）的工具，我可以以超越代码补全或技术支持的方式协助您。我甚至可以使用MCP创建新工具并扩展自己的能力。",
+	"instructions": {
+		"wantsToFetch": "CoStrict 想要获取详细指令以协助当前任务"
+	},
+	"about": "企业严肃开发的AI智能伙伴",
+	"error": "CoStrict 将自动规划下一步处理",
+	"emptyCompletionResult": "📝 CoStrict 正在自动规划下一步...",
+	"text": {
+		"rooSaid": "CoStrict 说"
+	},
+	"fileOperations": {
+		"wantsToRead": "需要读取文件",
+		"wantsToReadOutsideWorkspace": "请求访问外部文件",
+		"didRead": "已读取文件",
+		"wantsToEdit": "需要编辑文件",
+		"wantsToEditOutsideWorkspace": "需要编辑外部文件",
+		"wantsToEditProtected": "需要编辑受保护的配置文件",
+		"wantsToCreate": "需要新建文件",
+		"wantsToSearchReplace": "需要在此文件中搜索和替换",
+		"didSearchReplace": "已完成搜索和替换",
+		"wantsToInsert": "需要在此文件中插入内容",
+		"wantsToInsertWithLineNumber": "需要在第 {{lineNumber}} 行插入内容",
+		"wantsToInsertAtEnd": "需要在文件末尾添加内容",
+		"wantsToReadAndXMore": "CoStrict 想读取此文件以及另外 {{count}} 个文件",
+		"wantsToReadMultiple": "CoStrict 想要读取多个文件",
+		"wantsToApplyBatchChanges": "CoStrict 想要对多个文件应用更改",
+		"wantsToGenerateImage": "需要生成图片",
+		"wantsToGenerateImageOutsideWorkspace": "需要在工作区外生成图片",
+		"wantsToGenerateImageProtected": "需要在受保护位置生成图片",
+		"didGenerateImage": "已生成图片"
+	},
+	"directoryOperations": {
+		"wantsToViewTopLevel": "需要查看目录文件列表",
+		"didViewTopLevel": "已查看目录文件列表",
+		"wantsToViewRecursive": "需要查看目录所有文件",
+		"didViewRecursive": "已查看目录所有文件",
+		"wantsToViewDefinitions": "CoStrict想查看此目录中使用的源代码定义名称",
+		"didViewDefinitions": "CoStrict已查看此目录中使用的源代码定义名称",
+		"wantsToSearch": "需要搜索内容: {{regex}}",
+		"didSearch": "已完成内容搜索: {{regex}}",
+		"wantsToSearchOutsideWorkspace": "需要搜索内容（工作区外）: {{regex}}",
+		"didSearchOutsideWorkspace": "已完成内容搜索（工作区外）: {{regex}}",
+		"wantsToViewTopLevelOutsideWorkspace": "需要查看目录文件列表（工作区外）",
+		"didViewTopLevelOutsideWorkspace": "已查看目录文件列表（工作区外）",
+		"wantsToViewRecursiveOutsideWorkspace": "需要查看目录所有文件（工作区外）",
+		"didViewRecursiveOutsideWorkspace": "已查看目录所有文件（工作区外）",
+		"wantsToViewDefinitionsOutsideWorkspace": "CoStrict想查看此目录中使用的源代码定义名称（工作区外）",
+		"didViewDefinitionsOutsideWorkspace": "CoStrict已查看此目录中使用的源代码定义名称（工作区外）"
+	},
+	"mcp": {
+		"wantsToUseTool": "CoStrict 想要在{{serverName}} MCP服务器上使用工具：",
+		"wantsToAccessResource": "CoStrict 想要访问{{serverName}} MCP服务器上的资源："
+	},
+	"modes": {
+		"wantsToSwitch": "CoStrict 想要切换到{{mode}}模式",
+		"wantsToSwitchWithReason": "CoStrict 想要切换到{{mode}}模式，因为：{{reason}}",
+		"didSwitch": "CoStrict 已切换到{{mode}}模式",
+		"didSwitchWithReason": "CoStrict 已切换到{{mode}}模式，因为：{{reason}}"
+	},
+	"subtasks": {
+		"wantsToCreate": "CoStrict 想要在{{mode}}模式下创建新子任务",
+		"wantsToFinish": "CoStrict 想要完成此子任务"
+	},
+	"questions": {
+		"hasQuestion": "CoStrict 有一个问题"
+	},
+	"troubleMessage": "CoStrict 遇到了一些问题...",
+	"browser": {
+		"rooWantsToUse": "CoStrict 想要使用浏览器"
+	},
+	"announcement": {
+		"title": "🎉 CoStrict {{version}} 已发布",
+		"description": "CoStrict {{version}} 带来基于您反馈的新功能和改进。",
+		"feature1": "<bold>消息队列</bold>: 在 CoStrict 工作时将多个消息排队，让你可以不间断地继续规划工作流程。"
+	},
+	"onboarding": "<strong>此工作区中的任务列表为空。</strong> 请在下方输入任务开始。",
+	"ask": {
+		"autoApprovedRequestLimitReached": {
+			"description": "CoStrict 已达到 {{count}} 次 API 请求的自动批准限制。您想重置计数并继续任务吗？"
+		},
+		"autoApprovedCostLimitReached": {
+			"description": "CoStrict 已经达到了${{count}}的自动批准成本限制。您想重置成本并继续任务吗？"
+		}
+	},
+	"shellIntegration": {
+		"description": "您的命令正在没有 VSCode 终端 shell 集成的情况下执行。要隐藏此警告，您可以在 <settingsLink>CoStrict 设置</settingsLink>的 <strong>Terminal</strong> 部分禁用 shell 集成，或使用下方链接排查 VSCode 终端集成问题。"
+	},
+	"task": {
+		"connectToCloudDescription": "登录 CoStrict Cloud 以分享任务"
+	},
+	"modeSelector": {
+		"description": "专门定制 CoStrict 行为的角色。"
+	},
+	"codebaseSearch": {
+		"wantsToSearch": "CoStrict 需要搜索代码库: <code>{{query}}</code>",
+		"wantsToSearchWithPath": "CoStrict 需要在 <code>{{path}}</code> 中搜索: <code>{{query}}</code>"
+	},
+	"rooCloudCTA": {
+		"title": "CoStrict Cloud 即将推出！",
+		"description": "在云端运行远程代理，随时随地访问任务，与他人协作等更多功能。"
+	},
+	"copy": {
+		"errorDetail": "点我复制错误详情，联系管理员"
+	},
+	"slashCommand": {
+		"wantsToRun": "CoStrict 想要运行斜杠命令",
+		"didRun": "CoStrict 运行了斜杠命令"
+	},
+	"autoApprove": {
+		"triggerLabelAll": "全部批准"
+	},
+	"rooTips": {
+		"test": {
+			"title": "测试",
+			"description": "自动生成并运行测试，确保代码可靠与稳定"
+		},
+		"debug": {
+			"title": "问题排障",
+			"description": "输入问题日志或故障描述，AI协助定位问题根源，并提供修复方案。"
+		},
+		"projectWiki": {
+			"title": "项目文档",
+			"description": "反推代码生成项目知识库与规则，帮助AI和人理解已有业务。Token消耗量大。"
+		},
+		"testGuide": {
+			"title": "测试方案",
+			"description": "根据项目代码，分析并生成可执行的测试方案。",
+			"initPrompt": "生成当前项目的测试方案"
+		}
+	},
+	"autoMode": {
+		"selectedLLM": "Auto 模型：{{selectedLLM}}",
+		"selectReason": "选择原因：{{selectReason}}",
+		"fallbackModel": "{{originModelId}} → {{fallbackModelId}}",
+		"fallbackModelTooltip": "备选模型已激活"
+	},
+	"multipleChoice": {
+		"confirm": "确认",
+		"skip": "跳过",
+		"singleSelect": "单选",
+		"multiSelect": "多选",
+		"questionnaire": "问卷调查",
+		"collapse": "收起",
+		"expand": "展开",
+		"headerTitle": "CoStrict 有如下问题需要您解答：",
+		"userSkipped": "已跳过",
+		"userConfirmed": "已确认",
+		"skipHint": "如果选项都不满足您的需求，<code>可以在下方输入框直接说明您的需求；</code><code>点击\"跳过\"，将跳过此问卷</code>",
+		"loading": "准备问题中...",
+		"autoSelectCountdown": "{{countdown}}秒后自动选择推荐选项…",
+		"recommended": "推荐",
+		"customAnswer": "输入自定义答案",
+		"customAnswerPlaceholder": "请输入你的答案",
+		"customAnswerRequired": "请输入自定义答案后再确认"
+	},
+	"markdown": {
+		"expandPrompt": "点击展开",
+		"collapsePrompt": "点击收起"
+	},
+	"aiContentWarning": "内容由AI生成，请仔细甄别！"
+}

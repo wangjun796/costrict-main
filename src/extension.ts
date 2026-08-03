@@ -1,0 +1,493 @@
+import * as vscode from "vscode"
+import * as dotenvx from "@dotenvx/dotenvx"
+import * as fs from "fs"
+import * as path from "path"
+import * as http from "http"
+import * as https from "https"
+import axios from "axios"
+import * as CostrictCore from "./core/costrict"
+
+// Load environment variables from .env file
+// The extension-level .env is optional (not shipped in production builds).
+// Avoid calling dotenvx when the file doesn't exist, otherwise dotenvx emits
+// a noisy [MISSING_ENV_FILE] error to the extension host console.
+const envPath = path.join(__dirname, "..", ".env")
+if (fs.existsSync(envPath)) {
+	try {
+		dotenvx.config({ path: envPath })
+	} catch (e) {
+		// Best-effort only: never fail extension activation due to optional env loading.
+		console.warn("Failed to load environment variables:", e)
+	}
+}
+
+// import type { CloudUserInfo, AuthState } from "@roo-code/types"
+// import { CloudService, BridgeOrchestrator } from "@roo-code/cloud"
+// import type { CloudUserInfo, AuthState } from "@roo-code/types"
+// import { CloudService } from "@roo-code/cloud"
+import { TelemetryService /* PostHogTelemetryClient */ } from "@roo-code/telemetry"
+import { customToolRegistry } from "@roo-code/core"
+
+import "./utils/path" // Necessary to have access to String.prototype.toPosix.
+// import { createOutputChannelLogger, createDualLogger } from "./utils/outputChannelLogger"
+import { initializeNetworkProxy } from "./utils/networkProxy"
+
+import { Package } from "./shared/package"
+import { formatLanguage } from "./shared/language"
+import { ContextProxy } from "./core/config/ContextProxy"
+import { ClineProvider } from "./core/webview/ClineProvider"
+import { DIFF_VIEW_URI_SCHEME } from "./integrations/editor/DiffViewProvider"
+import { TerminalRegistry } from "./integrations/terminal/TerminalRegistry"
+import { claudeCodeOAuthManager } from "./integrations/claude-code/oauth"
+import { openAiCodexOAuthManager } from "./integrations/openai-codex/oauth"
+import { McpServerManager } from "./services/mcp/McpServerManager"
+// import { CodeIndexManager } from "./services/code-index/manager"
+// import { MdmService } from "./services/mdm/MdmService"
+import { migrateSettings } from "./utils/migrateSettings"
+import { autoImportSettings } from "./utils/autoImportSettings"
+import { API } from "./extension/api"
+import { CostrictAuthConfig } from "./core/costrict/auth/index"
+
+import {
+	handleUri,
+	registerCommands,
+	registerCodeActions,
+	registerTerminalActions,
+	CodeActionProvider,
+} from "./activate"
+import { initializeI18n } from "./i18n"
+import { getCommand } from "./utils/commands"
+import { activateCoworkflowIntegration, deactivateCoworkflowIntegration } from "./core/costrict/workflow"
+import { defaultLang } from "./utils/language"
+import { createLogger } from "./utils/logger"
+import { loadIdeaShellEnvOnce } from "./utils/ideaShellEnvLoader"
+import { isJetbrainsPlatform } from "./utils/platform"
+import { AssistantUISidebarProvider } from "./core/cs-cloud/extension/sidebarProvider"
+import { CsCloudService } from "./core/cs-cloud/extension/csCloudService"
+import { getConfiguredUiMode } from "./shared/uiMode"
+// import { flushModels, getModels, initializeModelCacheRefresh } from "./api/providers/fetchers/modelCache"
+
+/**
+ * Built using https://github.com/microsoft/vscode-webview-ui-toolkit
+ *
+ * Inspired by:
+ *  - https://github.com/microsoft/vscode-webview-ui-toolkit-samples/tree/main/default/weather-webview
+ *  - https://github.com/microsoft/vscode-webview-ui-toolkit-samples/tree/main/frameworks/hello-world-react-cra
+ */
+
+let outputChannel: vscode.OutputChannel
+let extensionContext: vscode.ExtensionContext
+// let cloudService: CloudService | undefined
+
+// let authStateChangedHandler: ((data: { state: AuthState; previousState: AuthState }) => Promise<void>) | undefined
+// let settingsUpdatedHandler: (() => void) | undefined
+// let userInfoHandler: ((data: { userInfo: CloudUserInfo }) => Promise<void>) | undefined
+
+/**
+ * Check if we should auto-open the CoStrict sidebar after switching to a worktree.
+ * This is called during extension activation to handle the worktree auto-open flow.
+ */
+async function checkWorktreeAutoOpen(
+	context: vscode.ExtensionContext,
+	outputChannel: vscode.OutputChannel,
+): Promise<void> {
+	try {
+		const worktreeAutoOpenPath = context.globalState.get<string>("worktreeAutoOpenPath")
+		if (!worktreeAutoOpenPath) {
+			return
+		}
+
+		const workspaceFolders = vscode.workspace.workspaceFolders
+		if (!workspaceFolders || workspaceFolders.length === 0) {
+			return
+		}
+
+		const currentPath = workspaceFolders[0].uri.fsPath
+
+		// Normalize paths for comparison
+		const normalizePath = (p: string) => p.replace(/\/+$/, "").replace(/\\+/g, "/").toLowerCase()
+
+		// Check if current workspace matches the worktree path
+		if (normalizePath(currentPath) === normalizePath(worktreeAutoOpenPath)) {
+			// Clear the state first to prevent re-triggering
+			await context.globalState.update("worktreeAutoOpenPath", undefined)
+
+			outputChannel.appendLine(`[Worktree] Auto-opening CoStrict sidebar for worktree: ${worktreeAutoOpenPath}`)
+
+			// Open the CoStrict sidebar with a slight delay to ensure UI is ready
+			setTimeout(async () => {
+				try {
+					await vscode.commands.executeCommand(getCommand("plusButtonClicked"))
+				} catch (error) {
+					outputChannel.appendLine(
+						`[Worktree] Error auto-opening sidebar: ${error instanceof Error ? error.message : String(error)}`,
+					)
+				}
+			}, 500)
+		}
+	} catch (error) {
+		outputChannel.appendLine(
+			`[Worktree] Error checking worktree auto-open: ${error instanceof Error ? error.message : String(error)}`,
+		)
+	}
+}
+
+// This method is called when your extension is activated.
+// Your extension is activated the very first time the command is executed.
+export async function activate(context: vscode.ExtensionContext) {
+	extensionContext = context
+	outputChannel = createLogger(Package.outputChannel).channel
+	context.subscriptions.push(outputChannel)
+	outputChannel.appendLine(`${Package.commandIDPrefix} extension activated - ${JSON.stringify(Package)}`)
+
+	// Fix for "TypeError: j.setKeepAlive is not a function" in VS Code Electron host.
+	// axios v1.x internally uses Node's http/https agents which default to keepAlive: true.
+	// In Electron-based VS Code, the socket wrapper may not expose setKeepAlive(),
+	// causing errors on every axios request. Disabling keepAlive prevents this issue.
+	axios.defaults.httpAgent = new http.Agent({ keepAlive: false })
+	axios.defaults.httpsAgent = new https.Agent({ keepAlive: false })
+
+	// Kick off non-critical startup tasks in the background so activation can continue.
+	void initializeNetworkProxy(context, outputChannel).catch((error) => {
+		outputChannel.appendLine(
+			`[NetworkProxy] Failed to initialize network proxy: ${error instanceof Error ? error.message : String(error)}`,
+		)
+	})
+
+	// Set extension path for custom tool registry to find bundled esbuild
+	customToolRegistry.setExtensionPath(context.extensionPath)
+
+	// Migrate old settings to new without blocking activation.
+	void migrateSettings(context, outputChannel).catch((error) => {
+		outputChannel.appendLine(
+			`[SettingsMigration] Failed during startup migration: ${error instanceof Error ? error.message : String(error)}`,
+		)
+	})
+	if (isJetbrainsPlatform()) {
+		setTimeout(() => {
+			loadIdeaShellEnvOnce(context)
+		}, 1000)
+	}
+	// Initialize telemetry service.
+	TelemetryService.createInstance()
+
+	// try {
+	// 	telemetryService.register(new PostHogTelemetryClient())
+	// } catch (error) {
+	// 	console.warn("Failed to register PostHogTelemetryClient:", error)
+	// }
+
+	// // Create logger for cloud services.
+	// const cloudLogger = createDualLogger(createOutputChannelLogger(outputChannel))
+
+	// // Initialize MDM service
+	// const mdmService = await MdmService.createInstance(cloudLogger)
+
+	// Initialize i18n for internationalization support.
+	initializeI18n(context.globalState.get("language") ?? formatLanguage(await defaultLang()))
+
+	// Initialize terminal shell execution handlers.
+	TerminalRegistry.initialize()
+
+	// Initialize Claude Code OAuth manager for direct API access.
+	claudeCodeOAuthManager.initialize(context, (message) => outputChannel.appendLine(message))
+
+	// Initialize OpenAI Codex OAuth manager for ChatGPT subscription-based access.
+	openAiCodexOAuthManager.initialize(context, (message) => outputChannel.appendLine(message))
+
+	// Get default commands from configuration.
+	const defaultCommands =
+		vscode.workspace.getConfiguration(Package.commandIDPrefix).get<string[]>("allowedCommands") || []
+
+	// Initialize global state if not already set.
+	if (!context.globalState.get("allowedCommands")) {
+		context.globalState.update("allowedCommands", defaultCommands)
+	}
+
+	const contextProxy = await ContextProxy.getInstance(context)
+
+	// // Initialize code index managers for all workspace folders.
+	// const codeIndexManagers: CodeIndexManager[] = []
+
+	// if (vscode.workspace.workspaceFolders) {
+	// 	for (const folder of vscode.workspace.workspaceFolders) {
+	// 		const manager = CodeIndexManager.getInstance(context, folder.uri.fsPath)
+
+	// 		if (manager) {
+	// 			codeIndexManagers.push(manager)
+
+	// // Initialize in background; do not block extension activation
+	// void manager.initialize(contextProxy).catch((error) => {
+	// 	const message = error instanceof Error ? error.message : String(error)
+	// 	outputChannel.appendLine(
+	// 		`[CodeIndexManager] Error during background CodeIndexManager configuration/indexing for ${folder.uri.fsPath}: ${message}`,
+	// 	)
+	// })
+
+	// 			context.subscriptions.push(manager)
+	// 		}
+	// 	}
+	// }
+
+	// Determine UI mode and set context key for view visibility.
+	const uiMode = getConfiguredUiMode()
+	vscode.commands.executeCommand("setContext", `${Package.commandIDPrefix}.uiMode`, uiMode)
+	outputChannel.appendLine(`[Extension] UI mode: ${uiMode}`)
+
+	// ClineProvider is always created for API compatibility and registered
+	// as a sidebar provider. It is hidden by the "when" clause in package.json
+	// when the mode is cloud-ui.
+	// const provider = new ClineProvider(context, outputChannel, "sidebar", contextProxy, mdmService)
+	const provider = new ClineProvider(context, outputChannel, "sidebar", contextProxy)
+
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(ClineProvider.sideBarId, provider, {
+			webviewOptions: { retainContextWhenHidden: true },
+		}),
+	)
+
+	// Only register AssistantUISidebarProvider when in cloud mode to avoid
+	// unnecessary object allocation and cs-cloud service initialization.
+	if (uiMode === "cloud") {
+		// 创建单例 CsCloudService，注入给 SidebarProvider，避免多个实例竞争端口
+		const csCloudService = new CsCloudService(outputChannel)
+		context.subscriptions.push(csCloudService)
+
+		const assistantProvider = new AssistantUISidebarProvider(context, outputChannel, csCloudService)
+
+		context.subscriptions.push(
+			vscode.window.registerWebviewViewProvider(AssistantUISidebarProvider.viewType, assistantProvider, {
+				webviewOptions: { retainContextWhenHidden: true },
+			}),
+		)
+
+		// 注册 reconnect/retry 命令（命令面板 + 错误页按钮）
+		context.subscriptions.push(
+			vscode.commands.registerCommand(`${Package.commandIDPrefix}.reconnectCsCloud`, async () => {
+				try {
+					await assistantProvider.reconnectCsCloud()
+				} catch (err) {
+					outputChannel.appendLine(
+						`[cs-cloud] reconnect failed: ${err instanceof Error ? err.message : String(err)}`,
+					)
+					vscode.window.showErrorMessage(
+						`重新连接 cs-cloud 失败: ${err instanceof Error ? err.message : String(err)}`,
+					)
+				}
+			}),
+		)
+
+		// 注册 server restart 命令（独立于 reconnect/retry，不影响错误页按钮语义）
+		context.subscriptions.push(
+			vscode.commands.registerCommand(`${Package.commandIDPrefix}.restartCsCloudServer`, async () => {
+				try {
+					await assistantProvider.restartCsCloudServer()
+				} catch (err) {
+					outputChannel.appendLine(
+						`[cs-cloud] server restart failed: ${err instanceof Error ? err.message : String(err)}`,
+					)
+					vscode.window.showErrorMessage(
+						`重启 cs-cloud 服务失败: ${err instanceof Error ? err.message : String(err)}`,
+					)
+				}
+			}),
+		)
+
+		// Pre-start cs-cloud daemon when in cloud mode so it's ready by the
+		// time the user opens the sidebar.
+		void csCloudService.ensureStarted().catch(async (err) => {
+			const msg = err instanceof Error ? err.message : String(err)
+			outputChannel.appendLine(`[cs-cloud] auto-start failed: ${msg}`)
+
+			// IDEA plugin: auto-fallback to classic mode when cloud fails.
+			// In VSCode the user sees the error page in the sidebar and can
+			// manually switch; in IDEA there is no when-clause filtering and
+			// both providers stack, so falling back is the safer default.
+			if (isJetbrainsPlatform() && !csCloudService.startupFailureIsUninstallCsc) {
+				outputChannel.appendLine(`[cs-cloud] JetBrains platform detected, auto-fallback to classic mode`)
+				void vscode.window.showWarningMessage(`CoStrict Cloud 启动失败 (${msg})，已自动回退到经典模式。`)
+				try {
+					await vscode.workspace
+						.getConfiguration(Package.commandIDPrefix)
+						.update("uiMode", "classic", vscode.ConfigurationTarget.Global)
+					await vscode.commands.executeCommand("setContext", `${Package.commandIDPrefix}.uiMode`, "classic")
+				} catch (e) {
+					outputChannel.appendLine(`[cs-cloud] fallback write failed: ${e}`)
+				}
+				// Reload extension host to apply classic provider only
+				vscode.commands.executeCommand("workbench.action.reloadWindow")
+			}
+		})
+	} else if (uiMode === "classic") {
+		// Check for worktree auto-open path (set when switching to a worktree)
+		await checkWorktreeAutoOpen(context, outputChannel)
+
+		// Auto-import configuration if specified in settings, without blocking activation.
+		void autoImportSettings(outputChannel, {
+			providerSettingsManager: provider.providerSettingsManager,
+			contextProxy: provider.contextProxy,
+			customModesManager: provider.customModesManager,
+		}).catch((error) => {
+			outputChannel.appendLine(
+				`[AutoImport] Error during auto-import: ${error instanceof Error ? error.message : String(error)}`,
+			)
+		})
+	}
+
+	registerCommands({ context, outputChannel, provider })
+
+	/**
+	 * We use the text document content provider API to show the left side for diff
+	 * view by creating a virtual document for the original content. This makes it
+	 * readonly so users know to edit the right side if they want to keep their changes.
+	 *
+	 * This API allows you to create readonly documents in VSCode from arbitrary
+	 * sources, and works by claiming an uri-scheme for which your provider then
+	 * returns text contents. The scheme must be provided when registering a
+	 * provider and cannot change afterwards.
+	 *
+	 * Note how the provider doesn't create uris for virtual documents - its role
+	 * is to provide contents given such an uri. In return, content providers are
+	 * wired into the open document logic so that providers are always considered.
+	 *
+	 * https://code.visualstudio.com/api/extension-guides/virtual-documents
+	 */
+	const diffContentProvider = new (class implements vscode.TextDocumentContentProvider {
+		provideTextDocumentContent(uri: vscode.Uri): string {
+			return Buffer.from(uri.query, "base64").toString("utf-8")
+		}
+	})()
+
+	context.subscriptions.push(
+		vscode.workspace.registerTextDocumentContentProvider(DIFF_VIEW_URI_SCHEME, diffContentProvider),
+	)
+
+	context.subscriptions.push(vscode.window.registerUriHandler({ handleUri }))
+
+	// Register code actions provider.
+	context.subscriptions.push(
+		vscode.languages.registerCodeActionsProvider({ pattern: "**/*" }, new CodeActionProvider(), {
+			providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds,
+		}),
+	)
+
+	// Register the 'User Manual' command
+	context.subscriptions.push(
+		vscode.commands.registerCommand(getCommand("view.userHelperDoc"), () => {
+			vscode.env.openExternal(vscode.Uri.parse(`${CostrictAuthConfig.getInstance().getDefaultSite()}`))
+		}),
+	)
+
+	// Register the 'Report Issue' command
+	context.subscriptions.push(
+		vscode.commands.registerCommand(getCommand("view.issue"), () => {
+			vscode.env.openExternal(
+				vscode.Uri.parse(`${CostrictAuthConfig.getInstance().getDefaultApiBaseUrl()}/issue/`),
+			)
+		}),
+	)
+
+	registerCodeActions(context)
+	registerTerminalActions(context)
+
+	// Activate coworkflow integration
+	activateCoworkflowIntegration(context)
+
+	// Allows other extensions to activate once CoStrict is ready.
+	vscode.commands.executeCommand(`${Package.commandIDPrefix}.activationCompleted`)
+
+	// Implements the `RooCodeAPI` interface.
+	const socketPath = process.env.ROO_CODE_IPC_SOCKET_PATH
+	const enableLogging = typeof socketPath === "string"
+
+	// Watch the core files and automatically reload the extension host.
+	if (process.env.NODE_ENV === "development") {
+		const watchPaths = [
+			{ path: context.extensionPath, pattern: "**/*.ts" },
+			{ path: path.join(context.extensionPath, "../packages/types"), pattern: "**/*.ts" },
+			{ path: path.join(context.extensionPath, "../packages/telemetry"), pattern: "**/*.ts" },
+			{ path: path.join(context.extensionPath, "node_modules/@roo-code/cloud"), pattern: "**/*" },
+		]
+
+		console.log(
+			`♻️♻️♻️ Core auto-reloading: Watching for changes in ${watchPaths.map(({ path }) => path).join(", ")}`,
+		)
+
+		// Create a debounced reload function to prevent excessive reloads
+		let reloadTimeout: NodeJS.Timeout | undefined
+		const DEBOUNCE_DELAY = 1_000
+
+		const debouncedReload = (uri: vscode.Uri) => {
+			if (reloadTimeout) {
+				clearTimeout(reloadTimeout)
+			}
+
+			console.log(`♻️ ${uri.fsPath} changed; scheduling reload...`)
+
+			reloadTimeout = setTimeout(() => {
+				console.log(`♻️ Reloading host after debounce delay...`)
+				vscode.commands.executeCommand("workbench.action.reloadWindow")
+			}, DEBOUNCE_DELAY)
+		}
+
+		watchPaths.forEach(({ path: watchPath, pattern }) => {
+			const relPattern = new vscode.RelativePattern(vscode.Uri.file(watchPath), pattern)
+			const watcher = vscode.workspace.createFileSystemWatcher(relPattern, false, false, false)
+
+			// Listen to all change types to ensure symlinked file updates trigger reloads.
+			watcher.onDidChange(debouncedReload)
+			watcher.onDidCreate(debouncedReload)
+			watcher.onDidDelete(debouncedReload)
+
+			context.subscriptions.push(watcher)
+		})
+
+		// Clean up the timeout on deactivation
+		context.subscriptions.push({
+			dispose: () => {
+				if (reloadTimeout) {
+					clearTimeout(reloadTimeout)
+				}
+			},
+		})
+	}
+
+	void CostrictCore.activate(context, provider, outputChannel)
+	// // Initialize background model cache refresh
+	// initializeModelCacheRefresh()
+
+	return new API(outputChannel, provider, socketPath, enableLogging)
+}
+
+// This method is called when your extension is deactivated.
+export async function deactivate() {
+	await CostrictCore.deactivate()
+	outputChannel.appendLine(`${Package.commandIDPrefix} extension deactivated`)
+
+	// if (cloudService && CloudService.hasInstance()) {
+	// 	try {
+	// 		if (authStateChangedHandler) {
+	// 			CloudService.instance.off("auth-state-changed", authStateChangedHandler)
+	// 		}
+
+	// 		if (settingsUpdatedHandler) {
+	// 			CloudService.instance.off("settings-updated", settingsUpdatedHandler)
+	// 		}
+
+	// 		if (userInfoHandler) {
+	// 			CloudService.instance.off("user-info", userInfoHandler as any)
+	// 		}
+
+	// 		outputChannel.appendLine("CloudService event handlers cleaned up")
+	// 	} catch (error) {
+	// 		outputChannel.appendLine(
+	// 			`Failed to clean up CloudService event handlers: ${error instanceof Error ? error.message : String(error)}`,
+	// 		)
+	// 	}
+	// }
+	deactivateCoworkflowIntegration()
+
+	await McpServerManager.cleanup(extensionContext)
+	TelemetryService.instance.shutdown()
+	TerminalRegistry.cleanup()
+}

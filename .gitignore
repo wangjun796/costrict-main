@@ -1,0 +1,77 @@
+.pnpm-store
+**/dist/**
+/dist/
+out
+out-*
+node_modules
+package-lock.json
+coverage/
+mock/
+.history
+.DS_Store
+.coignore
+# IDEs
+.idea
+
+# Builds
+bin/
+*.vsix
+
+# Local prompts and rules
+/local-prompts
+AGENTS.local.md
+
+# Test environment
+.test_env
+.vscode-test/
+
+# Docs
+docs/_site/
+
+# Dotenv
+.env
+.env.*
+!.env.*.sample
+
+# Logging
+logs
+*.log
+
+# Vite development
+.vite-port
+
+# Turborepo
+.turbo
+
+# IntelliJ and Qodo plugin folders
+.idea/
+.qodo/
+.vercel
+.roo/mcp.json
+
+# Qdrant
+qdrant_storage/
+.cospec
+.roo/rules/generated_rules.md
+openspec
+
+# Architect plans
+plans/
+
+# Review results
+code-review_result/
+security-review_result/
+
+roo-cli-*.tar.gz*
+zgsm-cli-*.tar.gz*
+cos-cli-*.tar.gz*
+
+# Bundled skills (generated during build)
+src/bundled-skills/
+
+.claude
+.costrict
+.gemini*
+
+# Bundled modes (generated during build)
+src/bundled-modes/

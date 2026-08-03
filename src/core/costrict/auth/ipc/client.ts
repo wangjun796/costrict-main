@@ -1,0 +1,243 @@
+import * as net from "net"
+import * as vscode from "vscode"
+import { getIPCPath } from "./utils"
+import { t } from "../../../../i18n"
+
+let client: net.Socket | null = null
+const ipcPath = getIPCPath()
+const onTokensUpdateCallbacks: ((tokens: any) => void)[] = []
+const onLogoutCallbacks: ((sessionId: string) => void)[] = []
+const onCloseWindowCallbacks: ((sessionId: string) => void)[] = []
+let isConnecting = false
+let retryTimeout: NodeJS.Timeout | null = null
+let retryCount = 0
+let forceRetryCount = 0
+let retryScheduled = false
+const MAX_RETRIES = 15
+const FORCE_MAX_RETRIES = 3
+const INITIAL_RETRY_DELAY = 1000 // 1 second
+
+export function connectIPC() {
+	if (client && !client.destroyed) {
+		return
+	}
+
+	if (isConnecting) {
+		return
+	}
+
+	isConnecting = true
+	if (retryTimeout) clearTimeout(retryTimeout)
+
+	console.log("Connecting to IPC server...")
+	client = net.createConnection({ path: ipcPath })
+
+	client.on("connect", () => {
+		console.log("Connected to IPC server.")
+		isConnecting = false
+		// Successfully connected - reset all retry counters so a future
+		// transient blip doesn't immediately re-trigger the error toast
+		// (forceRetryCount previously never reset, causing the toast to
+		// fire on every wobble after the first failure).
+		retryCount = 0
+		forceRetryCount = 0
+	})
+
+	client.on("data", (data) => {
+		try {
+			const message = JSON.parse(data.toString())
+			if (message.type === "costrict-tokens") {
+				onTokensUpdateCallbacks.forEach((cb) => cb(message.payload))
+			}
+			if (message.type === "costrict-logout") {
+				onLogoutCallbacks.forEach((cb) => cb(message.payload))
+			}
+			if (message.type === "costrict-close-window") {
+				onCloseWindowCallbacks.forEach((cb) => cb(message.payload))
+			}
+		} catch (error) {
+			console.error("Failed to parse IPC message:", error)
+		}
+	})
+
+	client.on("end", () => {
+		console.log("Disconnected from IPC server.")
+		client?.destroy()
+		client = null
+		isConnecting = false
+		scheduleRetry()
+	})
+
+	client.on("error", (err: NodeJS.ErrnoException) => {
+		console.error("IPC connection error:", err.message)
+		isConnecting = false
+		if (client) {
+			client.destroy()
+			client = null
+		}
+		// Retry on most errors with exponential backoff
+		if (err.code === "ECONNREFUSED" || err.code === "ENOENT" || err.code === "ENOTSOCK") {
+			// Server not ready or socket not created yet - retry with backoff
+			scheduleRetry()
+		} else if (err.code === "EACCES") {
+			// Permission error - don't retry
+			console.error("IPC connection failed due to permission error:", err)
+		} else {
+			// Other errors - retry with backoff
+			scheduleRetry()
+		}
+	})
+
+	function scheduleRetry() {
+		// Dedupe: both `end` and `error` may fire for the same disconnect
+		// (e.g. a RST produces ECONNRESET error followed by end). Without
+		// this guard a single disconnect burns 2 retry slots, halving the
+		// effective retry budget and making the toast appear too eagerly.
+		if (retryScheduled) {
+			return
+		}
+		retryScheduled = true
+
+		if (retryCount >= MAX_RETRIES) {
+			console.error(`IPC connection: Maximum retries (${MAX_RETRIES}) reached. Giving up.`)
+			retryScheduled = false
+			showRetryFailedNotification()
+			retryCount = 0
+			return
+		}
+
+		const delay = getRetryDelay(retryCount)
+		retryCount++
+		console.log(`IPC connection: Retrying in ${delay}ms (attempt ${retryCount}/${MAX_RETRIES})`)
+
+		if (retryTimeout) clearTimeout(retryTimeout)
+		retryTimeout = setTimeout(() => {
+			retryTimeout = null
+			retryScheduled = false
+			connectIPC()
+		}, delay)
+	}
+
+	async function showRetryFailedNotification() {
+		if (forceRetryCount <= FORCE_MAX_RETRIES) {
+			disconnectIPC()
+			connectIPC()
+			forceRetryCount++
+			return
+		}
+
+		const message = t("common:ipc.connectionFailed")
+		const reloadButton = t("common:ipc.reloadWindow")
+		const retryButton = t("common:ipc.manualRetry")
+		const result = await vscode.window.showErrorMessage(message, reloadButton, retryButton)
+
+		if (result === reloadButton) {
+			vscode.commands.executeCommand("workbench.action.reloadWindow")
+			forceRetryCount = 0
+		} else if (result === retryButton) {
+			disconnectIPC()
+			connectIPC()
+			forceRetryCount = 0
+		}
+	}
+
+	function getRetryDelay(attempt: number): number {
+		// Exponential backoff: 1s, 2s, 4s, 8s, 16s, max 30s
+		const delay = Math.min(INITIAL_RETRY_DELAY * Math.pow(2, attempt), 30000)
+		return delay
+	}
+}
+
+export function sendCostrictTokens(tokens: { state: string; access_token: string; refresh_token: string }) {
+	if (client && !client.destroyed) {
+		try {
+			const message = JSON.stringify({ type: "costrict-tokens", payload: tokens })
+			client.write(message)
+		} catch (error) {
+			console.error("Failed to send tokens over IPC:", error)
+		}
+	} else {
+		console.warn("IPC client not connected, cannot send tokens.")
+	}
+}
+
+export function sendCostrictLogout(sessionId: string) {
+	if (client && !client.destroyed) {
+		try {
+			const message = JSON.stringify({ type: "costrict-logout", payload: sessionId })
+			client.write(message)
+		} catch (error) {
+			console.error("Failed to send tokens over IPC:", error)
+		}
+	} else {
+		console.warn("IPC client not connected, cannot send tokens.")
+	}
+}
+export function sendCostrictCloseWindow(sessionId: string) {
+	if (!client || client.destroyed) {
+		return
+	}
+
+	try {
+		const message = JSON.stringify({ type: "costrict-close-window", payload: sessionId })
+		client.write(message)
+	} catch (error) {
+		console.error("Failed to send tokens over IPC:", error)
+	}
+}
+
+export function onCostrictLogout(callback: (sessionId: string) => void) {
+	onLogoutCallbacks.push(callback)
+	return {
+		dispose: () => {
+			const index = onLogoutCallbacks.indexOf(callback)
+			if (index > -1) {
+				onLogoutCallbacks.splice(index, 1)
+			}
+		},
+	}
+}
+
+export function onCloseWindow(callback: (sessionId: string) => void) {
+	onCloseWindowCallbacks.push(callback)
+	return {
+		dispose: () => {
+			const index = onCloseWindowCallbacks.indexOf(callback)
+			if (index > -1) {
+				onCloseWindowCallbacks.splice(index, 1)
+			}
+		},
+	}
+}
+
+export function onCostrictTokensUpdate(
+	callback: (tokens: { state: string; access_token: string; refresh_token: string }) => void,
+) {
+	onTokensUpdateCallbacks.push(callback)
+	return {
+		dispose: () => {
+			const index = onTokensUpdateCallbacks.indexOf(callback)
+			if (index > -1) {
+				onTokensUpdateCallbacks.splice(index, 1)
+			}
+		},
+	}
+}
+
+export function disconnectIPC() {
+	isConnecting = false
+	if (retryTimeout) {
+		clearTimeout(retryTimeout)
+		retryTimeout = null
+	}
+	retryScheduled = false
+	retryCount = 0 // Reset retry count on disconnect
+	if (client) {
+		client.destroy()
+		client = null
+	}
+}
+
+export function resetRetryCount() {
+	retryCount = 0
+}

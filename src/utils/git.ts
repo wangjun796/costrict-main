@@ -1,0 +1,665 @@
+import * as vscode from "vscode"
+import * as path from "path"
+import { createHash } from "crypto"
+import { promises as fs } from "fs"
+import { exec, execFile } from "child_process"
+import { promisify } from "util"
+
+import type { GitRepositoryInfo, GitCommit } from "@roo-code/types"
+
+import { truncateOutput } from "../integrations/misc/extract-text"
+import { excludedFileExtensions } from "./costrictUtils"
+
+const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
+
+const GIT_OUTPUT_LINE_LIMIT = 500
+interface AutoCommit {
+	(relPath: string, cwd: string, option: { model: string; editorName: string; date: string }): Promise<void>
+}
+/**
+ * Extracts git repository information from the workspace's .git directory
+ * @param workspaceRoot The root path of the workspace
+ * @returns Git repository information or empty object if not a git repository
+ */
+export async function getGitRepositoryInfo(workspaceRoot: string): Promise<GitRepositoryInfo> {
+	try {
+		const gitDir = path.join(workspaceRoot, ".git")
+
+		// Check if .git directory exists
+		try {
+			await fs.access(gitDir)
+		} catch {
+			// Not a git repository
+			return {}
+		}
+
+		const gitInfo: GitRepositoryInfo = {}
+
+		// Try to read git config file
+		try {
+			const configPath = path.join(gitDir, "config")
+			const configContent = await fs.readFile(configPath, "utf8")
+
+			// Very simple approach - just find any URL line
+			const urlMatch = configContent.match(/url\s*=\s*(.+?)(?:\r?\n|$)/m)
+
+			if (urlMatch && urlMatch[1]) {
+				const url = urlMatch[1].trim()
+				// Sanitize the URL and convert to HTTPS format for telemetry
+				gitInfo.repositoryUrl = convertGitUrlToHttps(sanitizeGitUrl(url))
+				const repositoryName = extractRepositoryName(url)
+				if (repositoryName) {
+					gitInfo.repositoryName = repositoryName
+				}
+			}
+
+			// Extract default branch (if available)
+			const branchMatch = configContent.match(/\[branch "([^"]+)"\]/i)
+			if (branchMatch && branchMatch[1]) {
+				gitInfo.defaultBranch = branchMatch[1]
+			}
+		} catch (error) {
+			// Ignore config reading errors
+		}
+
+		// Try to read HEAD file to get current branch
+		if (!gitInfo.defaultBranch) {
+			try {
+				const headPath = path.join(gitDir, "HEAD")
+				const headContent = await fs.readFile(headPath, "utf8")
+				const branchMatch = headContent.match(/ref: refs\/heads\/(.+)/)
+				if (branchMatch && branchMatch[1]) {
+					gitInfo.defaultBranch = branchMatch[1].trim()
+				}
+			} catch (error) {
+				// Ignore HEAD reading errors
+			}
+		}
+
+		return gitInfo
+	} catch (error) {
+		// Return empty object on any error
+		return {}
+	}
+}
+
+/**
+ * Converts a git URL to HTTPS format
+ * @param url The git URL to convert
+ * @returns The URL in HTTPS format, or the original URL if conversion is not possible
+ */
+export function convertGitUrlToHttps(url: string): string {
+	try {
+		// Already HTTPS, just return it
+		if (url.startsWith("https://")) {
+			return url
+		}
+
+		// Handle SSH format: git@github.com:user/repo.git -> https://github.com/user/repo.git
+		if (url.startsWith("git@")) {
+			const match = url.match(/git@([^:]+):(.+)/)
+			if (match && match.length === 3) {
+				const [, host, path] = match
+				return `https://${host}/${path}`
+			}
+		}
+
+		// Handle SSH with protocol: ssh://git@github.com/user/repo.git -> https://github.com/user/repo.git
+		if (url.startsWith("ssh://")) {
+			const match = url.match(/ssh:\/\/(?:git@)?([^\/]+)\/(.+)/)
+			if (match && match.length === 3) {
+				const [, host, path] = match
+				return `https://${host}/${path}`
+			}
+		}
+
+		// Return original URL if we can't convert it
+		return url
+	} catch {
+		// If parsing fails, return original
+		return url
+	}
+}
+
+/**
+ * Sanitizes a git URL to remove sensitive information like tokens
+ * @param url The original git URL
+ * @returns Sanitized URL
+ */
+export function sanitizeGitUrl(url: string): string {
+	try {
+		// Remove credentials from HTTPS URLs
+		if (url.startsWith("https://")) {
+			const urlObj = new URL(url)
+			// Remove username and password
+			urlObj.username = ""
+			urlObj.password = ""
+			return urlObj.toString()
+		}
+
+		// For SSH URLs, return as-is (they don't contain sensitive tokens)
+		if (url.startsWith("git@") || url.startsWith("ssh://")) {
+			return url
+		}
+
+		// For other formats, return as-is but remove any potential tokens
+		return url.replace(/:[a-f0-9]{40,}@/gi, "@")
+	} catch {
+		// If URL parsing fails, return original (might be SSH format)
+		return url
+	}
+}
+
+/**
+ * Extracts repository name from a git URL
+ * @param url The git URL
+ * @returns Repository name or undefined
+ */
+export function extractRepositoryName(url: string): string {
+	try {
+		// Handle different URL formats
+		const patterns = [
+			// HTTPS: https://github.com/user/repo.git -> user/repo
+			/https:\/\/[^\/]+\/([^\/]+\/[^\/]+?)(?:\.git)?$/,
+			// SSH: git@github.com:user/repo.git -> user/repo
+			/git@[^:]+:([^\/]+\/[^\/]+?)(?:\.git)?$/,
+			// SSH with user: ssh://git@github.com/user/repo.git -> user/repo
+			/ssh:\/\/[^\/]+\/([^\/]+\/[^\/]+?)(?:\.git)?$/,
+		]
+
+		for (const pattern of patterns) {
+			const match = url.match(pattern)
+			if (match && match[1]) {
+				return match[1].replace(/\.git$/, "")
+			}
+		}
+
+		return ""
+	} catch {
+		return ""
+	}
+}
+
+/**
+ * Gets git repository information for the current VSCode workspace
+ * @returns Git repository information or empty object if not available
+ */
+export async function getWorkspaceGitInfo(): Promise<GitRepositoryInfo> {
+	const workspaceFolders = vscode.workspace.workspaceFolders
+	if (!workspaceFolders || workspaceFolders.length === 0) {
+		return {}
+	}
+
+	// Use the first workspace folder.
+	const workspaceRoot = workspaceFolders[0].uri.fsPath
+	return getGitRepositoryInfo(workspaceRoot)
+}
+
+async function checkGitRepo(cwd: string): Promise<boolean> {
+	try {
+		await execAsync("git rev-parse --git-dir", { cwd })
+		return true
+	} catch (error) {
+		return false
+	}
+}
+
+/**
+ * Checks if Git is installed on the system by attempting to run git --version
+ * @returns {Promise<boolean>} True if Git is installed and accessible, false otherwise
+ * @example
+ * const isGitInstalled = await checkGitInstalled();
+ * if (!isGitInstalled) {
+ *   console.log("Git is not installed");
+ * }
+ */
+export async function checkGitInstalled(): Promise<boolean> {
+	try {
+		await execAsync("git --version")
+		return true
+	} catch (error) {
+		return false
+	}
+}
+
+export async function searchCommits(query: string, cwd: string): Promise<GitCommit[]> {
+	try {
+		const isInstalled = await checkGitInstalled()
+		if (!isInstalled) {
+			console.error("Git is not installed")
+			return []
+		}
+
+		const isRepo = await checkGitRepo(cwd)
+		if (!isRepo) {
+			console.error("Not a git repository")
+			return []
+		}
+
+		// Search commits by hash or message, limiting to 15 results
+		const { stdout } = await execAsync(
+			`git log -n 15 --format="%H%n%h%n%s%n%an%n%ad" --date=short ` + `--grep="${query}" --regexp-ignore-case`,
+			{ cwd },
+		)
+
+		let output = stdout
+		if (!output.trim() && /^[a-f0-9]+$/i.test(query)) {
+			// If no results from grep search and query looks like a hash, try searching by hash
+			const { stdout: hashStdout } = await execAsync(
+				`git log -n 15 --format="%H%n%h%n%s%n%an%n%ad" --date=short ` + `--author-date-order ${query}`,
+				{ cwd },
+			).catch(() => ({ stdout: "" }))
+
+			if (!hashStdout.trim()) {
+				return []
+			}
+
+			output = hashStdout
+		}
+
+		const commits: GitCommit[] = []
+		const lines = output
+			.trim()
+			.split("\n")
+			.filter((line) => line !== "--")
+
+		for (let i = 0; i < lines.length; i += 5) {
+			commits.push({
+				hash: lines[i],
+				shortHash: lines[i + 1],
+				subject: lines[i + 2],
+				author: lines[i + 3],
+				date: lines[i + 4],
+			})
+		}
+
+		return commits
+	} catch (error) {
+		console.error("Error searching commits:", error)
+		return []
+	}
+}
+
+export async function getCommitInfo(hash: string, cwd: string): Promise<string> {
+	try {
+		const isInstalled = await checkGitInstalled()
+		if (!isInstalled) {
+			return "Git is not installed"
+		}
+
+		const isRepo = await checkGitRepo(cwd)
+		if (!isRepo) {
+			return "Not a git repository"
+		}
+
+		// Get commit info, stats, and diff separately
+		const { stdout: info } = await execAsync(`git show --format="%H%n%h%n%s%n%an%n%ad%n%b" --no-patch ${hash}`, {
+			cwd,
+		})
+		const [fullHash, shortHash, subject, author, date, body] = info.trim().split("\n")
+
+		const { stdout: stats } = await execAsync(`git show --stat --format="" ${hash}`, { cwd })
+
+		const { stdout: diff } = await execAsync(`git show --format="" ${hash}`, { cwd })
+
+		const summary = [
+			`Commit: ${shortHash} (${fullHash})`,
+			`Author: ${author}`,
+			`Date: ${date}`,
+			`\nMessage: ${subject}`,
+			body ? `\nDescription:\n${body}` : "",
+			"\nFiles Changed:",
+			stats.trim(),
+			"\nFull Changes:",
+		].join("\n")
+
+		const output = summary + "\n\n" + diff.trim()
+		return truncateOutput(output, GIT_OUTPUT_LINE_LIMIT)
+	} catch (error) {
+		console.error("Error getting commit info:", error)
+		return `Failed to get commit info: ${error instanceof Error ? error.message : String(error)}`
+	}
+}
+
+export async function getWorkingState(cwd: string): Promise<string> {
+	try {
+		const isInstalled = await checkGitInstalled()
+		if (!isInstalled) {
+			return "Git is not installed"
+		}
+
+		const isRepo = await checkGitRepo(cwd)
+		if (!isRepo) {
+			return "Not a git repository"
+		}
+
+		// Get status of working directory
+		const { stdout: status } = await execAsync("git status --short", { cwd })
+		if (!status.trim()) {
+			return "No changes in working directory"
+		}
+
+		// Get all changes (both staged and unstaged) compared to HEAD
+		const { stdout: diff } = await execAsync("git diff HEAD", { cwd })
+		const lineLimit = GIT_OUTPUT_LINE_LIMIT
+		const output = `Working directory changes:\n\n${status}\n\n${diff}`.trim()
+		return truncateOutput(output, lineLimit)
+	} catch (error) {
+		console.error("Error getting working state:", error)
+		return `Failed to get working state: ${error instanceof Error ? error.message : String(error)}`
+	}
+}
+
+/**
+ * Gets list of changed files in git (both staged and unstaged)
+ * @param cwd The working directory
+ * @returns Array of changed file paths relative to cwd
+ */
+export async function getChangedFiles(cwd: string): Promise<string[]> {
+	try {
+		const isInstalled = await checkGitInstalled()
+		if (!isInstalled) {
+			return []
+		}
+
+		const isRepo = await checkGitRepo(cwd)
+		if (!isRepo) {
+			return []
+		}
+
+		// Get list of changed files (both staged and unstaged) relative to repo root
+		const { stdout } = await execAsync("git diff --name-only HEAD", { cwd })
+		const changedFiles = stdout
+			.trim()
+			.split("\n")
+			.filter((file) => file.length > 0)
+
+		return changedFiles
+	} catch (error) {
+		console.error("Error getting changed files:", error)
+		return []
+	}
+}
+
+export const autoCommit: AutoCommit = async (relPath, cwd, option) => {
+	try {
+		const isInstalled = await checkGitInstalled()
+		if (!isInstalled) {
+			throw new Error("Git is not installed")
+		}
+
+		const isRepo = await checkGitRepo(cwd)
+		if (!isRepo) {
+			throw new Error("Not a git repository")
+		}
+
+		// Get git username
+		let username = "Unknown"
+		try {
+			const { stdout } = await execFileAsync("git", ["config", "user.name"], { cwd })
+			username = stdout.trim()
+		} catch (error) {
+			console.warn("Could not get git username, using default")
+		}
+
+		// Add the specified file. Use execFile (no shell) so relPath is passed as
+		// an argv element instead of being interpolated into a shell string — this
+		// neutralizes command injection via shell metacharacters in the filename.
+		await execFileAsync("git", ["add", relPath], { cwd })
+
+		// Generate fingerprint based on path
+		const fingerprint = createHash("sha256")
+			.update(relPath + Date.now().toString())
+			.digest("hex")
+			.substring(0, 8)
+
+		// Generate commit message with AI declaration and detailed body
+		const subject = "feat: AI generated content"
+		const body = [
+			`Model: ${option.model}`,
+			`Editor: ${option.editorName}`,
+			`Date: ${option.date}`,
+			`File: ${relPath}`,
+			`Fingerprint: ${fingerprint}`,
+		].join("\n")
+
+		const commitMessage = `${subject}\n\n${body}`
+
+		// Generate author name with AI_ prefix
+		const authorName = `AI_${username}`
+
+		// Commit with the generated message and custom author. execFile passes
+		// each argument (including commitMessage, which embeds relPath) as a
+		// separate argv element without shell interpretation.
+		await execFileAsync("git", ["-c", `user.name=${authorName}`, "commit", "-m", commitMessage], {
+			cwd,
+		})
+	} catch (error) {
+		console.error("Error during auto commit:", error)
+		throw error
+	}
+}
+
+/**
+ * Gets git status output with configurable file limit
+ * @param cwd The working directory to check git status in
+ * @param maxFiles Maximum number of file entries to include (0 = disabled)
+ * @returns Git status string or null if not a git repository
+ */
+export async function getGitStatus(cwd: string, maxFiles: number = 20): Promise<string | null> {
+	try {
+		const isInstalled = await checkGitInstalled()
+		if (!isInstalled) {
+			return null
+		}
+
+		const isRepo = await checkGitRepo(cwd)
+		if (!isRepo) {
+			return null
+		}
+
+		// Use porcelain v1 format with branch info
+		const { stdout } = await execAsync("git status --porcelain=v1 --branch", { cwd })
+
+		if (!stdout.trim()) {
+			return null
+		}
+
+		const lines = stdout.trim().split("\n")
+
+		// First line is always branch info (e.g., "## main...origin/main")
+		const branchLine = lines[0]
+		const fileLines = lines.slice(1)
+
+		// Build output with branch info and limited file entries
+		const output: string[] = [branchLine]
+
+		if (maxFiles > 0 && fileLines.length > 0) {
+			const filesToShow = fileLines.slice(0, maxFiles)
+			output.push(...filesToShow)
+
+			// Add truncation notice if needed
+			if (fileLines.length > maxFiles) {
+				output.push(`... ${fileLines.length - maxFiles} more files`)
+			}
+		}
+
+		return output.join("\n")
+	} catch (error) {
+		console.error("Error getting git status:", error)
+		return null
+	}
+}
+
+/**
+ * File change item interface for code review
+ */
+export interface FileChangeItem {
+	path: string // File relative path
+	status: string // Git status: 'A' | 'M' | 'D' | 'R' | 'C' | 'U' | '??' etc.
+	oldPath?: string // For renames/copies: original file path (relative)
+}
+
+/**
+ * Gets list of uncommitted files (both staged and unstaged)
+ * @param cwd The working directory
+ * @returns Array of file change items
+ */
+export async function getUncommittedFiles(cwd: string): Promise<FileChangeItem[]> {
+	try {
+		const isInstalled = await checkGitInstalled()
+		if (!isInstalled) {
+			return []
+		}
+
+		const isRepo = await checkGitRepo(cwd)
+		if (!isRepo) {
+			return []
+		}
+
+		// Use porcelain v1 with NUL terminators for robust parsing.
+		// - `-z` avoids quoting/escaping and handles special chars safely
+		// - `-uall` ensures untracked content is listed as files (not collapsed to directories like `?? dir/`)
+		const { stdout } = await execAsync("git status --porcelain=v1 -z -uall", { cwd })
+
+		if (!stdout.trim()) {
+			return []
+		}
+
+		const filesMap = new Map<string, FileChangeItem>()
+		// Each entry is NUL-terminated. For rename/copy, git outputs TWO paths as separate NUL-terminated fields.
+		const parts = stdout.split("\0").filter((p) => p.length > 0)
+		for (let i = 0; i < parts.length; i++) {
+			const part = parts[i]
+
+			// Format: XY<space>PATH (PATH is raw, unquoted when -z is used)
+			const match = part.match(/^(.{2})\s+(.+)$/)
+			if (!match) continue
+
+			const rawStatus = match[1] // two chars, spaces are meaningful
+			const pathA = match[2]
+
+			// Normalize untracked from "??" to "U" for UI compatibility
+			if (rawStatus.trim() === "??") {
+				filesMap.set(pathA, { path: pathA, status: "U" })
+				continue
+			}
+
+			// Handle rename/copy: consume next NUL field as the second path.
+			// We store the "new" path in `path` and keep original in `oldPath`.
+			if (rawStatus.includes("R") || rawStatus.includes("C")) {
+				const pathB = parts[i + 1]
+				if (typeof pathB === "string" && pathB.length > 0) {
+					i += 1
+
+					let newPath = pathB
+					let oldPath = pathA
+
+					// Heuristic: prefer the path that exists in working tree as the "new" path.
+					// (This avoids relying on porcelain ordering differences between versions/implementations.)
+					try {
+						await fs.stat(path.join(cwd, pathA))
+						try {
+							await fs.stat(path.join(cwd, pathB))
+							// both exist -> default to old=pathA, new=pathB
+						} catch {
+							// only A exists
+							newPath = pathA
+							oldPath = pathB
+						}
+					} catch {
+						try {
+							await fs.stat(path.join(cwd, pathB))
+							// only B exists -> default old=pathA, new=pathB
+						} catch {
+							// neither exists -> default to old=pathA, new=pathB
+						}
+					}
+
+					filesMap.set(newPath, { path: newPath, status: rawStatus, oldPath })
+					continue
+				}
+			}
+
+			filesMap.set(pathA, { path: pathA, status: rawStatus })
+		}
+
+		// Filter out files with excluded extensions
+		const result = Array.from(filesMap.values()).filter((file) => {
+			const fileName = path.basename(file.path).toLowerCase()
+			return !excludedFileExtensions.some((ext) => fileName.endsWith(ext.toLowerCase()))
+		})
+
+		return result
+	} catch (error) {
+		console.error("Error getting uncommitted files:", error)
+		return []
+	}
+}
+
+export async function addFilesIntent(cwd: string, files: string[]): Promise<string[]> {
+	if (files.length === 0) return []
+
+	try {
+		const isInstalled = await checkGitInstalled()
+		if (!isInstalled) throw new Error("Git is not installed")
+
+		const isRepo = await checkGitRepo(cwd)
+		if (!isRepo) throw new Error("Not a git repository")
+
+		const addedFiles: string[] = []
+		const batchSize = 50
+
+		for (let i = 0; i < files.length; i += batchSize) {
+			const batch = files.slice(i, i + batchSize)
+			const escapedFiles = batch.map((f) => `"${f.replace(/"/g, '\\"')}"`)
+			const fileList = escapedFiles.join(" ")
+
+			try {
+				await execAsync(`git add -N ${fileList}`, { cwd })
+				addedFiles.push(...batch)
+			} catch (error) {
+				console.error(`Error running git add -N on batch starting at index ${i}:`, error)
+			}
+		}
+
+		return addedFiles
+	} catch (error) {
+		console.error("Error in addFilesIntent:", error)
+		return []
+	}
+}
+
+export async function restoreFilesFromStaged(cwd: string, files: string[]): Promise<string[]> {
+	if (files.length === 0) return []
+
+	try {
+		const isInstalled = await checkGitInstalled()
+		if (!isInstalled) throw new Error("Git is not installed")
+
+		const isRepo = await checkGitRepo(cwd)
+		if (!isRepo) throw new Error("Not a git repository")
+
+		const unstagedFiles: string[] = []
+		const batchSize = 50
+
+		for (let i = 0; i < files.length; i += batchSize) {
+			const batch = files.slice(i, i + batchSize)
+			const escapedFiles = batch.map((f) => `"${f.replace(/"/g, '\\"')}"`)
+			const fileList = escapedFiles.join(" ")
+
+			try {
+				await execAsync(`git restore --staged ${fileList}`, { cwd })
+				unstagedFiles.push(...batch)
+			} catch (error) {
+				console.error(`Error running git restore --staged on batch starting at index ${i}:`, error)
+			}
+		}
+
+		return unstagedFiles
+	} catch (error) {
+		console.error("Error in restoreFilesFromStaged:", error)
+		return []
+	}
+}

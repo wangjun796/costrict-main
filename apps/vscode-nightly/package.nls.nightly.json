@@ -1,0 +1,11 @@
+{
+	"extension.displayName": "CoStrict Nightly",
+	"extension.displayName.long": "CoStrict Nightly",
+	"extension.description": "CoStrict Nightly - strict AI coder for enterprises, quality first, including AI Agent, AI CodeReview, AI Completion.",
+	"views.contextMenu.label": "CoStrict Nightly",
+	"views.terminalMenu.label": "CoStrict Nightly",
+	"views.activitybar.title": "CoStrict Nightly",
+	"configuration.title": "CoStrict Nightly",
+	"command.generateCommitMessage.title": "Generate Commit Message With CoStrict Nightly",
+	"views.sidebar.name": "CoStrict Nightly"
+}

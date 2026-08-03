@@ -1,0 +1,278 @@
+import path from "path"
+import delay from "delay"
+import fs from "fs/promises"
+
+import { type ClineSayTool, DEFAULT_WRITE_DELAY_MS } from "@roo-code/types"
+
+import { Task } from "../task/Task"
+import { formatResponse } from "../prompts/responses"
+import { RecordSource } from "../context-tracking/FileContextTrackerTypes"
+import { isFile } from "../../utils/fs"
+import { stripLineNumbers, everyLineHasLineNumbers } from "../../integrations/misc/extract-text"
+import { getReadablePath } from "../../utils/path"
+import { isPathOutsideWorkspace } from "../../utils/pathUtils"
+import { unescapeHtmlEntities } from "../../utils/text-normalization"
+import { EXPERIMENT_IDS, experiments } from "../../shared/experiments"
+import { convertNewFileToUnifiedDiff, computeDiffStats, sanitizeUnifiedDiff } from "../diff/stats"
+import type { ToolUse } from "../../shared/tools"
+import { TelemetryService } from "@roo-code/telemetry"
+import { getLanguage } from "../../utils/file"
+import { getRawTaskReporter } from "../costrict/telemetry"
+
+import { BaseTool, ToolCallbacks } from "./BaseTool"
+import { readFileWithEncodingDetection } from "../../utils/encoding"
+
+interface WriteToFileParams {
+	path: string
+	content: string
+}
+
+export class WriteToFileTool extends BaseTool<"write_to_file"> {
+	readonly name = "write_to_file" as const
+
+	async execute(params: WriteToFileParams, task: Task, callbacks: ToolCallbacks): Promise<void> {
+		const { pushToolResult, handleError, askApproval } = callbacks
+		const relPath = params?.path || ""
+		let newContent = params?.content || ""
+
+		if (newContent && newContent === "object") {
+			newContent = JSON.stringify(newContent)
+		}
+		if (!relPath) {
+			task.consecutiveMistakeCount++
+			task.recordToolError("write_to_file")
+			pushToolResult(await task.sayAndCreateMissingParamError("write_to_file", "path"))
+			await task.diffViewProvider.reset()
+			return
+		}
+
+		if (newContent === undefined) {
+			task.consecutiveMistakeCount++
+			task.recordToolError("write_to_file")
+			pushToolResult(await task.sayAndCreateMissingParamError("write_to_file", "content"))
+			await task.diffViewProvider.reset()
+			return
+		}
+
+		const accessAllowed = task.rooIgnoreController?.validateAccess(relPath)
+
+		if (!accessAllowed) {
+			await task.say("rooignore_error", relPath)
+			pushToolResult(formatResponse.rooIgnoreError(relPath))
+			return
+		}
+
+		const isWriteProtected = task.rooProtectedController?.isWriteProtected(relPath) || false
+
+		let fileExists: boolean
+		const absolutePath = path.resolve(task.cwd, relPath)
+
+		if (task.diffViewProvider.editType !== undefined) {
+			fileExists = task.diffViewProvider.editType === "modify"
+		} else {
+			fileExists = await isFile(absolutePath)
+			task.diffViewProvider.editType = fileExists ? "modify" : "create"
+		}
+
+		// NOTE: parent-directory creation for new files is intentionally NOT done
+		// here (pre-approval). Both code paths below create directories at the
+		// right time and track them for rollback on denial:
+		//   - diffViewProvider.open() (DiffViewProvider.ts ~line 78) creates dirs
+		//     and records them in createdDirs, reverted by revertChanges() on deny.
+		//   - diffViewProvider.saveDirectly() (DiffViewProvider.ts ~line 696)
+		//     creates dirs as part of the post-approval save.
+		// Creating dirs here would be an untracked, pre-consent filesystem
+		// side-effect outside the approval flow.
+
+		if (newContent.startsWith("```")) {
+			newContent = newContent.split("\n").slice(1).join("\n")
+		}
+
+		if (newContent.endsWith("```")) {
+			newContent = newContent.split("\n").slice(0, -1).join("\n")
+		}
+
+		if (!task.api.getModel().id.includes("claude")) {
+			newContent = unescapeHtmlEntities(newContent)
+		}
+
+		const fullPath = relPath ? path.resolve(task.cwd, relPath) : ""
+		const isOutsideWorkspace = isPathOutsideWorkspace(fullPath)
+
+		const sharedMessageProps: ClineSayTool = {
+			tool: fileExists ? "editedExistingFile" : "newFileCreated",
+			path: getReadablePath(task.cwd, relPath),
+			content: newContent,
+			isOutsideWorkspace,
+			isProtected: isWriteProtected,
+		}
+
+		try {
+			task.consecutiveMistakeCount = 0
+
+			const provider = task.providerRef.deref()
+			const state = await provider?.getState()
+			const diagnosticsEnabled = state?.diagnosticsEnabled ?? true
+			const writeDelayMs = state?.writeDelayMs ?? DEFAULT_WRITE_DELAY_MS
+			const isPreventFocusDisruptionEnabled = experiments.isEnabled(
+				state?.experiments ?? {},
+				EXPERIMENT_IDS.PREVENT_FOCUS_DISRUPTION,
+			)
+			let language = relPath
+			let changedLines = newContent.split("\n").length
+			if (isPreventFocusDisruptionEnabled) {
+				task.diffViewProvider.editType = fileExists ? "modify" : "create"
+				if (fileExists) {
+					const absolutePath = path.resolve(task.cwd, relPath)
+					task.diffViewProvider.originalContent = await readFileWithEncodingDetection(absolutePath)
+				} else {
+					task.diffViewProvider.originalContent = ""
+				}
+
+				let unified = fileExists
+					? formatResponse.createPrettyPatch(relPath, task.diffViewProvider.originalContent, newContent)
+					: convertNewFileToUnifiedDiff(newContent, relPath)
+				unified = sanitizeUnifiedDiff(unified)
+				const completeMessage = JSON.stringify({
+					...sharedMessageProps,
+					content: unified,
+					diffStats: computeDiffStats(unified) || undefined,
+				} satisfies ClineSayTool)
+
+				const didApprove = await askApproval("tool", completeMessage, undefined, isWriteProtected)
+
+				if (!didApprove) {
+					language = await getLanguage(absolutePath)
+					TelemetryService.instance.captureCodeReject(language, changedLines)
+					return
+				}
+
+				await task.diffViewProvider.saveDirectly(relPath, newContent, false, diagnosticsEnabled, writeDelayMs)
+			} else {
+				if (!task.diffViewProvider.isEditing) {
+					const partialMessage = JSON.stringify(sharedMessageProps)
+					await task.ask("tool", partialMessage, true).catch(() => {})
+					await task.diffViewProvider.open(relPath)
+				}
+
+				await task.diffViewProvider.update(
+					everyLineHasLineNumbers(newContent) ? stripLineNumbers(newContent) : newContent,
+					true,
+				)
+
+				await delay(300)
+				task.diffViewProvider.scrollToFirstDiff()
+
+				let unified = fileExists
+					? formatResponse.createPrettyPatch(relPath, task.diffViewProvider.originalContent, newContent)
+					: convertNewFileToUnifiedDiff(newContent, relPath)
+				unified = sanitizeUnifiedDiff(unified)
+				const completeMessage = JSON.stringify({
+					...sharedMessageProps,
+					content: unified,
+					diffStats: computeDiffStats(unified) || undefined,
+				} satisfies ClineSayTool)
+
+				const didApprove = await askApproval("tool", completeMessage, undefined, isWriteProtected)
+
+				if (!didApprove) {
+					await task.diffViewProvider.revertChanges()
+					language = await getLanguage(absolutePath)
+					TelemetryService.instance.captureCodeReject(language, changedLines)
+					return
+				}
+
+				await task.diffViewProvider.saveChanges(diagnosticsEnabled, writeDelayMs)
+			}
+
+			if (relPath) {
+				await task.fileContextTracker.trackFileContext(relPath, "roo_edited" as RecordSource)
+			}
+			getRawTaskReporter()?.captureDiffEntry(task.taskId, {
+				label: relPath,
+				before: task.diffViewProvider.originalContent || "",
+				after: newContent,
+			})
+
+			task.didEditFile = true
+
+			const message = await task.diffViewProvider.pushToolWriteResult(task, task.cwd, !fileExists)
+
+			pushToolResult(message)
+
+			await task.diffViewProvider.reset()
+			this.resetPartialState()
+
+			task.processQueuedMessages()
+			TelemetryService.instance.captureCodeAccept(language, changedLines)
+			return
+		} catch (error) {
+			await handleError("writing file", error as Error)
+			await task.diffViewProvider.reset()
+			this.resetPartialState()
+			return
+		}
+	}
+
+	override async handlePartial(task: Task, block: ToolUse<"write_to_file">): Promise<void> {
+		const relPath: string | undefined = block.params.path
+		let newContent: string | undefined = block.params.content
+
+		// Wait for path to stabilize before showing UI (prevents truncated paths)
+		if (!this.hasPathStabilized(relPath) || newContent === undefined) {
+			return
+		}
+
+		const provider = task.providerRef.deref()
+		const state = await provider?.getState()
+		const isPreventFocusDisruptionEnabled = experiments.isEnabled(
+			state?.experiments ?? {},
+			EXPERIMENT_IDS.PREVENT_FOCUS_DISRUPTION,
+		)
+
+		if (isPreventFocusDisruptionEnabled) {
+			return
+		}
+
+		// relPath is guaranteed non-null after hasPathStabilized
+		let fileExists: boolean
+		const absolutePath = path.resolve(task.cwd, relPath!)
+
+		if (task.diffViewProvider.editType !== undefined) {
+			fileExists = task.diffViewProvider.editType === "modify"
+		} else {
+			fileExists = await isFile(absolutePath)
+			task.diffViewProvider.editType = fileExists ? "modify" : "create"
+		}
+
+		// NOTE: parent-directory creation is deferred to diffViewProvider.open()
+		// below (which tracks createdDirs for rollback on denial). Doing it here
+		// would be an untracked pre-approval filesystem side-effect.
+		const isWriteProtected = task.rooProtectedController?.isWriteProtected(relPath!) || false
+		const isOutsideWorkspace = isPathOutsideWorkspace(absolutePath)
+
+		const sharedMessageProps: ClineSayTool = {
+			tool: fileExists ? "editedExistingFile" : "newFileCreated",
+			path: getReadablePath(task.cwd, relPath!),
+			content: newContent || "",
+			isOutsideWorkspace,
+			isProtected: isWriteProtected,
+		}
+
+		const partialMessage = JSON.stringify(sharedMessageProps)
+		await task.ask("tool", partialMessage, block.partial).catch(() => {})
+
+		if (newContent) {
+			if (!task.diffViewProvider.isEditing) {
+				await task.diffViewProvider.open(relPath!)
+			}
+
+			await task.diffViewProvider.update(
+				everyLineHasLineNumbers(newContent) ? stripLineNumbers(newContent) : newContent,
+				false,
+			)
+		}
+	}
+}
+
+export const writeToFileTool = new WriteToFileTool()

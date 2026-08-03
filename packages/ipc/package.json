@@ -1,0 +1,22 @@
+{
+	"name": "@roo-code/ipc",
+	"description": "IPC server and client for remote CoStrict access.",
+	"version": "0.0.1",
+	"type": "module",
+	"exports": "./src/index.ts",
+	"scripts": {
+		"lint": "eslint src --ext=ts --max-warnings=0",
+		"check-types": "tsc --noEmit",
+		"clean": "rimraf .turbo"
+	},
+	"dependencies": {
+		"@roo-code/types": "workspace:^",
+		"@node-ipc/node-ipc": "11.0.3"
+	},
+	"devDependencies": {
+		"@roo-code/config-eslint": "workspace:^",
+		"@roo-code/config-typescript": "workspace:^",
+		"@types/node": "20.x",
+		"vitest": "^3.2.3"
+	}
+}

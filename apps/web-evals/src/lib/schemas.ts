@@ -1,0 +1,52 @@
+import { z } from "zod"
+
+import { rooCodeSettingsSchema } from "@roo-code/types"
+
+/**
+ * ExecutionMethod
+ */
+
+export const executionMethodSchema = z.enum(["vscode", "cli"])
+export type ExecutionMethod = z.infer<typeof executionMethodSchema>
+
+/**
+ * CreateRun
+ */
+
+export const CONCURRENCY_MIN = 1
+export const CONCURRENCY_MAX = 25
+export const CONCURRENCY_DEFAULT = 1
+
+export const TIMEOUT_MIN = 5
+export const TIMEOUT_MAX = 10
+export const TIMEOUT_DEFAULT = 5
+
+export const ITERATIONS_MIN = 1
+export const ITERATIONS_MAX = 10
+export const ITERATIONS_DEFAULT = 1
+
+export const createRunSchema = z
+	.object({
+		model: z.string().min(1, { message: "Model is required." }),
+		description: z.string().optional(),
+		suite: z.enum(["full", "partial"]),
+		exercises: z.array(z.string()).optional(),
+		settings: rooCodeSettingsSchema.optional(),
+		concurrency: z.number().int().min(CONCURRENCY_MIN).max(CONCURRENCY_MAX),
+		timeout: z.number().int().min(TIMEOUT_MIN).max(TIMEOUT_MAX),
+		iterations: z.number().int().min(ITERATIONS_MIN).max(ITERATIONS_MAX),
+		// Restrict to a safe character set. jobToken is eventually interpolated
+		// into shell/docker argv; rejecting shell metacharacters here is defense
+		// in depth on top of the non-shell execa call in processTask.ts.
+		jobToken: z
+			.string()
+			.regex(/^[A-Za-z0-9._-]+$/, "Roo Code Cloud Token contains invalid characters.")
+			.optional(),
+		executionMethod: executionMethodSchema,
+	})
+	.refine((data) => data.suite === "full" || (data.exercises || []).length > 0, {
+		message: "Exercises are required when running a partial suite.",
+		path: ["exercises"],
+	})
+
+export type CreateRun = z.infer<typeof createRunSchema>

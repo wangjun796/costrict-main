@@ -1,0 +1,156 @@
+import axios from "axios"
+import * as vscode from "vscode"
+import type { INotice, INoticesResponse } from "@roo-code/types"
+import { ClineProvider } from "../../webview/ClineProvider"
+import { CostrictAuthConfig } from "../auth"
+import { t } from "../../../i18n"
+import { getClientId } from "../../../utils/getClientId"
+
+export class NotificationService {
+	private provider: ClineProvider | null = null
+	private static instance: NotificationService
+	private fetchTimer: NodeJS.Timeout | null = null
+	private readonly FETCH_INTERVAL = 60 * 60 * 1000 // 1 hour in milliseconds
+	private isInitialized = false
+
+	private constructor() {}
+
+	public static getInstance(): NotificationService {
+		if (!NotificationService.instance) {
+			NotificationService.instance = new NotificationService()
+		}
+		return NotificationService.instance
+	}
+
+	public async initialize(provider: ClineProvider): Promise<void> {
+		this.provider = provider
+		if (this.isInitialized) {
+			return
+		}
+		this.isInitialized = true
+		// Start periodic fetching and defer the initial network request so activation is not blocked.
+		this.startPeriodicFetch()
+		setTimeout(() => {
+			void this.fetchAndProcessNotices("initialization")
+		}, 1000)
+	}
+
+	private async fetchAndProcessNotices(source: string): Promise<void> {
+		try {
+			const response = await this.fetchNotices()
+			await this.processAndSendNotices(response.notices || [])
+		} catch (error) {
+			console.warn(`Failed to fetch notices during ${source}:`, error)
+		}
+	}
+
+	/**
+	 * Start periodic fetching of notices
+	 */
+	private startPeriodicFetch(): void {
+		// Clear existing timer if any
+		this.stopPeriodicFetch()
+		// Set up interval to fetch every hour
+		this.fetchTimer = setInterval(() => {
+			void this.fetchAndProcessNotices("periodic refresh")
+		}, this.FETCH_INTERVAL)
+	}
+
+	/**
+	 * Stop periodic fetching of notices
+	 */
+	public stopPeriodicFetch(): void {
+		if (this.fetchTimer) {
+			clearInterval(this.fetchTimer)
+			this.fetchTimer = null
+		}
+	}
+
+	/**
+	 * Fetch notices from remote
+	 * @returns Promise<INoticesResponse> Remote notices data
+	 */
+	public async fetchNotices(): Promise<INoticesResponse> {
+		if (!this.provider) {
+			throw new Error("NotificationService not initialized")
+		}
+		const { language, apiConfiguration } = await this.provider.getState()
+		const baseUrl = apiConfiguration.costrictBaseUrl || CostrictAuthConfig.getInstance().getDefaultApiBaseUrl()
+		const response = await axios.get(`${baseUrl}/costrict-static/announcement/announcement_${language}.json`, {
+			headers: {
+				"zgsm-request-id": getClientId(),
+			},
+		})
+		return response.data
+	}
+
+	/**
+	 * Process notices and send to webview
+	 * Filters and sends "always" type notices, can be extended for "once" type logic
+	 */
+	private async processAndSendNotices(notices: INotice[]): Promise<void> {
+		if (!this.provider) {
+			return
+		}
+
+		// Filter notices with type "always" and send to webview
+		const alwaysNotices = notices.filter((notice) => notice.type === "always")
+		if (alwaysNotices.length > 0) {
+			await this.provider.postMessageToWebview({
+				type: "costrictNotices",
+				notices: alwaysNotices,
+			})
+		}
+
+		// Handle "once" type notices
+		const onceNotices = notices.filter((notice) => notice.type === "once")
+		if (onceNotices.length > 0) {
+			await this.processOnceNotices(onceNotices)
+		}
+	}
+
+	/**
+	 * Process "once" type notices
+	 * Shows VS Code message dialog for notices that haven't been clicked and aren't expired
+	 */
+	private async processOnceNotices(notices: INotice[]): Promise<void> {
+		if (!this.provider) {
+			return
+		}
+		// Get clicked notices from storage
+		let clickedNotices = (this.provider.getValue("clickedOnceNotices") as number[]) || []
+		const currentTime = Math.floor(Date.now() / 1000) // Current time in seconds
+
+		// Filter notices that should be shown
+		const noticesToShow = notices.filter((notice) => {
+			// Check if already clicked
+			if (clickedNotices.includes(notice.timestamp)) {
+				return false
+			}
+
+			// Check if expired
+			// If expired === 0, the notice never expires
+			if (notice.expired > 0) {
+				const expirationTime = notice.timestamp + notice.expired
+				if (currentTime > expirationTime) {
+					return false
+				}
+			}
+
+			return true
+		})
+
+		// Show each notice in VS Code message dialog
+		for (const notice of noticesToShow) {
+			const confirmText = t("common:notification.confirm")
+			const result = await vscode.window.showInformationMessage(notice.content, confirmText)
+
+			// If user clicked confirmText, mark as clicked
+			if (result === confirmText) {
+				// Add timestamp to clicked notices list
+				clickedNotices = [...clickedNotices, notice.timestamp]
+				await this.provider.setValue("clickedOnceNotices", clickedNotices)
+			}
+		}
+	}
+}
