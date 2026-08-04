@@ -1,4 +1,4 @@
-# CoStrict Commit Message 规范
+# ssdAgent Commit Message 规范
 
 我们遵循 Angular 规范，该规范对 Git commit 的格式有非常精确的规则，使提交历史更易于阅读。
 

@@ -109,6 +109,6 @@ describe("registerCommands", () => {
 		const result = getVisibleProviderOrLog(mockOutputChannel)
 
 		expect(result).toBeUndefined()
-		expect(mockOutputChannel.appendLine).toHaveBeenCalledWith("Cannot find any visible CoStrict instances.")
+		expect(mockOutputChannel.appendLine).toHaveBeenCalledWith("Cannot find any visible ssdAgent instances.")
 	})
 })

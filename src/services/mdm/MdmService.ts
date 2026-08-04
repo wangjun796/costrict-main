@@ -147,14 +147,14 @@ export class MdmService {
 
 		switch (platform) {
 			case "win32": {
-				// Windows: %ProgramData%\CoStrict\mdm.json or mdm.dev.json
+				// Windows: %ProgramData%\ssdAgent\mdm.json or mdm.dev.json
 				const programData = process.env.PROGRAMDATA || "C:\\ProgramData"
-				return path.join(programData, "CoStrict", configFileName)
+				return path.join(programData, "ssdAgent", configFileName)
 			}
 
 			case "darwin":
-				// macOS: /Library/Application Support/CoStrict/mdm.json or mdm.dev.json
-				return `/Library/Application Support/CoStrict/${configFileName}`
+				// macOS: /Library/Application Support/ssdAgent/mdm.json or mdm.dev.json
+				return `/Library/Application Support/ssdAgent/${configFileName}`
 
 			case "linux":
 			default:

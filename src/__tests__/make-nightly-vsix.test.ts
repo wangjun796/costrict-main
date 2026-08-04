@@ -29,7 +29,7 @@ describe("make-nightly-vsix patchPackageJson", () => {
 			name: "zgsm-nightly",
 			publisher: "zgsm-ai",
 			version: "0.0.1-nightly",
-			displayName: "CoStrict Nightly",
+			displayName: "ssdAgent Nightly",
 			description: "nightly build for costrict",
 			command: "costrict.openPanel",
 			author: { name: "unexpected-author" },
@@ -49,7 +49,7 @@ describe("make-nightly-vsix patchPackageJson", () => {
 		expect(patchedPackage.name).toBe("zgsm-nightly")
 		expect(patchedPackage.publisher).toBe("zgsm-ai")
 		expect(patchedPackage.version).toBe(sourcePackageJson.version)
-		expect(patchedPackage.displayName).toBe("CoStrict Nightly")
+		expect(patchedPackage.displayName).toBe("ssdAgent Nightly")
 		expect(patchedPackage.description).toBe("nightly build for costrict-nightly")
 		expect(patchedPackage.command).toBe("costrict-nightly.openPanel")
 		expect(patchedPackage.author).toEqual({ name: "zgsm-ai" })
@@ -85,8 +85,8 @@ describe("make-nightly-vsix patchPackageJson", () => {
 <PackageManifest>
 	<Metadata>
 		<Identity Language="en-US" Id="zgsm-nightly" Version="3.0.0" Publisher="zgsm-ai" />
-		<DisplayName>CoStrict</DisplayName>
-		<Description xml:space="preserve">CoStrict - strict AI coder for enterprises, quality first, including AI Agent, AI CodeReview, AI Completion.</Description>
+		<DisplayName>ssdAgent</DisplayName>
+		<Description xml:space="preserve">ssdAgent - strict AI coder for enterprises, quality first, including AI Agent, AI CodeReview, AI Completion.</Description>
 	</Metadata>
 </PackageManifest>`,
 		)
@@ -94,15 +94,11 @@ describe("make-nightly-vsix patchPackageJson", () => {
 		patchVsixManifest(tempDir)
 
 		const patchedManifest = fs.readFileSync(manifestPath, "utf8")
+		expect(patchedManifest).toContain("<DisplayName>ssdAgent Nightly</DisplayName>")
 		expect(patchedManifest).toContain(
-			"<DisplayName>CoStrict Nightly</DisplayName>",
+			'<Description xml:space="preserve">ssdAgent Nightly - strict AI coder for enterprises, quality first, including AI Agent, AI CodeReview, AI Completion.</Description>',
 		)
-		expect(patchedManifest).toContain(
-			'<Description xml:space="preserve">CoStrict Nightly - strict AI coder for enterprises, quality first, including AI Agent, AI CodeReview, AI Completion.</Description>',
-		)
-		expect(patchedManifest).not.toContain(
-			"<DisplayName>CoStrict</DisplayName>",
-		)
+		expect(patchedManifest).not.toContain("<DisplayName>ssdAgent</DisplayName>")
 	})
 
 	it("removes Marketplace-flagged bundled skill files recursively", () => {

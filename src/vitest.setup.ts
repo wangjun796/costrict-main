@@ -55,7 +55,7 @@ vi.mock("vscode", () => ({
 		}),
 		createTerminal: () => ({
 			exitStatus: undefined,
-			name: "CoStrict",
+			name: "ssdAgent",
 			processId: Promise.resolve(123),
 			creationOptions: {},
 			state: { isInteractedWith: true },

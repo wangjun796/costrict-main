@@ -1,5 +1,5 @@
 ---
-description: "Prepare a new release of the CoStrict CLI"
+description: "Prepare a new release of the ssdAgent CLI"
 argument-hint: "[version-description]"
 mode: code
 ---

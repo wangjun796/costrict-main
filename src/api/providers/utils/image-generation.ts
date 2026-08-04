@@ -71,7 +71,7 @@ export async function generateImageWithProvider(options: ImageGenerationOptions)
 				Authorization: `Bearer ${authToken}`,
 				"Content-Type": "application/json",
 				"HTTP-Referer": "https://github.com/zgsm-ai/costrict",
-				"X-Title": "CoStrict",
+				"X-Title": "ssdAgent",
 			},
 			body: JSON.stringify({
 				model,

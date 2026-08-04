@@ -1392,7 +1392,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				await this.providerRef.deref()?.updateTaskHistory(historyItem)
 				return true
 			} catch (error) {
-				console.error("Failed to save CoStrict messages:", error)
+				console.error("Failed to save ssdAgent messages:", error)
 				return false
 			}
 		},
@@ -1444,7 +1444,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		// simply removes the reference to this instance, but the instance is
 		// still alive until this promise resolves or rejects.)
 		if (this.abort) {
-			throw new Error(`[CoStrict#ask] task ${this.taskId}.${this.instanceId} aborted`)
+			throw new Error(`[ssdAgent#ask] task ${this.taskId}.${this.instanceId} aborted`)
 		}
 
 		let askTs: number
@@ -2054,7 +2054,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		contextTruncation?: ContextTruncation,
 	): Promise<undefined> {
 		if (this.abort) {
-			throw new Error(`[CoStrict#say] task ${this.taskId}.${this.instanceId} aborted`)
+			throw new Error(`[ssdAgent#say] task ${this.taskId}.${this.instanceId} aborted`)
 		}
 		const isRateLimitRetry =
 			this.apiConfiguration.apiProvider === "costrict" &&
@@ -2395,7 +2395,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 					// intact. The summary message carries critical metadata (isSummary, condenseId)
 					// that getEffectiveApiHistory() uses to filter out condensed messages.
 					// Removing or merging it would destroy this metadata, causing all condensed
-					// messages to become "orphaned" and restored to active status — effectively
+					// messages to become "orphaned" and restored to active status �? effectively
 					// undoing the condensation and sending the full history to the API.
 					// See: https://github.com/RooCodeInc/Roo-Code/issues/11487
 					modifiedApiConversationHistory = [...existingApiConversationHistory]
@@ -2831,7 +2831,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			const currentIncludeFileDetails = currentItem.includeFileDetails
 
 			if (this.abort) {
-				throw new Error(`[CoStrict#recursivelyMakeRooRequests] task ${this.taskId}.${this.instanceId} aborted`)
+				throw new Error(`[ssdAgent#recursivelyMakeRooRequests] task ${this.taskId}.${this.instanceId} aborted`)
 			}
 
 			// Handle mistake limit based on experiment flag
@@ -3759,7 +3759,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				// Need to call here in case the stream was aborted.
 				if (this.abort || this.abandoned) {
 					throw new Error(
-						`[CoStrict#recursivelyMakeRooRequests] task ${this.taskId}.${this.instanceId} aborted`,
+						`[ssdAgent#recursivelyMakeRooRequests] task ${this.taskId}.${this.instanceId} aborted`,
 					)
 				}
 
@@ -4569,7 +4569,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		}
 
 		// Update last request time right before making the request so that subsequent
-		// requests — even from new subtasks — will honour the provider's rate-limit.
+		// requests �? even from new subtasks �? will honour the provider's rate-limit.
 		//
 		// NOTE: When recursivelyMakeClineRequests handles rate limiting, it sets the
 		// timestamp earlier to include the environment details build. We still set it
@@ -5642,7 +5642,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			ANTHROPIC_DEFAULT_MAX_TOKENS,
 		)
 		const allowedTokens = contextWindow * (1 - TOKEN_BUFFER_PERCENTAGE) - reservedTokens
-		// Convert tokens to characters (rough estimation: 1 token ≈ 4 characters)
+		// Convert tokens to characters (rough estimation: 1 token �? 4 characters)
 		return Math.max(16_000, Math.floor(allowedTokens * 4 * 0.9))
 	}
 

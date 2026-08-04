@@ -987,7 +987,7 @@ export class CodeReviewService {
 				issue.id,
 				new vscode.MarkdownString(`${issue.title ? `### ${issue.title}\n\n` : ""}${issue.message}`),
 				vscode.CommentMode.Preview,
-				{ name: "CoStrict", iconPath },
+				{ name: "ssdAgent", iconPath },
 				undefined,
 				isJetbrainsPlatform() ? issue.id : (taskId ?? "Intial"),
 			),

@@ -1,5 +1,5 @@
 ---
-description: "Create a new release of the CoStrict extension"
+description: "Create a new release of the ssdAgent extension"
 argument-hint: patch | minor | major
 mode: code
 ---

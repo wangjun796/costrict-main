@@ -15,9 +15,9 @@
 
 <div align="center">
 
-# CoStrict
+# ssdAgent
 
-<img src="./assets/images/shenma_robot_logo_big.png" alt="CoStrict Logo" width="60">
+<img src="./assets/images/shenma_robot_logo_big.png" alt="ssdAgent Logo" width="60">
 
 **企业严肃开发的 AI 智能体伙伴**
 
@@ -29,7 +29,7 @@ English | [简体中文](./README.zh-CN.md)
 
 ---
 
-**CoStrict** 是一款免费开源的 AI 辅助编程工具，专为企业级开发场景设计。支持私有化部署，是组织级安全、标准化 AI 开发工作流的最佳选择。
+**ssdAgent** 是一款免费开源的 AI 辅助编程工具，专为企业级开发场景设计。支持私有化部署，是组织级安全、标准化 AI 开发工作流的最佳选择。
 
 ## ✨ 核心能力
 
@@ -48,7 +48,7 @@ English | [简体中文](./README.zh-CN.md)
 <table>
   <tr>
     <td align="center" width="25%">
-      <b>🌟 CoStrict Cloud</b><br><br>
+      <b>🌟 ssdAgent Cloud</b><br><br>
       <a href="https://docs.costrict.ai/cli/product-characteristics/cloud">
         <img src="https://img.shields.io/badge/Cloud-Documentation-blue?style=for-the-badge" alt="Cloud Docs">
       </a>
@@ -200,4 +200,4 @@ English | [简体中文](./README.zh-CN.md)
 
 ## 免责声明
 
-**请注意**，Sangfor, Inc. **不**对与 CoStrict 相关的任何代码、模型或其他工具、任何相关的第三方工具或任何由此产生的输出作出任何陈述或保证。您承担使用任何此类工具或输出的**所有风险**；此类工具均按**"原样"**和**"可用"**的基础提供。此类风险可能包括但不限于知识产权侵权、网络漏洞或攻击、偏见、不准确、错误、缺陷、病毒、停机、财产损失或损害和/或人身伤害。您对自己使用任何此类工具或输出负全部责任（包括但不限于其合法性、适当性和结果）。
+**请注意**，Sangfor, Inc. **不**对与 CoStssdAgent任何代码、模型或其他工具、任何相关的第三方工具或任何由此产生的输出作出任何陈述或保证。您承担使用任何此类工具或输出的**所有风险**；此类工具均按**"原样"**和**"可用"**的基础提供。此类风险可能包括但不限于知识产权侵权、网络漏洞或攻击、偏见、不准确、错误、缺陷、病毒、停机、财产损失或损害和/或人身伤害。您对自己使用任何此类工具或输出负全部责任（包括但不限于其合法性、适当性和结果）。

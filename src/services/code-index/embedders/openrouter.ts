@@ -77,7 +77,7 @@ export class OpenRouterEmbedder implements IEmbedder {
 				apiKey: apiKey,
 				defaultHeaders: {
 					"HTTP-Referer": "https://github.com/zgsm-ai/costrict.git",
-					"X-Title": "CoStrict",
+					"X-Title": "ssdAgent",
 				},
 			})
 		} catch (error) {

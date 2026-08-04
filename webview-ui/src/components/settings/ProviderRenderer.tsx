@@ -157,7 +157,7 @@ const ProviderRenderer: React.FC<ProviderRendererProps> = ({
 					selectedProviderRef.current === "costrict"
 				) {
 					setFieldRef.current("costrictModelId", corrected)
-					// Notify via the standard CoStrict provider tip (native VS Code notification),
+					// Notify via the standard ssdAgent provider tip (native VS Code notification),
 					// matching the existing tip UX instead of a custom in-dialog toast.
 					vscode.postMessage({
 						type: "costrictProviderTip",

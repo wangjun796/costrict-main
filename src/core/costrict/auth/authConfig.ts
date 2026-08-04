@@ -66,7 +66,7 @@ export class CostrictAuthConfig {
 	}
 
 	/**
-	 * Get CoStrict site
+	 * Get ssdAgent site
 	 */
 	public getDefaultSite(): string {
 		return "https://costrict.ai"

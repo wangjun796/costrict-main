@@ -224,7 +224,7 @@ async function generateIndexJson(commitSha) {
 }
 
 async function main() {
-	console.log("\n CoStrict - Downloading Builtin Review Skills\n")
+	console.log("\n ssdAgent - Downloading Builtin Review Skills\n")
 
 	await fs.mkdir(bundledSkillsDir, { recursive: true })
 

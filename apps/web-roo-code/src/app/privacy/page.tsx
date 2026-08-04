@@ -45,12 +45,12 @@ export default function Privacy() {
 			<div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
 				<div className="prose prose-lg mx-auto max-w-4xl dark:prose-invert">
 					<h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-						CoStrict Cloud Privacy Policy
+						ssdAgent Cloud Privacy Policy
 					</h1>
 					<p className="text-muted-foreground">Last Updated: September 19, 2025</p>
 
 					<p className="lead">
-						This Privacy Policy explains how CoStrict, Inc. (&quot;CoStrict,&quot; &quot;we,&quot;
+						This Privacy Policy explains how ssdAgent, Inc. (&quot;ssdAgent,&quot; &quot;we,&quot;
 						&quot;our,&quot; or &quot;us&quot;) collects, uses, and shares information when you:
 					</p>
 					<ul className="lead">
@@ -58,8 +58,8 @@ export default function Privacy() {
 							browse any page under <strong>costrict.ai</strong> (the <em>Marketing Site</em>); and/or
 						</li>
 						<li>
-							create an account for, sign in to, or otherwise use <strong>CoStrict Cloud</strong> at{" "}
-							<strong>costrict.ai</strong> or through the CoStrict extension while authenticated to that
+							create an account for, sign in to, or otherwise use <strong>ssdAgent Cloud</strong> at{" "}
+							<strong>costrict.ai</strong> or through the ssdAgent extension while authenticated to that
 							Cloud account (the <em>Cloud Service</em>).
 						</li>
 					</ul>
@@ -67,14 +67,14 @@ export default function Privacy() {
 					<div className="my-8 rounded-lg border border-border bg-muted/50 p-6">
 						<h3 className="mt-0 text-lg font-semibold">Extension‑Only Usage</h3>
 						<p className="mb-0">
-							If you run the CoStrict extension <strong>without</strong> connecting to a Cloud account,
+							If you run the ssdAgent extension <strong>without</strong> connecting to a Cloud account,
 							your data is governed by the standalone{" "}
 							<a
 								href="https://github.com/zgsm-ai/costrict/blob/main/PRIVACY.md"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="text-primary hover:underline">
-								CoStrict Extension Privacy Policy
+								ssdAgent Extension Privacy Policy
 							</a>
 							.
 						</p>
@@ -84,21 +84,21 @@ export default function Privacy() {
 					<ul>
 						<li>
 							<strong>
-								Your source code does not transit CoStrict servers unless you explicitly choose CoStrict
+								Your source code does not transit ssdAgent servers unless you explicitly choose ssdAgent
 								as a model provider (proxy mode).
 							</strong>{" "}
-							When CoStrict Cloud is your model provider, your code briefly transits CoStrict servers only
+							When ssdAgent Cloud is your model provider, your code briefly transits ssdAgent servers only
 							to forward it to the upstream model, is not stored, and is deleted immediately after
 							forwarding. Otherwise, your code is sent <strong>directly</strong>—via client‑to‑provider
-							TLS—to the model you select. CoStrict never stores, inspects, or trains on your code.
+							TLS—to the model you select. ssdAgent never stores, inspects, or trains on your code.
 						</li>
 						<li>
-							<strong>Prompts and chat snippets are collected by default</strong> in CoStrict Cloud so you
+							<strong>Prompts and chat snippets are collected by default</strong> in ssdAgent Cloud so you
 							can search and re‑use past conversations. Organization admins can disable this collection at
 							any time.
 						</li>
 						<li>
-							We collect only the data needed to operate CoStrict Cloud, do <strong>not</strong> sell
+							We collect only the data needed to operate ssdAgent Cloud, do <strong>not</strong> sell
 							customer data, and do <strong>not</strong> use your content to train models.
 						</li>
 					</ul>
@@ -172,7 +172,7 @@ export default function Privacy() {
 					<h2 className="mt-12 text-2xl font-bold">2. How We Use Information</h2>
 					<ul>
 						<li>
-							<strong>Operate & secure CoStrict Cloud</strong> (authentication, completions, abuse
+							<strong>Operate & secure ssdAgent Cloud</strong> (authentication, completions, abuse
 							prevention)
 						</li>
 						<li>
@@ -213,11 +213,11 @@ export default function Privacy() {
 										Code & files you work on
 									</td>
 									<td className="border border-border px-4 py-2">
-										Your chosen model provider (direct client → provider TLS), or CoStrict (proxy
-										mode; transit‑only) when you select CoStrict as the provider
+										Your chosen model provider (direct client → provider TLS), or CssdAgentroxy
+										mode; transit‑only) when you select ssdAgent as the provider
 									</td>
 									<td className="border border-border px-4 py-2">
-										CoStrict servers (except proxy mode; transit‑only, no storage); ad networks;
+										ssdAgent servers (except proxy mode; transit‑only, no storage); ad networks;
 										model‑training pipelines
 									</td>
 								</tr>
@@ -226,7 +226,7 @@ export default function Privacy() {
 										Prompts, chat snippets & token counts (Cloud)
 									</td>
 									<td className="border border-border px-4 py-2">
-										CoStrict Cloud (encrypted at rest)
+										ssdAgent Cloud (encrypted at rest)
 									</td>
 									<td className="border border-border px-4 py-2">Any third‑party</td>
 								</tr>
@@ -235,7 +235,7 @@ export default function Privacy() {
 										Workspace Configuration
 									</td>
 									<td className="border border-border px-4 py-2">
-										CoStrict Cloud (encrypted at rest)
+										ssdAgent Cloud (encrypted at rest)
 									</td>
 									<td className="border border-border px-4 py-2">Any third-party</td>
 								</tr>
@@ -250,7 +250,7 @@ export default function Privacy() {
 									<td className="border border-border px-4 py-2 font-medium">Payment Data</td>
 									<td className="border border-border px-4 py-2">Stripe (PCI‑DSS Level 1)</td>
 									<td className="border border-border px-4 py-2">
-										CoStrict servers (we store only the Stripe customer ID)
+										ssdAgent servers (we store only the Stripe customer ID)
 									</td>
 								</tr>
 							</tbody>
@@ -260,7 +260,7 @@ export default function Privacy() {
 					<h2 className="mt-12 text-2xl font-bold">4. Data Retention</h2>
 					<ul>
 						<li>
-							<strong>Source Code:</strong> Never stored on CoStrict servers.
+							<strong>Source Code:</strong> Never stored on ssdAgent servers.
 						</li>
 						<li>
 							<strong>Prompts & Chat Snippets:</strong> Persist in your Cloud workspace until you or your
@@ -268,7 +268,7 @@ export default function Privacy() {
 						</li>
 						<li>
 							<strong>Operational Logs & Analytics:</strong> Retained only as needed to operate and secure
-							CoStrict Cloud.
+							ssdAgent Cloud.
 						</li>
 					</ul>
 

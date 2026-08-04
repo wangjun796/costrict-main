@@ -7,7 +7,7 @@ vi.mock("../../../shared/package", () => ({
 		name: "costrict",
 		publisher: "zgsm-ai",
 		version: "1.0.0",
-		outputChannel: "CoStrict",
+		outputChannel: "ssdAgent",
 	},
 }))
 

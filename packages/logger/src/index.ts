@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { inspect } from "util"
 
-export const DEFAULT_LOGGER_NAME = "CoStrict"
+export const DEFAULT_LOGGER_NAME = "ssdAgent"
 
 /**
  * Log levels (smaller value indicates lower priority)

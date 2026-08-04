@@ -15,9 +15,9 @@
 
 <div align="center">
 
-# CoStrict
+# ssdAgent
 
-<img src="./assets/images/shenma_robot_logo_big.png" alt="CoStrict Logo" width="60">
+<img src="./assets/images/shenma_robot_logo_big.png" alt="ssdAgent Logo" width="60">
 
 **Strict AI Coder for Enterprises**
 
@@ -29,7 +29,7 @@ _Free • Open Source • Private Deployment_
 
 ---
 
-**CoStrict** is a free, open-source AI-powered coding assistant designed for enterprise-grade development. With support for private deployment, it's the optimal choice for organizations requiring secure, standardized AI development workflows.
+**ssdAgent** is a free, open-source AI-powered coding assistant designed for enterprise-grade development. With support for private deployment, it's the optimal choice for organizations requiring secure, standardized AI development workflows.
 
 ## ✨ Core Capabilities
 
@@ -48,7 +48,7 @@ _Free • Open Source • Private Deployment_
 <table>
   <tr>
     <td align="center" width="25%">
-      <b>🌟 CoStrict Cloud</b><br><br>
+      <b>🌟 ssdAgent Cloud</b><br><br>
       <a href="https://docs.costrict.ai/cli/product-characteristics/cloud">
         <img src="https://img.shields.io/badge/Cloud-Documentation-blue?style=for-the-badge" alt="Cloud Docs">
       </a>
@@ -190,4 +190,4 @@ Special thanks to our open-source partners:
 
 ## Disclaimer
 
-**Please note** that Sangfor, Inc does **not** make any representations or warranties regarding any code, models, or other tools provided or made available in connection with CoStrict, any associated third-party tools, or any resulting outputs. You assume **all risks** associated with the use of any such tools or outputs; such tools are provided on an **"AS IS"** and **"AS AVAILABLE"** basis. Such risks may include, without limitation, intellectual property infringement, cyber vulnerabilities or attacks, bias, inaccuracies, errors, defects, viruses, downtime, property loss or damage, and/or personal injury. You are solely responsible for your use of any such tools or outputs (including, without limitation, the legality, appropriateness, and results thereof).
+**Please note** that Sangfor, Inc does **not** make any representations or warranties regarding any code, models, or other tools provided or made available in connection with ssdAgent, any associated third-party tools, or any resulting outputs. You assume **all risks** associated with the use of any such tools or outputs; such tools are provided on an **"AS IS"** and **"AS AVAILABLE"** basis. Such risks may include, without limitation, intellectual property infringement, cyber vulnerabilities or attacks, bias, inaccuracies, errors, defects, viruses, downtime, property loss or damage, and/or personal injury. You are solely responsible for your use of any such tools or outputs (including, without limitation, the legality, appropriateness, and results thereof).

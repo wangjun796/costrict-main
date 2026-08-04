@@ -264,7 +264,7 @@ export function getContextMenuOptions(
 			{ type: ContextMenuOptionType.URL },
 			{ type: ContextMenuOptionType.Folder },
 			{ type: ContextMenuOptionType.File },
-			{ type: ContextMenuOptionType.Git },
+			// { type: ContextMenuOptionType.Git },
 		]
 	}
 
@@ -272,16 +272,16 @@ export function getContextMenuOptions(
 	const suggestions: ContextMenuQueryItem[] = []
 
 	// Check for top-level option matches
-	if ("git".startsWith(lowerQuery)) {
-		suggestions.push({
-			type: ContextMenuOptionType.Git,
-			label: "Git Commits",
-			description: "Search repository history",
-			icon: "$(git-commit)",
-		})
-	} else if ("git-changes".startsWith(lowerQuery)) {
-		suggestions.push(workingChanges)
-	}
+	// if ("git".startsWith(lowerQuery)) {
+	// 	suggestions.push({
+	// 		type: ContextMenuOptionType.Git,
+	// 		label: "Git Commits",
+	// 		description: "Search repository history",
+	// 		icon: "$(git-commit)",
+	// 	})
+	// } else if ("git-changes".startsWith(lowerQuery)) {
+	// 	suggestions.push(workingChanges)
+	// }
 	if ("problems".startsWith(lowerQuery)) {
 		suggestions.push({ type: ContextMenuOptionType.Problems })
 	}

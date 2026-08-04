@@ -160,7 +160,7 @@ async function testTerminalCommand(
 			executeCommand: vi.fn(),
 			cwd: vscode.Uri.file("/test/path"),
 		},
-		name: "CoStrict",
+		name: "ssdAgent",
 		processId: Promise.resolve(123),
 		creationOptions: {},
 		exitStatus: undefined,

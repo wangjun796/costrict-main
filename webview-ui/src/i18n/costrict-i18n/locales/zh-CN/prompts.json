@@ -1,9 +1,9 @@
 {
 	"modes": {
-		"createModeHelpText": "点击+创建新的自定义模式，或者直接在聊天中让 CoStrict 为您创建一个！<DocsLink>了解更多</DocsLink>"
+		"createModeHelpText": "点击+创建新的自定义模式，或者直接在聊天中让 ssdAgent 为您创建一个！<DocsLink>了解更多</DocsLink>"
 	},
 	"roleDefinition": {
-		"description": "定义 CoStrict 在此模式下的专业知识和个性。这个描述塑造了 CoStrict 如何展示自己和处理任务。"
+		"description": "定义 ssdAgent此模式下的专业知识和个性。这个描述塑造了 ssdAgent 如何展示自己和处理任务。"
 	},
 	"globalCustomInstructions": {
 		"description": "这些指令适用于所有模式。它们提供了一组基本行为，可以通过下面的模式特定指令进行增强。\n如果您希望 CoStrict 使用与编辑器显示语言（{{language}}）不同的语言思考和交流，您可以在此处指定。"
@@ -69,7 +69,7 @@
 	},
 	"createModeDialog": {
 		"roleDefinition": {
-			"description": "定义 CoStrict 在此模式下的专业知识和个性。"
+			"description": "定义 ssdAgent 在此模式下的专业知识和个性。"
 		},
 		"whenToUse": {
 			"description": "清晰描述此模式最适合的场景和任务类型"

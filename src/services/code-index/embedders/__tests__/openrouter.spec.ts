@@ -91,7 +91,7 @@ describe("OpenRouterEmbedder", () => {
 				apiKey: mockApiKey,
 				defaultHeaders: {
 					"HTTP-Referer": "https://github.com/zgsm-ai/costrict.git",
-					"X-Title": "CoStrict",
+					"X-Title": "ssdAgent",
 				},
 			})
 		})

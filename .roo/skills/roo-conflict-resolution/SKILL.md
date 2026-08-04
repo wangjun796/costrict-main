@@ -3,7 +3,7 @@ name: roo-conflict-resolution
 description: Provides comprehensive guidelines for resolving merge conflicts intelligently using git history and commit context. Use when tasks involve merge conflicts, rebasing, PR conflicts, or git conflict resolution. This skill analyzes commit messages, git blame, and code intent to make intelligent resolution decisions.
 ---
 
-# CoStrict Conflict Resolution Skill
+# ssdAgent Conflict Resolution Skill
 
 ## When to Use This Skill
 

@@ -1,6 +1,6 @@
 # Project Introduction
 
-# CoStrict Backend Deployment Tool
+# ssdAgent Backend Deployment Tool
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-required-blue.svg)](https://docs.docker.com/get-docker/)
@@ -8,7 +8,7 @@
 
 ## Project Overview
 
-CoStrict Backend Deployment Tool is an enterprise-grade AI code assistant backend service deployment solution based on Docker Compose. This project provides a complete microservices architecture, including core components such as AI gateway, identity authentication, code analysis, chat services, supporting both private deployment and cloud service modes.
+ssdAgent Backend Deployment Tool is an enterprise-grade AI code assistant backend service deployment solution based on Docker Compose. This project provides a complete microservices architecture, including core components such as AI gateway, identity authentication, code analysis, chat services, supporting both private deployment and cloud service modes.
 
 ### Core Features
 
@@ -23,7 +23,7 @@ CoStrict Backend Deployment Tool is an enterprise-grade AI code assistant backen
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   VSCode Plugin │────│   API Gateway   │────│   Backend       │
-│   (CoStrict)    │    │  (Apache APISIX) │    │  Services       │
+│   (CssdAgent  │    │  (Apache APISIX) │    │  Services       │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
                               │                        │
                        ┌─────────────────┐    ┌─────────────────┐
@@ -152,14 +152,14 @@ Configuration features:
 
 ### VSCode Plugin Configuration
 
-1. Install CoStrict VSCode extension
+1. Install ssdAgent VSCode extension
 2. Open the "Provider" page in extension settings
-3. Select API provider as "CoStrict"
+3. Select API provider as "ssdAgent"
 4. Configure backend service address:
     ```
-    CoStrict Base URL: {COSTRICT_BACKEND_BASEURL}
+    ssdAgent Base URL: {COSTRICT_BACKEND_BASEURL}
     ```
-5. Click "Login to CoStrict" to complete authentication
+5. Click "Login to ssdAgent" to complete authentication
 
 **Service Access Address**:
 
@@ -275,14 +275,12 @@ System log locations:
 ## Security Considerations
 
 1. **Production Environment Deployment**:
-
     - Change all default passwords
     - Configure HTTPS certificates
     - Enable firewall and access control
     - Regularly update system and dependency packages
 
 2. **Network Security**:
-
     - Only open necessary ports
     - Configure VPN or internal network access
     - Enable API rate limiting and protection
@@ -302,4 +300,4 @@ This project is open source under the Apache 2.0 license. See the [LICENSE](LICE
 
 ---
 
-**CoStrict** - Let AI assist your code development journey
+**ssdAgent** - Let AI assist your code development journey

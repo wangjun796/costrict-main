@@ -1,6 +1,6 @@
 {
 	"name": "@roo-code/build",
-	"description": "ESBuild utilities for CoStrict.",
+	"description": "ESBuild utilities for ssdAgent.",
 	"private": true,
 	"type": "module",
 	"main": "./dist/index.js",

@@ -1,9 +1,5 @@
 const { execSync } = require("child_process")
 const fs = require("fs")
-const readline = require("readline")
-
-// detect "yes" flags
-const autoYes = process.argv.includes("-y")
 
 // detect nightly flag
 const isNightly = process.argv.includes("--nightly")
@@ -12,20 +8,7 @@ const isNightly = process.argv.includes("--nightly")
 const editorArg = process.argv.find((arg) => arg.startsWith("--editor="))
 const defaultEditor = editorArg ? editorArg.split("=")[1] : "code"
 
-const rl = readline.createInterface({
-	input: process.stdin,
-	output: process.stdout,
-})
-
-const askQuestion = (question) => {
-	return new Promise((resolve) => {
-		rl.question(question, (answer) => {
-			resolve(answer)
-		})
-	})
-}
-
-async function main() {
+function main() {
 	try {
 		let name, version, publisher
 
@@ -49,32 +32,18 @@ async function main() {
 		const extensionId = `${publisher}.${name}`
 		const buildType = isNightly ? "Nightly" : "Regular"
 
-		console.log(`\n🚀 CoStrict VSIX Installer (${buildType})`)
+		console.log(`\n? ssdAgent VSIX Installer (${buildType})`)
 		console.log("========================")
 		console.log("\nThis script will:")
-		console.log("1. Uninstall any existing version of the CoStrict extension")
+		console.log("1. Uninstall any existing version of the ssdAgent extension")
 		console.log("2. Install the newly built VSIX package")
 		console.log(`\nExtension: ${extensionId}`)
 		console.log(`VSIX file: ${vsixFileName}`)
 
-		// Ask for editor command if not provided
+		// Use editor command from args or default to "code"
 		let editorCommand = defaultEditor
-		if (!editorArg && !autoYes) {
-			const editorAnswer = await askQuestion(
-				"\nWhich editor command to use? (code/cursor/code-insiders) [default: code]: ",
-			)
-			if (editorAnswer.trim()) {
-				editorCommand = editorAnswer.trim()
-			}
-		}
-
-		// skip prompt if auto-yes
-		const answer = autoYes ? "y" : await askQuestion("\nDo you wish to continue? (y/n): ")
-
-		if (answer.toLowerCase() !== "y") {
-			console.log("Installation cancelled.")
-			rl.close()
-			process.exit(0)
+		if (editorArg) {
+			editorCommand = editorArg.split("=")[1]
 		}
 
 		console.log(`\nProceeding with installation using '${editorCommand}' command...`)
@@ -86,22 +55,18 @@ async function main() {
 		}
 
 		if (!fs.existsSync(vsixFileName)) {
-			console.error(`\n❌ VSIX file not found: ${vsixFileName}`)
+			console.error(`\n? VSIX file not found: ${vsixFileName}`)
 			console.error("Make sure the build completed successfully")
-			rl.close()
 			process.exit(1)
 		}
 
 		execSync(`${editorCommand} --install-extension ${vsixFileName}`, { stdio: "inherit" })
 
-		console.log(`\n✅ Successfully installed extension from ${vsixFileName}`)
-		console.log("\n⚠️  IMPORTANT: You need to restart VS Code for the changes to take effect.")
+		console.log(`\n? Successfully installed extension from ${vsixFileName}`)
+		console.log("\n??  IMPORTANT: You need to restart VS Code for the changes to take effect.")
 		console.log("   Please close and reopen VS Code to use the updated extension.\n")
-
-		rl.close()
 	} catch (error) {
-		console.error("\n❌ Failed to install extension:", error.message)
-		rl.close()
+		console.error("\n? Failed to install extension:", error.message)
 		process.exit(1)
 	}
 }

@@ -12,34 +12,34 @@ interface FAQItem {
 
 const faqs: FAQItem[] = [
 	{
-		question: "What exactly is CoStrict?",
+		question: "What exactly is ssdAgent?",
 		answer: (
 			<>
-				CoStrict is an open-source, AI-powered coding assistant that runs in VS Code. It goes beyond simple
+				ssdAgent is an open-source, AI-powered coding assistant that runs in VS Code. It goes beyond simple
 				autocompletion by reading and writing across multiple files, executing commands, and adapting to your
 				workflow—like having a whole dev team right inside your editor.
 			</>
 		),
 	},
 	{
-		question: "How does CoStrict differ from Copilot, Cursor, or Windsurf?",
+		question: "How does ssdAgent differ from Copilot, Cursor, or Windsurf?",
 		answer: (
 			<>
-				CoStrict is <strong>open-source and fully customizable</strong>, letting you integrate any AI model you
+				ssdAgent is <strong>open-source and fully customizable</strong>, letting you integrate any AI model you
 				choose (e.g, OpenAI, Anthropic, local LLMs, etc.). It&apos;s built for <strong>multi-file edits</strong>
 				, so it can read, refactor, and update multiple files at once for holistic code changes. Its{" "}
 				<strong>agentic abilities</strong> go beyond a typical AI autocomplete, enabling it to run tests, open a
-				browser, and handle deeper tasks. And you&apos;re always in control: CoStrict is{" "}
+				browser, and handle deeper tasks. And you&apos;re always in control: ssdAgent is{" "}
 				<strong>permission-based</strong>, meaning you can control and approve any file changes or command
 				executions.
 			</>
 		),
 	},
 	{
-		question: "Is CoStrict really free?",
+		question: "Is ssdAgent really free?",
 		answer: (
 			<>
-				Yes! CoStrict is completely free and open-source. You&apos;ll only pay for the AI model usage if you use
+				Yes! ssdAgent is completely free and open-source. You&apos;ll only pay for the AI model usage if you use
 				a paid API (like OpenAI). If you choose free or self-hosted models, there&apos;s no cost at all.
 			</>
 		),
@@ -48,29 +48,29 @@ const faqs: FAQItem[] = [
 		question: "Will my code stay private?",
 		answer: (
 			<>
-				Yes. Because CoStrict is an extension in your local VS Code, your code never leaves your machine unless
+				Yes. Because ssdAgent is an extension in your local VS Code, your code never leaves your machine unless
 				you connect to an external AI API. Even then, you control exactly what is sent to the AI model. You can
-				use tools like .rooignore to exclude sensitive files, and you can also run CoStrict with offline/local
+				use tools like .rooignore to exclude sensitive files, and you can also run ssdAgent with offline/local
 				models for full privacy.
 			</>
 		),
 	},
 	{
-		question: "Which AI models does CoStrict support?",
+		question: "Which AI models does ssdAgent support?",
 		answer: (
 			<>
-				CoStrict is fully model-agnostic, giving you the flexibility to work with whatever AI models you prefer.
+				ssdAgent is fully model-agnostic, giving you the flexibility to work with whatever AI models you prefer.
 				It supports OpenAI models (like GPT-4o, GPT-4, and o1), Anthropic&apos;s Claude (including Claude 3.5
 				Sonnet), Google&apos;s Gemini models, and local LLMs via APIs or specialized plugins. You can even
-				connect any other model that follows CoStrict&apos;s Model Context Protocol (MCP).
+				connect any other model that follows ssdAgent&apos;s Model Context Protocol (MCP).
 			</>
 		),
 	},
 	{
-		question: "Does CoStrict support my programming language?",
+		question: "Does ssdAgent support my programming language?",
 		answer: (
 			<>
-				Likely yes! CoStrict supports a wide range of languages—Python, Java, C#, JavaScript/TypeScript, Go,
+				Likely yes! ssdAgent supports a wide range of languages—Python, Java, C#, JavaScript/TypeScript, Go,
 				Rust, etc. Since it leverages the AI model&apos;s understanding, new or lesser-known languages may also
 				work, depending on model support.
 			</>
@@ -80,7 +80,7 @@ const faqs: FAQItem[] = [
 		question: "How do I install and get started?",
 		answer: (
 			<>
-				Install CoStrict from the{" "}
+				Install ssdAgent from the{" "}
 				<a
 					href="https://marketplace.visualstudio.com/items?itemName=zgsm-ai.zgsm"
 					target="_blank"
@@ -104,11 +104,11 @@ const faqs: FAQItem[] = [
 		question: "Can it handle large, enterprise-scale projects?",
 		answer: (
 			<>
-				Absolutely. CoStrict uses efficient strategies (like partial-file analysis, summarization, or
+				Absolutely. ssdAgent uses efficient strategies (like partial-file analysis, summarization, or
 				user-specified context) to handle large codebases. Enterprises especially appreciate the on-prem or
 				self-hosted model option for compliance and security needs.{" "}
 				<Link href="/enterprise" className="text-primary underline-offset-4 hover:underline">
-					Learn more about CoStrict for enterprise.
+					Learn more about ssdAgent for enterprise.
 				</Link>
 			</>
 		),
@@ -117,25 +117,25 @@ const faqs: FAQItem[] = [
 		question: "Is it safe for enterprise use?",
 		answer: (
 			<>
-				Yes. CoStrict was built for enterprise environments. You can self-host AI models or use your own trusted
+				Yes. ssdAgent was built for enterprise environments. You can self-host AI models or use your own trusted
 				provider. All file changes and commands go through permission gating, so nothing runs without your
-				approval. And because CoStrict is fully open-source, it&apos;s auditable—you can review exactly how it
+				approval. And because ssdAgent is fully open-source, it&apos;s auditable—you can review exactly how it
 				works before deploying it.{" "}
 				<a
 					href="https://docs.roocode.com"
 					target="_blank"
 					rel="noopener noreferrer"
 					className="text-primary underline-offset-4 hover:underline">
-					Learn more about CoStrict for enterprise.
+					Learn more about ssdAgent for enterprise.
 				</a>
 			</>
 		),
 	},
 	{
-		question: "Can CoStrict run commands and tests automatically?",
+		question: "Can ssdAgent run commands and tests automatically?",
 		answer: (
 			<>
-				Yes! One of CoStrict&apos;s biggest strengths is its ability to execute commands—always optional and
+				Yes! One of ssdAgent&apos;s biggest strengths is its ability to execute commands—always optional and
 				fully permission-based. It can run terminal commands like npm install, execute your test suites, and
 				even open a web browser for integration testing when you approve it.
 			</>
@@ -145,17 +145,17 @@ const faqs: FAQItem[] = [
 		question: "What if I just want a casual coding 'vibe'?",
 		answer: (
 			<>
-				CoStrict shines for both serious enterprise development and casual &quot;vibe coding.&quot; You can ask
+				ssdAgent shines for both serious enterprise development and casual &quot;vibe coding.&quot; You can ask
 				it to quickly prototype ideas, refactor on the fly, or provide design suggestions—without a rigid,
 				step-by-step process.
 			</>
 		),
 	},
 	{
-		question: "Can I contribute to CoStrict?",
+		question: "Can I contribute to ssdAgent?",
 		answer: (
 			<>
-				Yes, please do! CoStrict is open-source on{" "}
+				Yes, please do! ssdAgent is open-source on{" "}
 				<a
 					href="https://github.com/zgsm-ai/costrict"
 					target="_blank"
@@ -254,7 +254,7 @@ export function FAQSection() {
 						}}>
 						<h2 className="text-4xl font-bold tracking-tight sm:text-5xl">Frequently Asked Questions</h2>
 						<p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-							Everything you need to know about CoStrict and how it can transform your development
+							Everything you need to know about ssdAgent and how it can transform your development
 							workflow.
 						</p>
 					</motion.div>

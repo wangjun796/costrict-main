@@ -139,12 +139,12 @@
 			},
 			{
 				"command": "costrict.reconnectCsCloud",
-				"title": "CoStrict: Reconnect CoStrict Cloud",
+				"title": "ssdAgent: Reconnect ssdAgent Cloud",
 				"category": "%configuration.title%"
 			},
 			{
 				"command": "costrict.restartCsCloudServer",
-				"title": "CoStrict: Restart CoStrict Cloud Server",
+				"title": "ssdAgent: Restart ssdAgent Cloud Server",
 				"category": "%configuration.title%"
 			},
 			{
@@ -780,7 +780,7 @@
 						"cloud"
 					],
 					"default": "classic",
-					"description": "Controls which UI mode CoStrict loads on startup. Changes apply after reloading the window."
+					"description": "Controls which UI mode ssdAgent loads on startup. Changes apply after reloading the window."
 				},
 				"costrict.csCloudBaseUrl": {
 					"type": "string",

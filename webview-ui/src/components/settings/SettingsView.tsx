@@ -11,14 +11,12 @@ import React, {
 } from "react"
 import {
 	CheckCheck,
-	GitBranch,
 	Bell,
 	Database,
 	SquareTerminal,
 	FlaskConical,
 	AlertTriangle,
 	Globe,
-	Info,
 	MessageSquare,
 	LucideIcon,
 	SquareSlash,
@@ -571,7 +569,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			{ id: "slashCommands", icon: SquareSlash },
 			{ id: "autoApprove", icon: CheckCheck },
 			{ id: "mcp", icon: Server },
-			{ id: "worktrees", icon: GitBranch },
+			// { id: "worktrees", icon: GitBranch },
 			{ id: "checkpoints", icon: GitCommitVertical },
 			{ id: "contextManagement", icon: Database },
 			{ id: "terminal", icon: SquareTerminal },
@@ -580,7 +578,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			{ id: "ui", icon: Glasses },
 			{ id: "notifications", icon: Bell },
 			{ id: "language", icon: Globe },
-			{ id: "about", icon: Info },
+			// { id: "about", icon: Info },
 		],
 		[], // No dependencies needed now
 	)

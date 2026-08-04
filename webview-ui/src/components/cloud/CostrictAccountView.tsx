@@ -378,7 +378,7 @@ const CostrictAccountViewComponent = ({ apiConfiguration, onDone }: AccountViewP
 									/>
 								) : (
 									<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-vscode-button-background to-vscode-button-hoverBackground text-vscode-button-foreground text-lg font-medium">
-										{userInfo?.name?.charAt(0) || userInfo?.email?.charAt(0) || "CoStrict"}
+										{userInfo?.name?.charAt(0) || userInfo?.email?.charAt(0) || "ssdAgent"}
 									</div>
 								)}
 							</div>
@@ -461,7 +461,7 @@ const CostrictAccountViewComponent = ({ apiConfiguration, onDone }: AccountViewP
 									maskRepeat: "no-repeat",
 									maskSize: "contain",
 								}}>
-								<img src={coLogoUri} alt="CoStrict logo" className="w-10 h-10 opacity-0" />
+								<img src={coLogoUri} alt="ssdAgent logo" className="w-10 h-10 opacity-0" />
 							</div>
 						</div>
 						<h2 className="text-lg font-semibold text-vscode-foreground mb-1">{t("account:signIn")}</h2>

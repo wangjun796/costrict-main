@@ -6,7 +6,7 @@ export async function initNotificationService(provider: ClineProvider) {
 		const notificationService = NotificationService.getInstance()
 		await notificationService.initialize(provider)
 	} catch (err) {
-		provider.log(`[CoStrict#initNotificationService] Failed to initialize notification service: ${err}`)
+		provider.log(`[ssdAgent#initNotificationService] Failed to initialize notification service: ${err}`)
 	}
 }
 

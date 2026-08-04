@@ -65,7 +65,7 @@ export default defineConfig(({ mode }) => {
 		"process.env.VSCODE_TEXTMATE_DEBUG": JSON.stringify(process.env.VSCODE_TEXTMATE_DEBUG),
 		"process.env.COSTRICT_PKG_NAME": JSON.stringify(pkg.name),
 		"process.env.COSTRICT_PKG_VERSION": JSON.stringify(pkg.version),
-		"process.env.COSTRICT_PKG_OUTPUT_CHANNEL": JSON.stringify("CoStrict"),
+		"process.env.COSTRICT_PKG_OUTPUT_CHANNEL": JSON.stringify("ssdAgent"),
 		"process.env.COSTRICT_PUBLIC_KEY": JSON.stringify(
 			process.env.COSTRICT_PUBLIC_KEY || process.env.ZGSM_PUBLIC_KEY || "",
 		),
@@ -112,6 +112,7 @@ export default defineConfig(({ mode }) => {
 			outDir,
 			emptyOutDir: true,
 			reportCompressedSize: false,
+			chunkSizeWarningLimit: 2000,
 			target: "es2022",
 			// Generate complete source maps with original TypeScript sources
 			sourcemap: mode !== "production",

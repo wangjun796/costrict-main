@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for helping improve CoStrict!
+        Thank you for helping improve ssdAgent!
         Please focus on the problem and the desired behavior in plain language.
 
   - type: textarea

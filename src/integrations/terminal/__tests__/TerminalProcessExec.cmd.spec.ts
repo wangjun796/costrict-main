@@ -98,7 +98,7 @@ async function testCmdCommand(
 			executeCommand: vi.fn(),
 			cwd: vscode.Uri.file("C:\\test\\path"),
 		},
-		name: "CoStrict",
+		name: "ssdAgent",
 		processId: Promise.resolve(123),
 		creationOptions: {},
 		exitStatus: undefined,

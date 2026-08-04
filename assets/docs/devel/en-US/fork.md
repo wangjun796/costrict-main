@@ -1,6 +1,6 @@
-# CoStrict Project Contribution Process
+# ssdAgent Project Contribution Process
 
-The CoStrict project adopts GitHub Forking workflow.
+The ssdAgent project adopts GitHub Forking workflow.
 
 Detailed steps for GitHub Forking workflow:
 
@@ -174,4 +174,4 @@ $ git push -f origin feature/add-function
 
 7. Create a pull request on your personal remote repository page.
 
-After pushing to the remote repository, you can submit a pull request to the main branch. The Maintainer of the CoStrict project will then review the code and merge it into the main branch.
+After pushing to the remote repository, you can submit a pull request to the main branch. The Maintainer of the ssdAgent project will then review the code and merge it into the main branch.

@@ -1,6 +1,6 @@
-# CoStrict Translation Guidance
+# ssdAgent Translation Guidance
 
-This file contains brand voice, tone, and word choice guidelines for CoStrict translations.
+This file contains brand voice, tone, and word choice guidelines for ssdAgent translations.
 
 ## Brand Voice
 

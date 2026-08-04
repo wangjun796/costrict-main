@@ -1,4 +1,4 @@
-name: Code QA CoStrict
+name: Code QA ssdAgent
 
 on:
     workflow_dispatch:

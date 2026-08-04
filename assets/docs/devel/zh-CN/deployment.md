@@ -1,6 +1,6 @@
 # 项目简介
 
-# CoStrict 后端部署工具
+# ssdAgent 后端部署工具
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-required-blue.svg)](https://docs.docker.com/get-docker/)
@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-CoStrict 后端部署工具是基于 Docker Compose 的企业级 AI 代码助手后端服务部署解决方案。该项目提供了完整的微服务架构，包含 AI 网关、身份认证、代码分析、聊天服务等核心组件，支持私有化部署和云端服务两种模式。
+ssdAgent 后端部署工具是基于 Docker Compose 的企业级 AI 代码助手后端服务部署解决方案。该项目提供了完整的微服务架构，包含 AI 网关、身份认证、代码分析、聊天服务等核心组件，支持私有化部署和云端服务两种模式。
 
 ### 核心特性
 
@@ -23,7 +23,7 @@ CoStrict 后端部署工具是基于 Docker Compose 的企业级 AI 代码助手
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   VSCode 插件    │────│   API Gateway   │────│   后端服务群     │
-│   (CoStrict)    │    │  (Apache APISIX) │    │  (Microservices) │
+│   (ssdAgent  │    │  (Apache APISIX) │    │  (Microservices) │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
                               │                        │
                        ┌─────────────────┐    ┌─────────────────┐
@@ -152,14 +152,14 @@ http://{COSTRICT_BACKEND}:{PORT_CASDOOR}
 
 ### VSCode 插件配置
 
-1. 安装 CoStrict VSCode 扩展
+1. 安装 ssdAgent VSCode 扩展
 2. 打开扩展设置中的"提供商"页面
-3. 选择 API 提供商为"CoStrict"
+3. 选择 API 提供商为"ssdAgent
 4. 配置后端服务地址:
     ```
-    CoStrict Base URL: {COSTRICT_BACKEND_BASEURL}
+    ssdAgent Base URL: {COSTRICT_BACKEND_BASEURL}
     ```
-5. 点击"登录 CoStrict"完成身份验证
+5. 点击"登录 ssdAgent"完成身份验证
 
 **服务访问地址**:
 
@@ -275,14 +275,12 @@ docker-compose logs postgres
 ## 安全注意事项
 
 1. **生产环境部署**:
-
     - 修改所有默认密码
     - 配置 HTTPS 证书
     - 启用防火墙和访问控制
     - 定期更新系统和依赖包
 
 2. **网络安全**:
-
     - 仅开放必要端口
     - 配置 VPN 或内网访问
     - 启用 API 限流和防护
@@ -302,4 +300,4 @@ docker-compose logs postgres
 
 ---
 
-**CoStrict** - 让 AI 助力您的代码开发之旅
+**ssdAgent** - 让 AI 助力您的代码开发之旅

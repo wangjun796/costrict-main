@@ -1,11 +1,11 @@
 {
-	"extension.displayName": "CoStrict Nightly",
-	"extension.displayName.long": "CoStrict Nightly",
-	"extension.description": "CoStrict Nightly - strict AI coder for enterprises, quality first, including AI Agent, AI CodeReview, AI Completion.",
-	"views.contextMenu.label": "CoStrict Nightly",
-	"views.terminalMenu.label": "CoStrict Nightly",
-	"views.activitybar.title": "CoStrict Nightly",
-	"configuration.title": "CoStrict Nightly",
-	"command.generateCommitMessage.title": "Generate Commit Message With CoStrict Nightly",
-	"views.sidebar.name": "CoStrict Nightly"
+	"extension.displayName": "ssdAgent Nightly",
+	"extension.displayName.long": "ssdAgent Nightly",
+	"extension.description": "ssdAgent Nightly - strict AI coder for enterprises, quality first, including AI Agent, AI CodeReview, AI Completion.",
+	"views.contextMenu.label": "ssdAgent Nightly",
+	"views.terminalMenu.label": "ssdAgent Nightly",
+	"views.activitybar.title": "ssdAgent Nightly",
+	"configuration.title": "ssdAgent Nightly",
+	"command.generateCommitMessage.title": "Generate Commit Message With ssdAgent Nightly",
+	"views.sidebar.name": "ssdAgent Nightly"
 }

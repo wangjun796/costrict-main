@@ -1,10 +1,10 @@
 ---
-description: "Translate and localize strings in the CoStrict extension"
+description: "Translate and localize strings in the ssdAgent extension"
 argument-hint: "[language-code or 'all'] [string-key or file-path]"
 mode: translate
 ---
 
-Perform translation and localization tasks for the CoStrict extension. This command activates the translation workflow with comprehensive i18n guidelines.
+Perform translation and localization tasks for the ssdAgent extension. This command activates the translation workflow with comprehensive i18n guidelines.
 
 ## Quick Start
 

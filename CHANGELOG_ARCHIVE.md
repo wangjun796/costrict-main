@@ -1,4 +1,4 @@
-# CoStrict Change Log Archive
+# ssdAgent Change Log Archive
 
 > This file contains historical version records. For the latest versions, please visit [CHANGELOG.md](./CHANGELOG.md)
 
@@ -22,13 +22,13 @@
 
 ## [3.0.10]
 
-[CoStrict Cloud](https://zgsm.sangfor.com/cloud/workspace) is an AI-powered cloud programming workspace that lets you remotely connect to your personal devices (local or private servers) from any browser. It features conversational AI programming, project file management, multi-session persistence, and remote terminal collaboration — enabling seamless browser-based remote development, real-time AI coding and debugging, and cross-device project continuity.
+[ssdAgent Cloud](https://zgsm.sangfor.com/cloud/workspace) is an AI-powered cloud programming workspace that lets you remotely connect to your personal devices (local or private servers) from any browser. It features conversational AI programming, project file management, multi-session persistence, and remote terminal collaboration — enabling seamless browser-based remote development, real-time AI coding and debugging, and cross-device project continuity.
 
 <img src="./assets/images/cloud_dashboard.png" alt="More Features" width="880">
 
 ## [2.8.15]
 
-- Enhance CoStrict code mode handling and improve error logging (#1310)
+- Enhance ssdAgent code mode handling and improve error logging (#1310)
 - Update IPC connection retry logic and improve session ID generation (#1309)
 - Pin `@types/node-ipc` version (#1308)
 - Add Qwen3 model support, lazy MCP initialization, and improve parser robustness (#1306)
@@ -49,7 +49,7 @@
 
 ## [2.8.12]
 
-- Add timeout option to CoStrict model fetching and caching (#1276)
+- Add timeout option to ssdAgent model fetching and caching (#1276)
 - Migrate pnpm config to workspace yaml and apply security overrides (#1273)
 - Fix vitest Mock type compatibility and add missing node types (#1273)
 - Add built-in skills notification
@@ -244,7 +244,7 @@
 
 ## [2.5.3]
 
-- Enhance CoStrict CLI UX with improved terminal management and user interface
+- Enhance ssdAgent CLI UX with improved terminal management and user interface
 - Add InlineToast component for better notification display
 - Add LoadingView component for improved loading state visualization
 - Update experimental settings with new configuration options
@@ -261,13 +261,13 @@
 
 ## [2.5.1]
 
-- Fix CoStrict CLI shell fallback detection on Windows and improve terminal rendering (PR #1081)
+- Fix ssdAgent CLI shell fallback detection on Windows and improve terminal rendering (PR #1081)
 - Update node-pty dependency and bundle local builds correctly
 - Fix known issues
 
 ## [2.5.0]
 
-- Enhance CoStrict CLI integration with embedded terminal support, improved context synchronization, and better clipboard paste handling (PR #1079, #1075, #1076)
+- Enhance ssdAgent CLI integration with embedded terminal support, improved context synchronization, and better clipboard paste handling (PR #1079, #1075, #1076)
 - Redesign and modernize README documentation with updated layout and styling (PR #1074, #1077, #1078)
 - Update download-bundled-skills script to include new skills and improve warning messages
 - Fix known issues
@@ -275,7 +275,7 @@
 ## [2.4.9]
 
 - Refactor: restructure modeSlugs into metadata object for better skill management (PR #1072)
-- Refactor: standardize CoStrict role definitions and reorganize prompt structure (PR #1071)
+- Refactor: standardize ssdAgent role definitions and reorganize prompt structure (PR #1071)
 - Fix known issues
 
 ## [2.4.8]
@@ -670,7 +670,7 @@
 - Optimize response render configuration, adjust streaming limit parameters to improve performance
 - Enhance ReadFileTool file reading functionality
 - Add tool protocol display feature, showing current tool protocol (Native/XML) in task header
-- Add showSpeedInfo setting option to control speed info display in UI settings (CoStrict provider only)
+- Add showSpeedInfo setting option to control speed info display in UI settings (ssdAgent provider only)
 - Update resolveToolProtocol function to simplify decision tree
 - Update test cases to reflect new tool protocol behavior
 - Update protocol resolution test logic
@@ -754,7 +754,7 @@
 ## [2.0.26]
 
 - Add multiple-choice question tool for structured user input collection
-- Enhance CoStrict provider with parallel tool calls support
+- Enhance ssdAgent provider with parallel tool calls support
 - Add MCP support to workflow modes (requirements, design, tasks, testing, code)
 - Improve terminal running state detection with platform-specific delays
 - Update architect mode instructions to use /plans directory
@@ -851,7 +851,7 @@
 - Upgraded upstream repository dependencies to resolve file-encoding security issues.
 - Improved JetBrains platform compatibility.
 - Optimized duplicate shell terminal creation (limit up to 5 terminals).
-- Added native tool support for CoStrict provider.
+- Added native tool support for ssdAgent provider.
 - Sync roocode [last commit](https://github.com/zgsm-ai/costrict/commit/8949c2f6fed704399a115bbb269ba322944984ee)
 - Fix known issues
 
@@ -973,7 +973,7 @@
 - Optimized request sending speed
 - Reduced file read/write handle usage
 - Optimized shell/non-shell integration compatibility and command execution efficiency
-- Updated brand name to CoStrict
+- Updated brand name to ssdAgent
 - Compatible with [jetbrains codereview](https://github.com/zgsm-ai/costrict-jetbrains-agent)
 - Added review mode request headers
 - Optimized static file size
@@ -1036,7 +1036,7 @@
 - Improve type definitions and global settings
 - Add AI-assisted review suggestion
 - Add commit model setting
-- Optimization CoStrict provider api performance
+- Optimization ssdAgent provider api performance
 - Fix known issues
 
 ## [1.6.19]
@@ -1107,7 +1107,7 @@
 
 ## [1.6.11]
 
-- Adds models refresh for CoStrict provider
+- Adds models refresh for ssdAgent provider
 - Add line navigation for file jumps in chat interface
 - Implement chat cancellation and improve search functionality
 - Enhance metrics loading and pushing logic in PrometheusTelemetryClient
@@ -1330,7 +1330,7 @@
 
 ## [1.4.2]
 
-- Update CoStrict provider and error handling improvements
+- Update ssdAgent provider and error handling improvements
 - Update vscode engine requirement to ^1.86.2
 
 ## [1.4.1]
