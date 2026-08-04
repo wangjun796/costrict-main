@@ -1,10 +1,13 @@
 /**
- * Download builtin review skills from costrict-review repo and generate
+ * Download builtin review skills from GitHub repos and generate
  * bundled-skills directory with multi-locale support.
  *
- * Reads index.json manifest from zgsm-ai/costrict-review to discover skills
- * and their per-locale paths. Compares remote commit SHA with cached version
- * and skips download if unchanged.
+ * Strategy:
+ * 1. If local bundled-skills/ already has complete skill files (index.json +
+ *    SKILL.md for both en/zh-CN locales), skip remote download entirely.
+ * 2. Otherwise, try to download from the remote repo.
+ * 3. If remote is unreachable and no cache exists, generate a minimal index
+ *    and continue the build.
  *
  * Usage: node scripts/generate-review-builtin.mjs
  */
@@ -21,9 +24,13 @@ const projectRoot = path.resolve(__dirname, "..")
 const bundledSkillsDir = path.join(projectRoot, "src", "bundled-skills")
 const indexFilePath = path.join(bundledSkillsDir, "index.json")
 
-const REPO = "zgsm-ai/costrict-review"
+const REPO = "wangjun796/costrict"
 const BRANCH = "main"
-const CLONE_URL = `git@github.com:${REPO}.git`
+const CLONE_URL = `https://github.com/${REPO}.git`
+
+// Skills that must exist locally for the "local mode" fast path
+const REQUIRED_SKILLS = ["review", "security-review"]
+const REQUIRED_LOCALES = ["en", "zh-CN"]
 
 function git(...args) {
 	const result = spawnSync("git", args, { encoding: "utf-8" })
@@ -104,6 +111,25 @@ async function getExtensionVersion() {
 		return pkg.version || "0.0.0"
 	} catch {
 		return "0.0.0"
+	}
+}
+
+/**
+ * Check if local bundled-skills/ has all required skill files.
+ * Returns true if index.json exists and every (locale, skill) pair has a SKILL.md.
+ */
+async function hasCompleteLocalSkills() {
+	try {
+		await fs.access(indexFilePath)
+		for (const locale of REQUIRED_LOCALES) {
+			for (const skill of REQUIRED_SKILLS) {
+				const skillMdPath = path.join(bundledSkillsDir, locale, skill, "SKILL.md")
+				await fs.access(skillMdPath)
+			}
+		}
+		return true
+	} catch {
+		return false
 	}
 }
 
@@ -198,48 +224,89 @@ async function generateIndexJson(commitSha) {
 }
 
 async function main() {
-	console.log("\n🚀 CoStrict - Downloading Builtin Review Skills\n")
+	console.log("\n CoStrict - Downloading Builtin Review Skills\n")
 
 	await fs.mkdir(bundledSkillsDir, { recursive: true })
 
-	const remoteSha = lsRemoteSha()
-	if (!remoteSha) {
-		throw new Error(`git ls-remote failed for ${CLONE_URL} (branch: ${BRANCH})`)
-	}
-	console.log(`Remote commit: ${remoteSha.slice(0, 7)}`)
+	// Fast path: if local skills are complete, skip remote download entirely
+	if (await hasCompleteLocalSkills()) {
+		console.log("✓ Local bundled-skills directory is complete, skipping remote download")
+		console.log(`✓ Using local skills from: ${bundledSkillsDir}`)
 
+		let commitSha = "local"
+		try {
+			const content = await fs.readFile(indexFilePath, "utf-8")
+			const index = JSON.parse(content)
+			commitSha = index.commitSha || "local"
+		} catch {
+			// index.json missing — will be regenerated below
+		}
+
+		await removeExcludedBundledSkillFiles()
+		await generateIndexJson(commitSha)
+
+		console.log(`✓ Bundled skills directory: ${bundledSkillsDir}`)
+		console.log("\n Run 'pnpm bundle' or 'pnpm vsix' to build the extension\n")
+		return
+	}
+
+	// Slow path: try remote download
+	const remoteSha = lsRemoteSha()
 	const cachedSha = await readCachedSha()
 	const hasCachedFiles = (await walk(bundledSkillsDir)).length > 0
 
-	let commitSha = remoteSha
+	let commitSha
 
-	if (cachedSha === remoteSha && hasCachedFiles) {
-		console.log("✓ All resources up to date, skipping download")
-	} else {
-		if (cachedSha) {
-			console.log(`Cached ${cachedSha.slice(0, 7)} → remote ${remoteSha.slice(0, 7)}, updating`)
+	if (!remoteSha) {
+		// Remote repo is inaccessible (SSH key missing, private repo, network issue, etc.)
+		if (hasCachedFiles && cachedSha) {
+			console.warn("   Cannot reach remote repo, using cached resources")
+			commitSha = cachedSha
+		} else {
+			// No remote access and no cache — generate a minimal index and continue
+			console.warn("   Cannot reach remote repo and no cache available, generating minimal index")
+			commitSha = "no-remote-access"
+			await fs.writeFile(
+				indexFilePath,
+				JSON.stringify({ version: await getExtensionVersion(), commitSha, locales: [], skills: [] }, null, 2),
+				"utf-8",
+			)
+			console.log(`✓ Generated minimal ${indexFilePath}`)
+			console.log("\n💡 Review skills are unavailable. Run 'pnpm bundle' or 'pnpm vsix' to build the extension\n")
+			process.exit(0)
 		}
-		const cloneDir = path.join(bundledSkillsDir, ".clone")
-		try {
-			console.log(`   git clone --depth 1 ${CLONE_URL}`)
-			await fs.rm(cloneDir, { recursive: true, force: true })
-			const cloneResult = git("clone", "--depth", "1", "--branch", BRANCH, CLONE_URL, cloneDir)
-			if (!cloneResult.ok) {
-				throw new Error(`git clone failed: ${cloneResult.stderr}`)
+	} else {
+		console.log(`Remote commit: ${remoteSha.slice(0, 7)}`)
+		commitSha = remoteSha
+
+		if (cachedSha === remoteSha && hasCachedFiles) {
+			console.log("✓ All resources up to date, skipping download")
+		} else {
+			if (cachedSha) {
+				console.log(`Cached ${cachedSha.slice(0, 7)} → remote ${remoteSha.slice(0, 7)}, updating`)
 			}
-			const raw = await fs.readFile(path.join(cloneDir, "index.json"), "utf-8")
-			const index = JSON.parse(raw)
-			await cloneAndCopy(cloneDir, index)
-			console.log(`\n✓ All resources updated (commit ${remoteSha.slice(0, 7)})`)
-		} catch (err) {
-			console.error(`  ✗ Download failed: ${err}`)
-			if (!hasCachedFiles) {
-				throw new Error("Download failed and no cache available")
+			const cloneDir = path.join(bundledSkillsDir, ".clone")
+			try {
+				console.log(`   git clone --depth 1 ${CLONE_URL}`)
+				await fs.rm(cloneDir, { recursive: true, force: true })
+				const cloneResult = git("clone", "--depth", "1", "--branch", BRANCH, CLONE_URL, cloneDir)
+				if (!cloneResult.ok) {
+					throw new Error(`git clone failed: ${cloneResult.stderr}`)
+				}
+				const raw = await fs.readFile(path.join(cloneDir, "index.json"), "utf-8")
+				const index = JSON.parse(raw)
+				await cloneAndCopy(cloneDir, index)
+				console.log(`\n✓ All resources updated (commit ${remoteSha.slice(0, 7)})`)
+			} catch (err) {
+				console.error(`  ✗ Download failed: ${err}`)
+				if (!hasCachedFiles) {
+					throw new Error("Download failed and no cache available")
+				}
+				console.warn("  ⚠ Using cached resources")
+				commitSha = cachedSha ?? remoteSha
+			} finally {
+				await fs.rm(path.join(bundledSkillsDir, ".clone"), { recursive: true, force: true }).catch(() => { })
 			}
-			console.warn("  ⚠ Using cached resources")
-			commitSha = cachedSha ?? remoteSha
-		} finally {
-			await fs.rm(path.join(bundledSkillsDir, ".clone"), { recursive: true, force: true }).catch(() => { })
 		}
 	}
 

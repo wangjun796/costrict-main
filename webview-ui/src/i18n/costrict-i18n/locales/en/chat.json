@@ -19,9 +19,9 @@
 	},
 	"about": "AI-Powered Strict Coding Assistant for Enterprises",
 	"error": "CoStrict will automatically plan the next step",
-	"emptyCompletionResult": "📝 CoStrict is automatically planning the next step...",
+	"emptyCompletionResult": "? CoStrict is automatically planning the next step...",
 	"text": {
-		"rooSaid": "CoStrict said"
+		"llmSaid": "LLM said"
 	},
 	"fileOperations": {
 		"wantsToRead": "CoStrict wants to read this file",
@@ -84,7 +84,7 @@
 		"rooWantsToUse": "CoStrict wants to use the browser"
 	},
 	"announcement": {
-		"title": "🎉 CoStrict {{version}} Released",
+		"title": "? CoStrict {{version}} Released",
 		"description": "CoStrict {{version}} brings new features and improvements based on your feedback.",
 		"feature1": "<bold>Message Queueing</bold>: Queue multiple messages while CoStrict is working, allowing you to continue planning your workflow without interruption."
 	},
@@ -143,7 +143,7 @@
 	"autoMode": {
 		"selectedLLM": "Auto model: {{selectedLLM}}",
 		"selectReason": "Select reason: {{selectReason}}",
-		"fallbackModel": "{{originModelId}} → {{fallbackModelId}}",
+		"fallbackModel": "{{originModelId}} ¡ú {{fallbackModelId}}",
 		"fallbackModelTooltip": "Fallback model activated"
 	},
 	"multipleChoice": {
@@ -159,7 +159,7 @@
 		"userConfirmed": "Confirmed",
 		"skipHint": "If none of the options meet your needs, <code>you can directly describe your requirements in the input box below; </code><code>click \"Skip\" to skip this questionnaire</code>",
 		"loading": "Preparing questions...",
-		"autoSelectCountdown": "Auto-selecting the recommended options in {{countdown}}s…",
+		"autoSelectCountdown": "Auto-selecting the recommended options in {{countdown}}s¡­",
 		"recommended": "Recommended",
 		"customAnswer": "Type your own answer",
 		"customAnswerPlaceholder": "Enter your own answer",

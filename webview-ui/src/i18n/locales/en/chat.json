@@ -19,7 +19,7 @@
 		"apiCost": "API Cost",
 		"toolProtocol": "Tool Protocol",
 		"size": "Size",
-		"lastUserFeedback": "Last user feedback：",
+		"lastUserFeedback": "Last user feedback£º",
 		"condenseContext": "Intelligently condense context",
 		"contextWindow": "Context Length",
 		"closeAndStart": "Close task and start a new one",
@@ -146,7 +146,7 @@
 		},
 		"modelAgnostic": {
 			"title": "Bring your own model, no markup or lock-in",
-			"description": "Use your own provider key or even run local inference — CoStrict doesn't charge for it"
+			"description": "Use your own provider key or even run local inference ¡ª CoStrict doesn't charge for it"
 		}
 	},
 	"selectMode": "Select mode for interaction",
@@ -307,7 +307,7 @@
 	"response": "Response",
 	"arguments": "Arguments",
 	"text": {
-		"rooSaid": "CoStrict said"
+		"llmSaid": "LLM said"
 	},
 	"feedback": {
 		"youSaid": "{{username}} said",
@@ -414,7 +414,7 @@
 	},
 	"followUpSuggest": {
 		"copyToInput": "Copy to input (same as shift + click)",
-		"timerPrefix": "Auto-approve enabled. Selecting in {{seconds}}s…"
+		"timerPrefix": "Auto-approve enabled. Selecting in {{seconds}}s¡­"
 	},
 	"costs": {
 		"totalWithSubtasks": "Total Cost (including subtasks): ${{cost}}",
@@ -500,7 +500,7 @@
 	"cloudAgents": {
 		"create": "Create",
 		"title": "Cloud Agents",
-		"description": "You haven’t created any Cloud Agents yet.",
+		"description": "You haven¡¯t created any Cloud Agents yet.",
 		"createFirst": "Create your first",
 		"clickToRun": "Click to run {{name}}"
 	},

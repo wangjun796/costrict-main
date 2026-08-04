@@ -19,9 +19,9 @@
 	},
 	"about": "企業嚴肅開發的AI智慧夥伴",
 	"error": "CoStrict 將自動規劃下一步處理",
-	"emptyCompletionResult": "📝 CoStrict 正在自動規劃下一步...",
+	"emptyCompletionResult": "? CoStrict 正在自動規劃下一步...",
 	"text": {
-		"rooSaid": "CoStrict 說"
+		"llmSaid": "LLM 說"
 	},
 	"fileOperations": {
 		"wantsToRead": "CoStrict 想要讀取此檔案",
@@ -84,7 +84,7 @@
 		"rooWantsToUse": "CoStrict 想要使用瀏覽器"
 	},
 	"announcement": {
-		"title": "🎉 CoStrict {{version}} 已發布",
+		"title": "? CoStrict {{version}} 已發布",
 		"description": "CoStrict {{version}} 帶來基於您意見回饋的新功能與改進。",
 		"feature1": "<bold>訊息佇列</bold>：在 CoStrict 工作時將多個訊息排入佇列，讓您可以不間斷地繼續規劃工作流程。"
 	},

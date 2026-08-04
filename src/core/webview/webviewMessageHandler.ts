@@ -3892,7 +3892,7 @@ export const webviewMessageHandler = async (
 				try {
 					const tmpDir = os.tmpdir()
 					const timestamp = Date.now()
-					const tempFileName = `roo-preview-${timestamp}.md`
+					const tempFileName = `chat-preview-${timestamp}.md`
 					const tempFilePath = path.join(tmpDir, tempFileName)
 
 					await fs.writeFile(tempFilePath, message.text, "utf8")

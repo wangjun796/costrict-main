@@ -595,7 +595,6 @@ export const ChatRowContent = ({
 		return null
 	}, [message.type, message.ask, message.partial, message.text])
 
-
 	if (tool) {
 		const toolIcon = (name: string) => (
 			<span
@@ -1544,7 +1543,7 @@ export const ChatRowContent = ({
 							) : (
 								<div style={headerStyle}>
 									<MessageCircle className="w-4 shrink-0" aria-label="Speech bubble icon" />
-									<span style={{ fontWeight: "bold" }}>{t("chat:text.rooSaid")}</span>
+									<span style={{ fontWeight: "bold" }}>{t("chat:text.llmSaid")}</span>
 									{message.ts ? format(new Date(message.ts), "yyyy-MM-dd HH:mm:ss") : ""}
 									<div style={{ flexGrow: 1 }} />
 									<OpenMarkdownPreviewButton markdown={message.text} />

@@ -1,10 +1,10 @@
 {
-	"name": "zgsm",
+	"name": "sdd",
 	"displayName": "%extension.displayName.long%",
 	"description": "%extension.description%",
 	"publisher": "zgsm-ai",
 	"version": "3.0.17",
-	"icon": "assets/images/shenma_robot_logo_big.png",
+	"icon": "assets/images/sdd_icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
 		"theme": "dark"
@@ -79,7 +79,7 @@
 				{
 					"id": "costrict-ActivityBar",
 					"title": "%views.activitybar.title%",
-					"icon": "assets/images/shenma_robot_logo_big.png"
+					"icon": "assets/images/sdd_icon.png"
 				}
 			]
 		},
@@ -89,14 +89,14 @@
 					"type": "webview",
 					"id": "costrict.SidebarProvider",
 					"name": "%views.sidebar.name%",
-					"icon": "assets/images/shenma_robot_logo_big.png",
+					"icon": "assets/images/sdd_icon.png",
 					"when": "costrict.uiMode == classic"
 				},
 				{
 					"type": "webview",
 					"id": "costrict.AssistantUISidebarProvider",
 					"name": "%views.sidebar.name%",
-					"icon": "assets/images/shenma_robot_logo_big.png",
+					"icon": "assets/images/sdd_icon.png",
 					"when": "costrict.uiMode == cloud"
 				}
 			]
@@ -110,7 +110,7 @@
 			{
 				"command": "costrict.openNewButtonClicked",
 				"title": "%command.newTask.title%",
-				"icon": "assets/images/shenma_robot_logo_big.png"
+				"icon": "assets/images/sdd_icon.png"
 			},
 			{
 				"command": "costrict.plusButtonClicked",

@@ -1,7 +1,7 @@
 {
-	"extension.displayName": "CoStrict",
-	"extension.displayName.long": "CoStrict",
-	"extension.description": "CoStrict - strict AI coder for enterprises, quality first, including AI Agent, AI CodeReview, AI Completion.",
+	"extension.displayName": "SDD",
+	"extension.displayName.long": "SDD - 规范驱动开发",
+	"extension.description": "SDD - 规范驱动 AI 编程助手，面向企业级开发，质量优先，包含 AI 智能体、AI 代码审查、AI 代码补全。",
 	"command.newTask.title": "新建任务",
 	"command.explainCode.title": "解释代码",
 	"command.fixCode.title": "修复代码",
@@ -16,10 +16,10 @@
 	"command.terminal.explainCommand.title": "解释此命令",
 	"command.acceptInput.title": "接受输入/建议",
 	"command.toggleAutoApprove.title": "切换自动批准",
-	"views.activitybar.title": "CoStrict",
-	"views.contextMenu.label": "CoStrict",
-	"views.terminalMenu.label": "CoStrict",
-	"views.sidebar.name": "CoStrict",
+	"views.activitybar.title": "SDD",
+	"views.contextMenu.label": "SDD",
+	"views.terminalMenu.label": "SDD",
+	"views.sidebar.name": "SDD",
 	"command.mcpServers.title": "MCP 服务器",
 	"command.prompts.title": "模式",
 	"command.history.title": "历史记录",
@@ -83,5 +83,5 @@
 	"settings.debug.description": "启用调试模式以显示额外按钮，用于在临时文件中以格式化 JSON 查看 API 对话历史和 UI 消息。",
 	"settings.debugProxy.enabled.description": "**启用 Debug Proxy** — 通过代理转发所有出站网络请求，用于 MITM 调试。只在调试模式 (F5) 运行时生效。",
 	"settings.debugProxy.serverUrl.description": "代理 URL（例如 `http://127.0.0.1:8888`）。仅在启用 **Debug Proxy** 时使用。",
-	"settings.debugProxy.tlsInsecure.description": "接受来自代理的 self-signed 证书。**MITM 检查所必需。** ⚠️ 不安全——只在本地调试时使用。"
+	"settings.debugProxy.tlsInsecure.description": "接受来自代理的 self-signed 证书。**MITM 检查所必需。** ?? 不安全——只在本地调试时使用。"
 }

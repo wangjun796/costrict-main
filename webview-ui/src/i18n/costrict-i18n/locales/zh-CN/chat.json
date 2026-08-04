@@ -13,7 +13,7 @@
 		]
 	},
 	"greeting": "CoStrict 能为您做什么？",
-	"aboutMe": "得益于最新的代理编码能力突破，我可以逐步处理复杂的软件开发任务。通过允许我创建和编辑文件、探索复杂项目、使用浏览器以及执行终端命令（在您授予权限后）的工具，我可以以超越代码补全或技术支持的方式协助您。我甚至可以使用MCP创建新工具并扩展自己的能力。",
+	"aboutMe": "得益于最新的代理编码能力突破,我可以逐步处理复杂的软件开发任务。通过允许我创建和编辑文件、探索复杂项目、使用浏览器以及执行终端命令（在您授予权限后）的工具，我可以以超越代码补全或技术支持的方式协助您。我甚至可以使用MCP创建新工具并扩展自己的能力。",
 	"instructions": {
 		"wantsToFetch": "CoStrict 想要获取详细指令以协助当前任务"
 	},
@@ -21,7 +21,7 @@
 	"error": "CoStrict 将自动规划下一步处理",
 	"emptyCompletionResult": "📝 CoStrict 正在自动规划下一步...",
 	"text": {
-		"rooSaid": "CoStrict 说"
+		"llmSaid": "LLM 说"
 	},
 	"fileOperations": {
 		"wantsToRead": "需要读取文件",
@@ -172,5 +172,5 @@
 		"expandPrompt": "点击展开",
 		"collapsePrompt": "点击收起"
 	},
-	"aiContentWarning": "内容由AI生成，请仔细甄别！"
+	"aiContentWarning": "内容由AI生成,请仔细甄别！"
 }

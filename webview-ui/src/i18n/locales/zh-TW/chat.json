@@ -310,7 +310,7 @@
 	"response": "回應",
 	"arguments": "參數",
 	"text": {
-		"rooSaid": "CoStrict 說"
+		"llmSaid": "LLM 說"
 	},
 	"feedback": {
 		"youSaid": "{{username}}說",

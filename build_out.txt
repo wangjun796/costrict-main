@@ -1,0 +1,2013 @@
+
+> costrict@ build F:\AIPlugins\costrict-main
+> turbo build --log-order grouped --output-logs new-only
+
+
+   • Packages in scope: @roo-code/build, @roo-code/cli, @roo-code/cloud, @roo-code/config-eslint, @roo-code/config-typescript, @roo-code/core, @roo-code/evals, @roo-code/ipc, @roo-code/logger, @roo-code/telemetry, @roo-code/types, @roo-code/vscode-e2e, @roo-code/vscode-nightly, @roo-code/vscode-shim, @roo-code/vscode-webview, @roo-code/web-evals, @roo-code/web-roo-code, sdd
+   • Running build in 18 packages
+   • Remote caching disabled
+
+@roo-code/build:build: cache hit, suppressing logs ffce3f8b460d83ca
+@roo-code/cli:build: cache hit, suppressing logs a7c10d6f88dcf74c
+@roo-code/types:build: cache hit, suppressing logs d297a9f74578af18
+@roo-code/web-evals:build: cache miss, executing 51fb101c66345a93
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: > @roo-code/web-evals@0.0.1 build F:\AIPlugins\costrict-main\apps\web-evals
+@roo-code/web-evals:build: > next build
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ▲ Next.js 16.2.7 (Turbopack)
+@roo-code/web-evals:build: - Environments: .env
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Creating an optimized production build ...
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: > Build error occurred
+@roo-code/web-evals:build: Error: Turbopack build failed with 60 errors:
+@roo-code/web-evals:build: ./packages/types/src/index.ts:1:1
+@roo-code/web-evals:build: Module not found: Can't resolve './api.js'
+@roo-code/web-evals:build: [31m[1m>[0m [90m1 |[0m [36mexport[0m * [36mfrom[0m [32m"./api.js"[0m
+@roo-code/web-evals:build:   [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m2 |[0m [36mexport[0m * [36mfrom[0m [32m"./cli.js"[0m
+@roo-code/web-evals:build:   [90m3 |[0m [36mexport[0m * [36mfrom[0m [32m"./cloud.js"[0m
+@roo-code/web-evals:build:   [90m4 |[0m [36mexport[0m * [36mfrom[0m [32m"./codebase-index.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:13:1
+@roo-code/web-evals:build: Module not found: Can't resolve './auto-cleanup.js'
+@roo-code/web-evals:build:   [90m11 |[0m [36mexport[0m * [36mfrom[0m [32m"./followup.js"[0m
+@roo-code/web-evals:build:   [90m12 |[0m [36mexport[0m * [36mfrom[0m [32m"./git.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m13 |[0m [36mexport[0m * [36mfrom[0m [32m"./auto-cleanup.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m14 |[0m [36mexport[0m * [36mfrom[0m [32m"./notification.js"[0m
+@roo-code/web-evals:build:   [90m15 |[0m [36mexport[0m * [36mfrom[0m [32m"./multiple-choice.js"[0m
+@roo-code/web-evals:build:   [90m16 |[0m [36mexport[0m * [36mfrom[0m [32m"./global-settings.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:2:1
+@roo-code/web-evals:build: Module not found: Can't resolve './cli.js'
+@roo-code/web-evals:build:   [90m1 |[0m [36mexport[0m * [36mfrom[0m [32m"./api.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m2 |[0m [36mexport[0m * [36mfrom[0m [32m"./cli.js"[0m
+@roo-code/web-evals:build:   [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m3 |[0m [36mexport[0m * [36mfrom[0m [32m"./cloud.js"[0m
+@roo-code/web-evals:build:   [90m4 |[0m [36mexport[0m * [36mfrom[0m [32m"./codebase-index.js"[0m
+@roo-code/web-evals:build:   [90m5 |[0m [36mexport[0m * [36mfrom[0m [32m"./context-management.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:3:1
+@roo-code/web-evals:build: Module not found: Can't resolve './cloud.js'
+@roo-code/web-evals:build:   [90m1 |[0m [36mexport[0m * [36mfrom[0m [32m"./api.js"[0m
+@roo-code/web-evals:build:   [90m2 |[0m [36mexport[0m * [36mfrom[0m [32m"./cli.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m3 |[0m [36mexport[0m * [36mfrom[0m [32m"./cloud.js"[0m
+@roo-code/web-evals:build:   [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m4 |[0m [36mexport[0m * [36mfrom[0m [32m"./codebase-index.js"[0m
+@roo-code/web-evals:build:   [90m5 |[0m [36mexport[0m * [36mfrom[0m [32m"./context-management.js"[0m
+@roo-code/web-evals:build:   [90m6 |[0m [36mexport[0m * [36mfrom[0m [32m"./cookie-consent.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:4:1
+@roo-code/web-evals:build: Module not found: Can't resolve './codebase-index.js'
+@roo-code/web-evals:build:   [90m2 |[0m [36mexport[0m * [36mfrom[0m [32m"./cli.js"[0m
+@roo-code/web-evals:build:   [90m3 |[0m [36mexport[0m * [36mfrom[0m [32m"./cloud.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m4 |[0m [36mexport[0m * [36mfrom[0m [32m"./codebase-index.js"[0m
+@roo-code/web-evals:build:   [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m5 |[0m [36mexport[0m * [36mfrom[0m [32m"./context-management.js"[0m
+@roo-code/web-evals:build:   [90m6 |[0m [36mexport[0m * [36mfrom[0m [32m"./cookie-consent.js"[0m
+@roo-code/web-evals:build:   [90m7 |[0m [36mexport[0m * [36mfrom[0m [32m"./custom-tool.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:5:1
+@roo-code/web-evals:build: Module not found: Can't resolve './context-management.js'
+@roo-code/web-evals:build:   [90m3 |[0m [36mexport[0m * [36mfrom[0m [32m"./cloud.js"[0m
+@roo-code/web-evals:build:   [90m4 |[0m [36mexport[0m * [36mfrom[0m [32m"./codebase-index.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m5 |[0m [36mexport[0m * [36mfrom[0m [32m"./context-management.js"[0m
+@roo-code/web-evals:build:   [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m6 |[0m [36mexport[0m * [36mfrom[0m [32m"./cookie-consent.js"[0m
+@roo-code/web-evals:build:   [90m7 |[0m [36mexport[0m * [36mfrom[0m [32m"./custom-tool.js"[0m
+@roo-code/web-evals:build:   [90m8 |[0m [36mexport[0m * [36mfrom[0m [32m"./embedding.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:6:1
+@roo-code/web-evals:build: Module not found: Can't resolve './cookie-consent.js'
+@roo-code/web-evals:build:   [90m4 |[0m [36mexport[0m * [36mfrom[0m [32m"./codebase-index.js"[0m
+@roo-code/web-evals:build:   [90m5 |[0m [36mexport[0m * [36mfrom[0m [32m"./context-management.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m6 |[0m [36mexport[0m * [36mfrom[0m [32m"./cookie-consent.js"[0m
+@roo-code/web-evals:build:   [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m7 |[0m [36mexport[0m * [36mfrom[0m [32m"./custom-tool.js"[0m
+@roo-code/web-evals:build:   [90m8 |[0m [36mexport[0m * [36mfrom[0m [32m"./embedding.js"[0m
+@roo-code/web-evals:build:   [90m9 |[0m [36mexport[0m * [36mfrom[0m [32m"./events.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:43:1
+@roo-code/web-evals:build: Module not found: Can't resolve './costrict/prompt/i18n/commandRegistry.js'
+@roo-code/web-evals:build:   [90m41 |[0m
+@roo-code/web-evals:build:   [90m42 |[0m [36mexport[0m * [36mfrom[0m [32m"./costrict/prompt/i18n/registry.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m43 |[0m [36mexport[0m * [36mfrom[0m [32m"./costrict/prompt/i18n/commandRegistry.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m44 |[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:42:1
+@roo-code/web-evals:build: Module not found: Can't resolve './costrict/prompt/i18n/registry.js'
+@roo-code/web-evals:build:   [90m40 |[0m [36mexport[0m * [36mfrom[0m [32m"./providers/index.js"[0m
+@roo-code/web-evals:build:   [90m41 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m42 |[0m [36mexport[0m * [36mfrom[0m [32m"./costrict/prompt/i18n/registry.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m43 |[0m [36mexport[0m * [36mfrom[0m [32m"./costrict/prompt/i18n/commandRegistry.js"[0m
+@roo-code/web-evals:build:   [90m44 |[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:7:1
+@roo-code/web-evals:build: Module not found: Can't resolve './custom-tool.js'
+@roo-code/web-evals:build:   [90m 5 |[0m [36mexport[0m * [36mfrom[0m [32m"./context-management.js"[0m
+@roo-code/web-evals:build:   [90m 6 |[0m [36mexport[0m * [36mfrom[0m [32m"./cookie-consent.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m 7 |[0m [36mexport[0m * [36mfrom[0m [32m"./custom-tool.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m 8 |[0m [36mexport[0m * [36mfrom[0m [32m"./embedding.js"[0m
+@roo-code/web-evals:build:   [90m 9 |[0m [36mexport[0m * [36mfrom[0m [32m"./events.js"[0m
+@roo-code/web-evals:build:   [90m10 |[0m [36mexport[0m * [36mfrom[0m [32m"./experiment.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:8:1
+@roo-code/web-evals:build: Module not found: Can't resolve './embedding.js'
+@roo-code/web-evals:build:   [90m 6 |[0m [36mexport[0m * [36mfrom[0m [32m"./cookie-consent.js"[0m
+@roo-code/web-evals:build:   [90m 7 |[0m [36mexport[0m * [36mfrom[0m [32m"./custom-tool.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m 8 |[0m [36mexport[0m * [36mfrom[0m [32m"./embedding.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m 9 |[0m [36mexport[0m * [36mfrom[0m [32m"./events.js"[0m
+@roo-code/web-evals:build:   [90m10 |[0m [36mexport[0m * [36mfrom[0m [32m"./experiment.js"[0m
+@roo-code/web-evals:build:   [90m11 |[0m [36mexport[0m * [36mfrom[0m [32m"./followup.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:9:1
+@roo-code/web-evals:build: Module not found: Can't resolve './events.js'
+@roo-code/web-evals:build:   [90m 7 |[0m [36mexport[0m * [36mfrom[0m [32m"./custom-tool.js"[0m
+@roo-code/web-evals:build:   [90m 8 |[0m [36mexport[0m * [36mfrom[0m [32m"./embedding.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m 9 |[0m [36mexport[0m * [36mfrom[0m [32m"./events.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m10 |[0m [36mexport[0m * [36mfrom[0m [32m"./experiment.js"[0m
+@roo-code/web-evals:build:   [90m11 |[0m [36mexport[0m * [36mfrom[0m [32m"./followup.js"[0m
+@roo-code/web-evals:build:   [90m12 |[0m [36mexport[0m * [36mfrom[0m [32m"./git.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:10:1
+@roo-code/web-evals:build: Module not found: Can't resolve './experiment.js'
+@roo-code/web-evals:build:   [90m 8 |[0m [36mexport[0m * [36mfrom[0m [32m"./embedding.js"[0m
+@roo-code/web-evals:build:   [90m 9 |[0m [36mexport[0m * [36mfrom[0m [32m"./events.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m10 |[0m [36mexport[0m * [36mfrom[0m [32m"./experiment.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m11 |[0m [36mexport[0m * [36mfrom[0m [32m"./followup.js"[0m
+@roo-code/web-evals:build:   [90m12 |[0m [36mexport[0m * [36mfrom[0m [32m"./git.js"[0m
+@roo-code/web-evals:build:   [90m13 |[0m [36mexport[0m * [36mfrom[0m [32m"./auto-cleanup.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:11:1
+@roo-code/web-evals:build: Module not found: Can't resolve './followup.js'
+@roo-code/web-evals:build:   [90m 9 |[0m [36mexport[0m * [36mfrom[0m [32m"./events.js"[0m
+@roo-code/web-evals:build:   [90m10 |[0m [36mexport[0m * [36mfrom[0m [32m"./experiment.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m11 |[0m [36mexport[0m * [36mfrom[0m [32m"./followup.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m12 |[0m [36mexport[0m * [36mfrom[0m [32m"./git.js"[0m
+@roo-code/web-evals:build:   [90m13 |[0m [36mexport[0m * [36mfrom[0m [32m"./auto-cleanup.js"[0m
+@roo-code/web-evals:build:   [90m14 |[0m [36mexport[0m * [36mfrom[0m [32m"./notification.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:12:1
+@roo-code/web-evals:build: Module not found: Can't resolve './git.js'
+@roo-code/web-evals:build:   [90m10 |[0m [36mexport[0m * [36mfrom[0m [32m"./experiment.js"[0m
+@roo-code/web-evals:build:   [90m11 |[0m [36mexport[0m * [36mfrom[0m [32m"./followup.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m12 |[0m [36mexport[0m * [36mfrom[0m [32m"./git.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m13 |[0m [36mexport[0m * [36mfrom[0m [32m"./auto-cleanup.js"[0m
+@roo-code/web-evals:build:   [90m14 |[0m [36mexport[0m * [36mfrom[0m [32m"./notification.js"[0m
+@roo-code/web-evals:build:   [90m15 |[0m [36mexport[0m * [36mfrom[0m [32m"./multiple-choice.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:16:1
+@roo-code/web-evals:build: Module not found: Can't resolve './global-settings.js'
+@roo-code/web-evals:build:   [90m14 |[0m [36mexport[0m * [36mfrom[0m [32m"./notification.js"[0m
+@roo-code/web-evals:build:   [90m15 |[0m [36mexport[0m * [36mfrom[0m [32m"./multiple-choice.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m16 |[0m [36mexport[0m * [36mfrom[0m [32m"./global-settings.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m17 |[0m [36mexport[0m * [36mfrom[0m [32m"./history.js"[0m
+@roo-code/web-evals:build:   [90m18 |[0m [36mexport[0m * [36mfrom[0m [32m"./image-generation.js"[0m
+@roo-code/web-evals:build:   [90m19 |[0m [36mexport[0m * [36mfrom[0m [32m"./ipc.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:17:1
+@roo-code/web-evals:build: Module not found: Can't resolve './history.js'
+@roo-code/web-evals:build:   [90m15 |[0m [36mexport[0m * [36mfrom[0m [32m"./multiple-choice.js"[0m
+@roo-code/web-evals:build:   [90m16 |[0m [36mexport[0m * [36mfrom[0m [32m"./global-settings.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m17 |[0m [36mexport[0m * [36mfrom[0m [32m"./history.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m18 |[0m [36mexport[0m * [36mfrom[0m [32m"./image-generation.js"[0m
+@roo-code/web-evals:build:   [90m19 |[0m [36mexport[0m * [36mfrom[0m [32m"./ipc.js"[0m
+@roo-code/web-evals:build:   [90m20 |[0m [36mexport[0m * [36mfrom[0m [32m"./marketplace.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:18:1
+@roo-code/web-evals:build: Module not found: Can't resolve './image-generation.js'
+@roo-code/web-evals:build:   [90m16 |[0m [36mexport[0m * [36mfrom[0m [32m"./global-settings.js"[0m
+@roo-code/web-evals:build:   [90m17 |[0m [36mexport[0m * [36mfrom[0m [32m"./history.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m18 |[0m [36mexport[0m * [36mfrom[0m [32m"./image-generation.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m19 |[0m [36mexport[0m * [36mfrom[0m [32m"./ipc.js"[0m
+@roo-code/web-evals:build:   [90m20 |[0m [36mexport[0m * [36mfrom[0m [32m"./marketplace.js"[0m
+@roo-code/web-evals:build:   [90m21 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcp.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:19:1
+@roo-code/web-evals:build: Module not found: Can't resolve './ipc.js'
+@roo-code/web-evals:build:   [90m17 |[0m [36mexport[0m * [36mfrom[0m [32m"./history.js"[0m
+@roo-code/web-evals:build:   [90m18 |[0m [36mexport[0m * [36mfrom[0m [32m"./image-generation.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m19 |[0m [36mexport[0m * [36mfrom[0m [32m"./ipc.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m20 |[0m [36mexport[0m * [36mfrom[0m [32m"./marketplace.js"[0m
+@roo-code/web-evals:build:   [90m21 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcp.js"[0m
+@roo-code/web-evals:build:   [90m22 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTask.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:20:1
+@roo-code/web-evals:build: Module not found: Can't resolve './marketplace.js'
+@roo-code/web-evals:build:   [90m18 |[0m [36mexport[0m * [36mfrom[0m [32m"./image-generation.js"[0m
+@roo-code/web-evals:build:   [90m19 |[0m [36mexport[0m * [36mfrom[0m [32m"./ipc.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m20 |[0m [36mexport[0m * [36mfrom[0m [32m"./marketplace.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m21 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcp.js"[0m
+@roo-code/web-evals:build:   [90m22 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTask.js"[0m
+@roo-code/web-evals:build:   [90m23 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTaskSummary.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:21:1
+@roo-code/web-evals:build: Module not found: Can't resolve './mcp.js'
+@roo-code/web-evals:build:   [90m19 |[0m [36mexport[0m * [36mfrom[0m [32m"./ipc.js"[0m
+@roo-code/web-evals:build:   [90m20 |[0m [36mexport[0m * [36mfrom[0m [32m"./marketplace.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m21 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcp.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m22 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTask.js"[0m
+@roo-code/web-evals:build:   [90m23 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTaskSummary.js"[0m
+@roo-code/web-evals:build:   [90m24 |[0m [36mexport[0m * [36mfrom[0m [32m"./message.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:22:1
+@roo-code/web-evals:build: Module not found: Can't resolve './mcpAsyncTask.js'
+@roo-code/web-evals:build:   [90m20 |[0m [36mexport[0m * [36mfrom[0m [32m"./marketplace.js"[0m
+@roo-code/web-evals:build:   [90m21 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcp.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m22 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTask.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m23 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTaskSummary.js"[0m
+@roo-code/web-evals:build:   [90m24 |[0m [36mexport[0m * [36mfrom[0m [32m"./message.js"[0m
+@roo-code/web-evals:build:   [90m25 |[0m [36mexport[0m * [36mfrom[0m [32m"./mode.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:23:1
+@roo-code/web-evals:build: Module not found: Can't resolve './mcpAsyncTaskSummary.js'
+@roo-code/web-evals:build:   [90m21 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcp.js"[0m
+@roo-code/web-evals:build:   [90m22 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTask.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m23 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTaskSummary.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m24 |[0m [36mexport[0m * [36mfrom[0m [32m"./message.js"[0m
+@roo-code/web-evals:build:   [90m25 |[0m [36mexport[0m * [36mfrom[0m [32m"./mode.js"[0m
+@roo-code/web-evals:build:   [90m26 |[0m [36mexport[0m * [36mfrom[0m [32m"./model.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:24:1
+@roo-code/web-evals:build: Module not found: Can't resolve './message.js'
+@roo-code/web-evals:build:   [90m22 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTask.js"[0m
+@roo-code/web-evals:build:   [90m23 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTaskSummary.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m24 |[0m [36mexport[0m * [36mfrom[0m [32m"./message.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m25 |[0m [36mexport[0m * [36mfrom[0m [32m"./mode.js"[0m
+@roo-code/web-evals:build:   [90m26 |[0m [36mexport[0m * [36mfrom[0m [32m"./model.js"[0m
+@roo-code/web-evals:build:   [90m27 |[0m [36mexport[0m * [36mfrom[0m [32m"./provider-settings.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:25:1
+@roo-code/web-evals:build: Module not found: Can't resolve './mode.js'
+@roo-code/web-evals:build:   [90m23 |[0m [36mexport[0m * [36mfrom[0m [32m"./mcpAsyncTaskSummary.js"[0m
+@roo-code/web-evals:build:   [90m24 |[0m [36mexport[0m * [36mfrom[0m [32m"./message.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m25 |[0m [36mexport[0m * [36mfrom[0m [32m"./mode.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m26 |[0m [36mexport[0m * [36mfrom[0m [32m"./model.js"[0m
+@roo-code/web-evals:build:   [90m27 |[0m [36mexport[0m * [36mfrom[0m [32m"./provider-settings.js"[0m
+@roo-code/web-evals:build:   [90m28 |[0m [36mexport[0m * [36mfrom[0m [32m"./task.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:26:1
+@roo-code/web-evals:build: Module not found: Can't resolve './model.js'
+@roo-code/web-evals:build:   [90m24 |[0m [36mexport[0m * [36mfrom[0m [32m"./message.js"[0m
+@roo-code/web-evals:build:   [90m25 |[0m [36mexport[0m * [36mfrom[0m [32m"./mode.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m26 |[0m [36mexport[0m * [36mfrom[0m [32m"./model.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m27 |[0m [36mexport[0m * [36mfrom[0m [32m"./provider-settings.js"[0m
+@roo-code/web-evals:build:   [90m28 |[0m [36mexport[0m * [36mfrom[0m [32m"./task.js"[0m
+@roo-code/web-evals:build:   [90m29 |[0m [36mexport[0m * [36mfrom[0m [32m"./todo.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:15:1
+@roo-code/web-evals:build: Module not found: Can't resolve './multiple-choice.js'
+@roo-code/web-evals:build:   [90m13 |[0m [36mexport[0m * [36mfrom[0m [32m"./auto-cleanup.js"[0m
+@roo-code/web-evals:build:   [90m14 |[0m [36mexport[0m * [36mfrom[0m [32m"./notification.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m15 |[0m [36mexport[0m * [36mfrom[0m [32m"./multiple-choice.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m16 |[0m [36mexport[0m * [36mfrom[0m [32m"./global-settings.js"[0m
+@roo-code/web-evals:build:   [90m17 |[0m [36mexport[0m * [36mfrom[0m [32m"./history.js"[0m
+@roo-code/web-evals:build:   [90m18 |[0m [36mexport[0m * [36mfrom[0m [32m"./image-generation.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:14:1
+@roo-code/web-evals:build: Module not found: Can't resolve './notification.js'
+@roo-code/web-evals:build:   [90m12 |[0m [36mexport[0m * [36mfrom[0m [32m"./git.js"[0m
+@roo-code/web-evals:build:   [90m13 |[0m [36mexport[0m * [36mfrom[0m [32m"./auto-cleanup.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m14 |[0m [36mexport[0m * [36mfrom[0m [32m"./notification.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m15 |[0m [36mexport[0m * [36mfrom[0m [32m"./multiple-choice.js"[0m
+@roo-code/web-evals:build:   [90m16 |[0m [36mexport[0m * [36mfrom[0m [32m"./global-settings.js"[0m
+@roo-code/web-evals:build:   [90m17 |[0m [36mexport[0m * [36mfrom[0m [32m"./history.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:27:1
+@roo-code/web-evals:build: Module not found: Can't resolve './provider-settings.js'
+@roo-code/web-evals:build:   [90m25 |[0m [36mexport[0m * [36mfrom[0m [32m"./mode.js"[0m
+@roo-code/web-evals:build:   [90m26 |[0m [36mexport[0m * [36mfrom[0m [32m"./model.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m27 |[0m [36mexport[0m * [36mfrom[0m [32m"./provider-settings.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m28 |[0m [36mexport[0m * [36mfrom[0m [32m"./task.js"[0m
+@roo-code/web-evals:build:   [90m29 |[0m [36mexport[0m * [36mfrom[0m [32m"./todo.js"[0m
+@roo-code/web-evals:build:   [90m30 |[0m [36mexport[0m * [36mfrom[0m [32m"./skills.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:40:1
+@roo-code/web-evals:build: Module not found: Can't resolve './providers/index.js'
+@roo-code/web-evals:build:   [90m38 |[0m [36mexport[0m * [36mfrom[0m [32m"./worktree.js"[0m
+@roo-code/web-evals:build:   [90m39 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m40 |[0m [36mexport[0m * [36mfrom[0m [32m"./providers/index.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m41 |[0m
+@roo-code/web-evals:build:   [90m42 |[0m [36mexport[0m * [36mfrom[0m [32m"./costrict/prompt/i18n/registry.js"[0m
+@roo-code/web-evals:build:   [90m43 |[0m [36mexport[0m * [36mfrom[0m [32m"./costrict/prompt/i18n/commandRegistry.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:30:1
+@roo-code/web-evals:build: Module not found: Can't resolve './skills.js'
+@roo-code/web-evals:build:   [90m28 |[0m [36mexport[0m * [36mfrom[0m [32m"./task.js"[0m
+@roo-code/web-evals:build:   [90m29 |[0m [36mexport[0m * [36mfrom[0m [32m"./todo.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m30 |[0m [36mexport[0m * [36mfrom[0m [32m"./skills.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m31 |[0m [36mexport[0m * [36mfrom[0m [32m"./telemetry.js"[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mexport[0m * [36mfrom[0m [32m"./terminal.js"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:28:1
+@roo-code/web-evals:build: Module not found: Can't resolve './task.js'
+@roo-code/web-evals:build:   [90m26 |[0m [36mexport[0m * [36mfrom[0m [32m"./model.js"[0m
+@roo-code/web-evals:build:   [90m27 |[0m [36mexport[0m * [36mfrom[0m [32m"./provider-settings.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m28 |[0m [36mexport[0m * [36mfrom[0m [32m"./task.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m29 |[0m [36mexport[0m * [36mfrom[0m [32m"./todo.js"[0m
+@roo-code/web-evals:build:   [90m30 |[0m [36mexport[0m * [36mfrom[0m [32m"./skills.js"[0m
+@roo-code/web-evals:build:   [90m31 |[0m [36mexport[0m * [36mfrom[0m [32m"./telemetry.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:31:1
+@roo-code/web-evals:build: Module not found: Can't resolve './telemetry.js'
+@roo-code/web-evals:build:   [90m29 |[0m [36mexport[0m * [36mfrom[0m [32m"./todo.js"[0m
+@roo-code/web-evals:build:   [90m30 |[0m [36mexport[0m * [36mfrom[0m [32m"./skills.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m31 |[0m [36mexport[0m * [36mfrom[0m [32m"./telemetry.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mexport[0m * [36mfrom[0m [32m"./terminal.js"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool.js"[0m
+@roo-code/web-evals:build:   [90m34 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool-params.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:32:1
+@roo-code/web-evals:build: Module not found: Can't resolve './terminal.js'
+@roo-code/web-evals:build:   [90m30 |[0m [36mexport[0m * [36mfrom[0m [32m"./skills.js"[0m
+@roo-code/web-evals:build:   [90m31 |[0m [36mexport[0m * [36mfrom[0m [32m"./telemetry.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m32 |[0m [36mexport[0m * [36mfrom[0m [32m"./terminal.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool.js"[0m
+@roo-code/web-evals:build:   [90m34 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool-params.js"[0m
+@roo-code/web-evals:build:   [90m35 |[0m [36mexport[0m * [36mfrom[0m [32m"./type-fu.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:29:1
+@roo-code/web-evals:build: Module not found: Can't resolve './todo.js'
+@roo-code/web-evals:build:   [90m27 |[0m [36mexport[0m * [36mfrom[0m [32m"./provider-settings.js"[0m
+@roo-code/web-evals:build:   [90m28 |[0m [36mexport[0m * [36mfrom[0m [32m"./task.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m29 |[0m [36mexport[0m * [36mfrom[0m [32m"./todo.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m30 |[0m [36mexport[0m * [36mfrom[0m [32m"./skills.js"[0m
+@roo-code/web-evals:build:   [90m31 |[0m [36mexport[0m * [36mfrom[0m [32m"./telemetry.js"[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mexport[0m * [36mfrom[0m [32m"./terminal.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:34:1
+@roo-code/web-evals:build: Module not found: Can't resolve './tool-params.js'
+@roo-code/web-evals:build:   [90m32 |[0m [36mexport[0m * [36mfrom[0m [32m"./terminal.js"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m34 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool-params.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m35 |[0m [36mexport[0m * [36mfrom[0m [32m"./type-fu.js"[0m
+@roo-code/web-evals:build:   [90m36 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode-extension-host.js"[0m
+@roo-code/web-evals:build:   [90m37 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:33:1
+@roo-code/web-evals:build: Module not found: Can't resolve './tool.js'
+@roo-code/web-evals:build:   [90m31 |[0m [36mexport[0m * [36mfrom[0m [32m"./telemetry.js"[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mexport[0m * [36mfrom[0m [32m"./terminal.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m33 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m34 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool-params.js"[0m
+@roo-code/web-evals:build:   [90m35 |[0m [36mexport[0m * [36mfrom[0m [32m"./type-fu.js"[0m
+@roo-code/web-evals:build:   [90m36 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode-extension-host.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:35:1
+@roo-code/web-evals:build: Module not found: Can't resolve './type-fu.js'
+@roo-code/web-evals:build:   [90m33 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool.js"[0m
+@roo-code/web-evals:build:   [90m34 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool-params.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m35 |[0m [36mexport[0m * [36mfrom[0m [32m"./type-fu.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m36 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode-extension-host.js"[0m
+@roo-code/web-evals:build:   [90m37 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode.js"[0m
+@roo-code/web-evals:build:   [90m38 |[0m [36mexport[0m * [36mfrom[0m [32m"./worktree.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:36:1
+@roo-code/web-evals:build: Module not found: Can't resolve './vscode-extension-host.js'
+@roo-code/web-evals:build:   [90m34 |[0m [36mexport[0m * [36mfrom[0m [32m"./tool-params.js"[0m
+@roo-code/web-evals:build:   [90m35 |[0m [36mexport[0m * [36mfrom[0m [32m"./type-fu.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m36 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode-extension-host.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m37 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode.js"[0m
+@roo-code/web-evals:build:   [90m38 |[0m [36mexport[0m * [36mfrom[0m [32m"./worktree.js"[0m
+@roo-code/web-evals:build:   [90m39 |[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:37:1
+@roo-code/web-evals:build: Module not found: Can't resolve './vscode.js'
+@roo-code/web-evals:build:   [90m35 |[0m [36mexport[0m * [36mfrom[0m [32m"./type-fu.js"[0m
+@roo-code/web-evals:build:   [90m36 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode-extension-host.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m37 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m38 |[0m [36mexport[0m * [36mfrom[0m [32m"./worktree.js"[0m
+@roo-code/web-evals:build:   [90m39 |[0m
+@roo-code/web-evals:build:   [90m40 |[0m [36mexport[0m * [36mfrom[0m [32m"./providers/index.js"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./packages/types/src/index.ts:38:1
+@roo-code/web-evals:build: Module not found: Can't resolve './worktree.js'
+@roo-code/web-evals:build:   [90m36 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode-extension-host.js"[0m
+@roo-code/web-evals:build:   [90m37 |[0m [36mexport[0m * [36mfrom[0m [32m"./vscode.js"[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m38 |[0m [36mexport[0m * [36mfrom[0m [32m"./worktree.js"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m39 |[0m
+@roo-code/web-evals:build:   [90m40 |[0m [36mexport[0m * [36mfrom[0m [32m"./providers/index.js"[0m
+@roo-code/web-evals:build:   [90m41 |[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   App Route:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./packages/types/src/index.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: https://nextjs.org/docs/messages/module-not-found
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/new-run.tsx:23:1
+@roo-code/web-evals:build: Export EVALS_SETTINGS doesn't exist in target module
+@roo-code/web-evals:build:   [90m21 |[0m } [36mfrom[0m [32m"lucide-react"[0m
+@roo-code/web-evals:build:   [90m22 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m23 |[0m [36mimport[0m {
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m24 |[0m 	[36mtype[0m [33mProviderSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m25 |[0m 	[36mtype[0m [33mGlobalSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m26 |[0m 	globalSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m27 |[0m 	providerSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m28 |[0m 	getModelId,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m29 |[0m 	[33mEVALS_SETTINGS[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m30 |[0m } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m31 |[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mimport[0m { createRun } [36mfrom[0m [32m"@/actions/runs"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mimport[0m { getExercises } [36mfrom[0m [32m"@/actions/exercises"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export EVALS_SETTINGS was not found in module [project]/packages/types/src/index.ts [app-client] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import trace:
+@roo-code/web-evals:build:   Server Component:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/new-run.tsx:23:1
+@roo-code/web-evals:build: Export EVALS_SETTINGS doesn't exist in target module
+@roo-code/web-evals:build:   [90m21 |[0m } [36mfrom[0m [32m"lucide-react"[0m
+@roo-code/web-evals:build:   [90m22 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m23 |[0m [36mimport[0m {
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m24 |[0m 	[36mtype[0m [33mProviderSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m25 |[0m 	[36mtype[0m [33mGlobalSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m26 |[0m 	globalSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m27 |[0m 	providerSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m28 |[0m 	getModelId,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m29 |[0m 	[33mEVALS_SETTINGS[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m30 |[0m } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m31 |[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mimport[0m { createRun } [36mfrom[0m [32m"@/actions/runs"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mimport[0m { getExercises } [36mfrom[0m [32m"@/actions/exercises"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export EVALS_SETTINGS was not found in module [project]/packages/types/src/index.ts [app-ssr] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import trace:
+@roo-code/web-evals:build:   Server Component:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/settings-diff.tsx:1:1
+@roo-code/web-evals:build: Export GLOBAL_SETTINGS_KEYS doesn't exist in target module
+@roo-code/web-evals:build: [31m[1m>[0m [90m1 |[0m ...[36mpe[0m [33mKeys[0m, [36mtype[0m [33mRooCodeSettings[0m, [33mGLOBAL_SETTINGS_KEYS[0m, [33mPROVIDER_SETTINGS_KEYS[0m } [36mfrom[0m [32m"@roo...[0m
+@roo-code/web-evals:build:   [90m  |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m2 |[0m ...
+@roo-code/web-evals:build:   [90m3 |[0m ...[33mble[0m, [33mTableBody[0m, [33mTableCell[0m, [33mTableHead[0m, [33mTableHeader[0m, [33mTableRow[0m } [36mfrom[0m [32m"@/components/ui"[0m
+@roo-code/web-evals:build:   [90m4 |[0m ...
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export GLOBAL_SETTINGS_KEYS was not found in module [project]/packages/types/src/index.ts [app-client] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/settings-diff.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/settings-diff.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/settings-diff.tsx:1:1
+@roo-code/web-evals:build: Export GLOBAL_SETTINGS_KEYS doesn't exist in target module
+@roo-code/web-evals:build: [31m[1m>[0m [90m1 |[0m ...[36mpe[0m [33mKeys[0m, [36mtype[0m [33mRooCodeSettings[0m, [33mGLOBAL_SETTINGS_KEYS[0m, [33mPROVIDER_SETTINGS_KEYS[0m } [36mfrom[0m [32m"@roo...[0m
+@roo-code/web-evals:build:   [90m  |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m2 |[0m ...
+@roo-code/web-evals:build:   [90m3 |[0m ...[33mble[0m, [33mTableBody[0m, [33mTableCell[0m, [33mTableHead[0m, [33mTableHeader[0m, [33mTableRow[0m } [36mfrom[0m [32m"@/components/ui"[0m
+@roo-code/web-evals:build:   [90m4 |[0m ...
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export GLOBAL_SETTINGS_KEYS was not found in module [project]/packages/types/src/index.ts [app-ssr] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/settings-diff.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/settings-diff.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/settings-diff.tsx:1:1
+@roo-code/web-evals:build: Export PROVIDER_SETTINGS_KEYS doesn't exist in target module
+@roo-code/web-evals:build: [31m[1m>[0m [90m1 |[0m ...[36mpe[0m [33mKeys[0m, [36mtype[0m [33mRooCodeSettings[0m, [33mGLOBAL_SETTINGS_KEYS[0m, [33mPROVIDER_SETTINGS_KEYS[0m } [36mfrom[0m [32m"@roo...[0m
+@roo-code/web-evals:build:   [90m  |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m2 |[0m ...
+@roo-code/web-evals:build:   [90m3 |[0m ...[33mble[0m, [33mTableBody[0m, [33mTableCell[0m, [33mTableHead[0m, [33mTableHeader[0m, [33mTableRow[0m } [36mfrom[0m [32m"@/components/ui"[0m
+@roo-code/web-evals:build:   [90m4 |[0m ...
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export PROVIDER_SETTINGS_KEYS was not found in module [project]/packages/types/src/index.ts [app-client] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/settings-diff.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/settings-diff.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/settings-diff.tsx:1:1
+@roo-code/web-evals:build: Export PROVIDER_SETTINGS_KEYS doesn't exist in target module
+@roo-code/web-evals:build: [31m[1m>[0m [90m1 |[0m ...[36mpe[0m [33mKeys[0m, [36mtype[0m [33mRooCodeSettings[0m, [33mGLOBAL_SETTINGS_KEYS[0m, [33mPROVIDER_SETTINGS_KEYS[0m } [36mfrom[0m [32m"@roo...[0m
+@roo-code/web-evals:build:   [90m  |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m2 |[0m ...
+@roo-code/web-evals:build:   [90m3 |[0m ...[33mble[0m, [33mTableBody[0m, [33mTableCell[0m, [33mTableHead[0m, [33mTableHeader[0m, [33mTableRow[0m } [36mfrom[0m [32m"@/components/ui"[0m
+@roo-code/web-evals:build:   [90m4 |[0m ...
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export PROVIDER_SETTINGS_KEYS was not found in module [project]/packages/types/src/index.ts [app-ssr] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/settings-diff.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/settings-diff.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/hooks/use-run-status.ts:4:1
+@roo-code/web-evals:build: Export RooCodeEventName doesn't exist in target module
+@roo-code/web-evals:build:   [90m2 |[0m ... { useQuery, keepPreviousData } [36mfrom[0m [32m"@tanstack/react-query"[0m
+@roo-code/web-evals:build:   [90m3 |[0m ...
+@roo-code/web-evals:build: [31m[1m>[0m [90m4 |[0m ... { [36mtype[0m [33mTokenUsage[0m, [36mtype[0m [33mToolUsage[0m, [33mRooCodeEventName[0m, taskEventSchema } [36mfrom[0m [32m"@roo-code/...[0m
+@roo-code/web-evals:build:   [90m  |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m5 |[0m ... [36mtype[0m { [33mRun[0m, [33mTask[0m, [33mTaskMetrics[0m } [36mfrom[0m [32m"@roo-code/evals"[0m
+@roo-code/web-evals:build:   [90m6 |[0m ...
+@roo-code/web-evals:build:   [90m7 |[0m ... { getHeartbeat } [36mfrom[0m [32m"@/actions/heartbeat"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export RooCodeEventName was not found in module [project]/packages/types/src/index.ts [app-client] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./apps/web-evals/src/hooks/use-run-status.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./apps/web-evals/src/hooks/use-run-status.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/hooks/use-run-status.ts:4:1
+@roo-code/web-evals:build: Export RooCodeEventName doesn't exist in target module
+@roo-code/web-evals:build:   [90m2 |[0m ... { useQuery, keepPreviousData } [36mfrom[0m [32m"@tanstack/react-query"[0m
+@roo-code/web-evals:build:   [90m3 |[0m ...
+@roo-code/web-evals:build: [31m[1m>[0m [90m4 |[0m ... { [36mtype[0m [33mTokenUsage[0m, [36mtype[0m [33mToolUsage[0m, [33mRooCodeEventName[0m, taskEventSchema } [36mfrom[0m [32m"@roo-code/...[0m
+@roo-code/web-evals:build:   [90m  |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m5 |[0m ... [36mtype[0m { [33mRun[0m, [33mTask[0m, [33mTaskMetrics[0m } [36mfrom[0m [32m"@roo-code/evals"[0m
+@roo-code/web-evals:build:   [90m6 |[0m ...
+@roo-code/web-evals:build:   [90m7 |[0m ... { getHeartbeat } [36mfrom[0m [32m"@/actions/heartbeat"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export RooCodeEventName was not found in module [project]/packages/types/src/index.ts [app-ssr] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./apps/web-evals/src/hooks/use-run-status.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./apps/web-evals/src/hooks/use-run-status.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/new-run.tsx:23:1
+@roo-code/web-evals:build: Export getModelId doesn't exist in target module
+@roo-code/web-evals:build:   [90m21 |[0m } [36mfrom[0m [32m"lucide-react"[0m
+@roo-code/web-evals:build:   [90m22 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m23 |[0m [36mimport[0m {
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m24 |[0m 	[36mtype[0m [33mProviderSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m25 |[0m 	[36mtype[0m [33mGlobalSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m26 |[0m 	globalSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m27 |[0m 	providerSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m28 |[0m 	getModelId,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m29 |[0m 	[33mEVALS_SETTINGS[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m30 |[0m } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m31 |[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mimport[0m { createRun } [36mfrom[0m [32m"@/actions/runs"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mimport[0m { getExercises } [36mfrom[0m [32m"@/actions/exercises"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export getModelId was not found in module [project]/packages/types/src/index.ts [app-client] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import trace:
+@roo-code/web-evals:build:   Server Component:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/new-run.tsx:23:1
+@roo-code/web-evals:build: Export getModelId doesn't exist in target module
+@roo-code/web-evals:build:   [90m21 |[0m } [36mfrom[0m [32m"lucide-react"[0m
+@roo-code/web-evals:build:   [90m22 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m23 |[0m [36mimport[0m {
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m24 |[0m 	[36mtype[0m [33mProviderSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m25 |[0m 	[36mtype[0m [33mGlobalSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m26 |[0m 	globalSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m27 |[0m 	providerSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m28 |[0m 	getModelId,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m29 |[0m 	[33mEVALS_SETTINGS[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m30 |[0m } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m31 |[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mimport[0m { createRun } [36mfrom[0m [32m"@/actions/runs"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mimport[0m { getExercises } [36mfrom[0m [32m"@/actions/exercises"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export getModelId was not found in module [project]/packages/types/src/index.ts [app-ssr] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import trace:
+@roo-code/web-evals:build:   Server Component:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/new-run.tsx:23:1
+@roo-code/web-evals:build: Export globalSettingsSchema doesn't exist in target module
+@roo-code/web-evals:build:   [90m21 |[0m } [36mfrom[0m [32m"lucide-react"[0m
+@roo-code/web-evals:build:   [90m22 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m23 |[0m [36mimport[0m {
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m24 |[0m 	[36mtype[0m [33mProviderSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m25 |[0m 	[36mtype[0m [33mGlobalSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m26 |[0m 	globalSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m27 |[0m 	providerSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m28 |[0m 	getModelId,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m29 |[0m 	[33mEVALS_SETTINGS[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m30 |[0m } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m31 |[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mimport[0m { createRun } [36mfrom[0m [32m"@/actions/runs"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mimport[0m { getExercises } [36mfrom[0m [32m"@/actions/exercises"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export globalSettingsSchema was not found in module [project]/packages/types/src/index.ts [app-client] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import trace:
+@roo-code/web-evals:build:   Server Component:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/new-run.tsx:23:1
+@roo-code/web-evals:build: Export globalSettingsSchema doesn't exist in target module
+@roo-code/web-evals:build:   [90m21 |[0m } [36mfrom[0m [32m"lucide-react"[0m
+@roo-code/web-evals:build:   [90m22 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m23 |[0m [36mimport[0m {
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m24 |[0m 	[36mtype[0m [33mProviderSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m25 |[0m 	[36mtype[0m [33mGlobalSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m26 |[0m 	globalSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m27 |[0m 	providerSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m28 |[0m 	getModelId,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m29 |[0m 	[33mEVALS_SETTINGS[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m30 |[0m } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m31 |[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mimport[0m { createRun } [36mfrom[0m [32m"@/actions/runs"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mimport[0m { getExercises } [36mfrom[0m [32m"@/actions/exercises"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export globalSettingsSchema was not found in module [project]/packages/types/src/index.ts [app-ssr] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import trace:
+@roo-code/web-evals:build:   Server Component:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/new-run.tsx:23:1
+@roo-code/web-evals:build: Export providerSettingsSchema doesn't exist in target module
+@roo-code/web-evals:build:   [90m21 |[0m } [36mfrom[0m [32m"lucide-react"[0m
+@roo-code/web-evals:build:   [90m22 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m23 |[0m [36mimport[0m {
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m24 |[0m 	[36mtype[0m [33mProviderSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m25 |[0m 	[36mtype[0m [33mGlobalSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m26 |[0m 	globalSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m27 |[0m 	providerSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m28 |[0m 	getModelId,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m29 |[0m 	[33mEVALS_SETTINGS[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m30 |[0m } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m31 |[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mimport[0m { createRun } [36mfrom[0m [32m"@/actions/runs"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mimport[0m { getExercises } [36mfrom[0m [32m"@/actions/exercises"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export providerSettingsSchema was not found in module [project]/packages/types/src/index.ts [app-client] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import trace:
+@roo-code/web-evals:build:   Server Component:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/runs/new/new-run.tsx:23:1
+@roo-code/web-evals:build: Export providerSettingsSchema doesn't exist in target module
+@roo-code/web-evals:build:   [90m21 |[0m } [36mfrom[0m [32m"lucide-react"[0m
+@roo-code/web-evals:build:   [90m22 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m23 |[0m [36mimport[0m {
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m24 |[0m 	[36mtype[0m [33mProviderSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m25 |[0m 	[36mtype[0m [33mGlobalSettings[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m26 |[0m 	globalSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m27 |[0m 	providerSettingsSchema,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m28 |[0m 	getModelId,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m29 |[0m 	[33mEVALS_SETTINGS[0m,
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m30 |[0m } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m31 |[0m
+@roo-code/web-evals:build:   [90m32 |[0m [36mimport[0m { createRun } [36mfrom[0m [32m"@/actions/runs"[0m
+@roo-code/web-evals:build:   [90m33 |[0m [36mimport[0m { getExercises } [36mfrom[0m [32m"@/actions/exercises"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export providerSettingsSchema was not found in module [project]/packages/types/src/index.ts [app-ssr] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import trace:
+@roo-code/web-evals:build:   Server Component:
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/lib/schemas.ts:3:1
+@roo-code/web-evals:build: Export rooCodeSettingsSchema doesn't exist in target module
+@roo-code/web-evals:build:   [90m1 |[0m [36mimport[0m { z } [36mfrom[0m [32m"zod"[0m
+@roo-code/web-evals:build:   [90m2 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m3 |[0m [36mimport[0m { rooCodeSettingsSchema } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m4 |[0m
+@roo-code/web-evals:build:   [90m5 |[0m /**
+@roo-code/web-evals:build:   [90m6 |[0m  * [33mExecutionMethod[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export rooCodeSettingsSchema was not found in module [project]/packages/types/src/index.ts [app-client] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./apps/web-evals/src/lib/schemas.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./apps/web-evals/src/lib/schemas.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/lib/schemas.ts:3:1
+@roo-code/web-evals:build: Export rooCodeSettingsSchema doesn't exist in target module
+@roo-code/web-evals:build:   [90m1 |[0m [36mimport[0m { z } [36mfrom[0m [32m"zod"[0m
+@roo-code/web-evals:build:   [90m2 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m3 |[0m [36mimport[0m { rooCodeSettingsSchema } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m4 |[0m
+@roo-code/web-evals:build:   [90m5 |[0m /**
+@roo-code/web-evals:build:   [90m6 |[0m  * [33mExecutionMethod[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export rooCodeSettingsSchema was not found in module [project]/packages/types/src/index.ts [app-ssr] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./apps/web-evals/src/lib/schemas.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./apps/web-evals/src/lib/schemas.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/new-run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/new/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/app/api/runs/[id]/stream/route.ts:3:1
+@roo-code/web-evals:build: Export taskEventSchema doesn't exist in target module
+@roo-code/web-evals:build:   [90m1 |[0m [36mimport[0m [36mtype[0m { [33mNextRequest[0m } [36mfrom[0m [32m"next/server"[0m
+@roo-code/web-evals:build:   [90m2 |[0m
+@roo-code/web-evals:build: [31m[1m>[0m [90m3 |[0m [36mimport[0m { taskEventSchema } [36mfrom[0m [32m"@roo-code/types"[0m
+@roo-code/web-evals:build:   [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m4 |[0m [36mimport[0m { findRun } [36mfrom[0m [32m"@roo-code/evals"[0m
+@roo-code/web-evals:build:   [90m5 |[0m
+@roo-code/web-evals:build:   [90m6 |[0m [36mimport[0m { [33mSSEStream[0m } [36mfrom[0m [32m"@/lib/server/sse-stream"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export taskEventSchema was not found in module [project]/packages/types/src/index.ts [app-route] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/hooks/use-run-status.ts:4:1
+@roo-code/web-evals:build: Export taskEventSchema doesn't exist in target module
+@roo-code/web-evals:build:   [90m2 |[0m ... { useQuery, keepPreviousData } [36mfrom[0m [32m"@tanstack/react-query"[0m
+@roo-code/web-evals:build:   [90m3 |[0m ...
+@roo-code/web-evals:build: [31m[1m>[0m [90m4 |[0m ... { [36mtype[0m [33mTokenUsage[0m, [36mtype[0m [33mToolUsage[0m, [33mRooCodeEventName[0m, taskEventSchema } [36mfrom[0m [32m"@roo-code/...[0m
+@roo-code/web-evals:build:   [90m  |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m5 |[0m ... [36mtype[0m { [33mRun[0m, [33mTask[0m, [33mTaskMetrics[0m } [36mfrom[0m [32m"@roo-code/evals"[0m
+@roo-code/web-evals:build:   [90m6 |[0m ...
+@roo-code/web-evals:build:   [90m7 |[0m ... { getHeartbeat } [36mfrom[0m [32m"@/actions/heartbeat"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export taskEventSchema was not found in module [project]/packages/types/src/index.ts [app-client] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./apps/web-evals/src/hooks/use-run-status.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./apps/web-evals/src/hooks/use-run-status.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: ./apps/web-evals/src/hooks/use-run-status.ts:4:1
+@roo-code/web-evals:build: Export taskEventSchema doesn't exist in target module
+@roo-code/web-evals:build:   [90m2 |[0m ... { useQuery, keepPreviousData } [36mfrom[0m [32m"@tanstack/react-query"[0m
+@roo-code/web-evals:build:   [90m3 |[0m ...
+@roo-code/web-evals:build: [31m[1m>[0m [90m4 |[0m ... { [36mtype[0m [33mTokenUsage[0m, [36mtype[0m [33mToolUsage[0m, [33mRooCodeEventName[0m, taskEventSchema } [36mfrom[0m [32m"@roo-code/...[0m
+@roo-code/web-evals:build:   [90m  |[0m    [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+@roo-code/web-evals:build:   [90m5 |[0m ... [36mtype[0m { [33mRun[0m, [33mTask[0m, [33mTaskMetrics[0m } [36mfrom[0m [32m"@roo-code/evals"[0m
+@roo-code/web-evals:build:   [90m6 |[0m ...
+@roo-code/web-evals:build:   [90m7 |[0m ... { getHeartbeat } [36mfrom[0m [32m"@/actions/heartbeat"[0m
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: The export taskEventSchema was not found in module [project]/packages/types/src/index.ts [app-ssr] (ecmascript).
+@roo-code/web-evals:build: The module has no exports at all.
+@roo-code/web-evals:build: All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: Import traces:
+@roo-code/web-evals:build:   Client Component Browser:
+@roo-code/web-evals:build:     ./apps/web-evals/src/hooks/use-run-status.ts [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Client Component Browser]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:   Client Component SSR:
+@roo-code/web-evals:build:     ./apps/web-evals/src/hooks/use-run-status.ts [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Client Component SSR]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/run.tsx [Server Component]
+@roo-code/web-evals:build:     ./apps/web-evals/src/app/runs/[id]/page.tsx [Server Component]
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build: 
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:1:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:13:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:2:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:3:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:4:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:5:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:6:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:43:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:42:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:7:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:8:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:9:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:10:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:11:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:12:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:16:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:17:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:18:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:19:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:20:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:21:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:22:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:23:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:24:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:25:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:26:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:15:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:14:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:27:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:40:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:30:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:28:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:31:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:32:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:29:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:34:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:33:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:35:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:36:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:37:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./packages/types/src/index.ts:38:1)
+@roo-code/web-evals:build:     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/new-run.tsx:23:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/new-run.tsx:23:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/settings-diff.tsx:1:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/settings-diff.tsx:1:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/settings-diff.tsx:1:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/settings-diff.tsx:1:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/hooks/use-run-status.ts:4:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/hooks/use-run-status.ts:4:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/new-run.tsx:23:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/new-run.tsx:23:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/new-run.tsx:23:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/new-run.tsx:23:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/new-run.tsx:23:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/runs/new/new-run.tsx:23:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/lib/schemas.ts:3:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/lib/schemas.ts:3:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/app/api/runs/[id]/stream/route.ts:3:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/hooks/use-run-status.ts:4:1)
+@roo-code/web-evals:build:     at <unknown> (./apps/web-evals/src/hooks/use-run-status.ts:4:1)
+@roo-code/web-evals:build:  ELIFECYCLE  Command failed with exit code 1.
+@roo-code/web-roo-code:build: cache miss, executing 9989d5536227d248
+@roo-code/web-roo-code:build: 
+@roo-code/web-roo-code:build: > @roo-code/web-roo-code@0.0.1 build F:\AIPlugins\costrict-main\apps\web-roo-code
+@roo-code/web-roo-code:build: > next build
+@roo-code/web-roo-code:build: 
+@roo-code/web-roo-code:build: ▲ Next.js 16.2.7 (Turbopack)
+@roo-code/web-roo-code:build: 
+@roo-code/web-roo-code:build:   Creating an optimized production build ...
+@roo-code/vscode-webview:build: cache miss, executing 35e22f60e48f1ef9
+@roo-code/vscode-webview:build: 
+@roo-code/vscode-webview:build: > @roo-code/vscode-webview@ build F:\AIPlugins\costrict-main\webview-ui
+@roo-code/vscode-webview:build: > tsc -b && vite build
+@roo-code/vscode-webview:build: 
+ ERROR  @roo-code/web-evals#build: command (F:\AIPlugins\costrict-main\apps\web-evals) F:\.pnpm-store\v11\links\@\pnpm\10.8.1\9bbe1edc7ba573aa54751af8534cf7faaa923dfc13ad2bf3e344538b4f8a6a6c\bin\pnpm.CMD run build exited (1)
+
+ Tasks:    3 successful, 6 total
+Cached:    3 cached, 6 total
+  Time:    9.289s 
+Failed:    @roo-code/web-evals#build
+
+ ERROR  run failed: command  exited (1)
+ ELIFECYCLE  Command failed with exit code 1.
