@@ -2,9 +2,9 @@
 	"name": "sdd",
 	"displayName": "%extension.displayName.long%",
 	"description": "%extension.description%",
-	"publisher": "zgsm-ai",
-	"version": "3.0.17",
-	"icon": "assets/images/sdd_icon.png",
+	"publisher": "dmt",
+	"version": "1.0.0",
+	"icon": "assets/images/sddAgent.svg",
 	"galleryBanner": {
 		"color": "#617A91",
 		"theme": "dark"
@@ -14,13 +14,13 @@
 		"node": ">=20.19.2"
 	},
 	"author": {
-		"name": "zgsm-ai"
+		"name": "dmt"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/zgsm-ai/costrict"
+		"url": "https://github.com/dmt/ssdAgent.git"
 	},
-	"homepage": "https://github.com/zgsm-ai/costrict",
+	"homepage": "https://github.com/dmt/ssdAgent",
 	"categories": [
 		"AI",
 		"Chat",
@@ -30,30 +30,16 @@
 		"Testing"
 	],
 	"keywords": [
-		"cline",
-		"claude",
 		"dev",
 		"mcp",
 		"openrouter",
 		"coding",
 		"agent",
 		"autonomous",
-		"chatgpt",
-		"sonnet",
 		"ai",
 		"llama",
-		"roo code",
-		"zoo code",
-		"zoocode",
-		"roocode",
-		"costrict",
-		"costrict",
 		"shenma",
-		"诸葛神码",
-		"诸葛",
-		"神码",
 		"sangfor",
-		"深信服",
 		"strict",
 		"严肃",
 		"编程",
@@ -62,10 +48,6 @@
 		"codereview",
 		"补全",
 		"智能体",
-		"chinese cline",
-		"chinese roocode",
-		"roocode中文",
-		"cline中文",
 		"kimi k2"
 	],
 	"activationEvents": [
@@ -79,7 +61,7 @@
 				{
 					"id": "costrict-ActivityBar",
 					"title": "%views.activitybar.title%",
-					"icon": "assets/images/sdd_icon.png"
+					"icon": "assets/images/sddAgent.svg"
 				}
 			]
 		},
@@ -89,14 +71,14 @@
 					"type": "webview",
 					"id": "costrict.SidebarProvider",
 					"name": "%views.sidebar.name%",
-					"icon": "assets/images/sdd_icon.png",
+					"icon": "assets/images/sddAgent.svg",
 					"when": "costrict.uiMode == classic"
 				},
 				{
 					"type": "webview",
 					"id": "costrict.AssistantUISidebarProvider",
 					"name": "%views.sidebar.name%",
-					"icon": "assets/images/sdd_icon.png",
+					"icon": "assets/images/sddAgent.svg",
 					"when": "costrict.uiMode == cloud"
 				}
 			]
@@ -110,7 +92,7 @@
 			{
 				"command": "costrict.openNewButtonClicked",
 				"title": "%command.newTask.title%",
-				"icon": "assets/images/sdd_icon.png"
+				"icon": "assets/images/sddAgent.svg"
 			},
 			{
 				"command": "costrict.plusButtonClicked",
@@ -221,7 +203,7 @@
 			{
 				"command": "costrict.reviewCommit",
 				"title": "%command.reviewCommit.title%",
-				"icon": "assets/images/reviewLogo.png"
+				"icon": "assets/images/sddAgent.svg"
 			},
 			{
 				"command": "costrict.coworkflow.runTaskJetbrains",
@@ -331,7 +313,7 @@
 				"command": "costrict.generateCommitMessage",
 				"title": "%command.generateCommitMessage.title%",
 				"category": "%configuration.title%",
-				"icon": "assets/images/commitLogo.png"
+				"icon": "assets/images/sddAgent.svg"
 			},
 			{
 				"command": "costrict.reloadWebview",

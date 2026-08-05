@@ -142,7 +142,7 @@ export function isProviderAllowedForCostrictCodeMode(
 	apiProvider: string | undefined,
 ): boolean {
 	if (costrictCodeMode === "plan" || costrictCodeMode === "strict") {
-		return apiProvider === "costrict"
+		return true // return apiProvider === "costrict"
 	}
 
 	return true

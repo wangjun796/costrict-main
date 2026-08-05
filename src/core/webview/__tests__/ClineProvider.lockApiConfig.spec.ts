@@ -184,9 +184,9 @@ vi.mock("../../../shared/modes", () => {
 		}),
 		isProviderAllowedForCostrictCodeMode: vi.fn(
 			(costrictCodeMode: string | undefined, apiProvider: string | undefined) => {
-				if (costrictCodeMode === "plan" || costrictCodeMode === "strict") {
-					return apiProvider === "costrict"
-				}
+				// if (costrictCodeMode === "plan" || costrictCodeMode === "strict") {
+				// 	return apiProvider === "costrict"
+				// }
 				return true
 			},
 		),

@@ -25,25 +25,15 @@ const LazySettingsView = React.lazy(() => import("./components/settings/Settings
 const LazyCodeReviewPage = React.lazy(() => import("./components/code-review"))
 const LazyCodeReviewHistoryView = React.lazy(() => import("./components/code-review/CodeReviewHistoryView"))
 const LazyWelcomeView = React.lazy(() => import("./components/welcome/WelcomeViewProvider"))
-const LazyCostrictAccountView = React.lazy(() =>
-	import("./components/cloud/CostrictAccountView").then((m) => ({ default: m.CostrictAccountView })),
-)
+// const LazyCostrictAccountView = React.lazy(() =>
+// 	import("./components/cloud/CostrictAccountView").then((m) => ({ default: m.CostrictAccountView })),
+// )
 // import { WorktreesView } from "./components/worktrees"
 // import { CloudView } from "./components/cloud/CloudView"
 import { useAddNonInteractiveClickListener } from "./components/ui/hooks/useNonInteractiveClick"
 import { TooltipProvider } from "./components/ui/tooltip"
 import { STANDARD_TOOLTIP_DELAY, StandardTooltip } from "./components/ui/standard-tooltip"
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "./components/ui/alert-dialog"
-import { Trans } from "react-i18next"
+
 import { cn } from "./lib/utils"
 import { TabContent, TabList, TabTrigger } from "./components/common/Tab"
 import { ReauthConfirmationDialog } from "./components/chat/ReauthConfirmationDialog"
@@ -157,8 +147,6 @@ const App = () => {
 		hasCheckpoint: false,
 		images: [],
 	})
-
-	const [cloudSwitchDialogOpen, setCloudSwitchDialogOpen] = useState(false)
 
 	const settingsRef = useRef<SettingsViewRef>(null)
 	const chatViewRef = useRef<ChatViewRef>(null)
@@ -412,11 +400,11 @@ const App = () => {
 					organizations={cloudOrganizations}
 				/>
 			)} */}
-			{tab === "costrict-account" && (
+			{/* {false && (
 				<React.Suspense fallback={<LoadingView />}>
 					<LazyCostrictAccountView apiConfiguration={apiConfiguration} onDone={() => switchTab("chat")} />
 				</React.Suspense>
-			)}
+			)} */}
 			{tab === "codeReviewHistory" && (
 				<React.Suspense fallback={<LoadingView />}>
 					<LazyCodeReviewHistoryView onDone={() => switchTab("codeReview")} />
@@ -463,11 +451,6 @@ const App = () => {
 									className="codicon codicon-git-branch-create cursor-pointer p-0.5"
 									onClick={() => switchTab("worktrees")}></i>
 							</StandardTooltip> */}
-							<StandardTooltip content={t("cloud:switchDialog.title")}>
-								<i
-									className="codicon codicon-cloud cursor-pointer p-0.5"
-									onClick={() => setCloudSwitchDialogOpen(true)}></i>
-							</StandardTooltip>
 							<StandardTooltip content={t("history:history")}>
 								<i
 									className="codicon codicon-history cursor-pointer p-0.5"
@@ -603,37 +586,6 @@ const App = () => {
 					setReauthConfirmationDialogState((prev) => ({ ...prev, isOpen: false }))
 				}}
 			/>
-			<AlertDialog open={cloudSwitchDialogOpen} onOpenChange={setCloudSwitchDialogOpen}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>
-							<i className="codicon codicon-cloud"></i>
-							{t("cloud:switchDialog.title")}
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							<div className="flex flex-col gap-3">
-								<Trans
-									i18nKey="cloud:switchDialog.description"
-									components={{ bold: <strong /> }}
-								/>
-								<div className="bg-vscode-textBlockQuote-background p-3 rounded-sm text-sm">
-									<p className="font-medium mb-1">{t("cloud:switchDialog.steps")}</p>
-									<ol className="list-decimal list-inside space-y-1">
-										<li>{t("cloud:switchDialog.stepInstall")}</li>
-										<li>{t("cloud:switchDialog.stepStart")}</li>
-									</ol>
-								</div>
-							</div>
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>{t("cloud:switchDialog.cancel")}</AlertDialogCancel>
-						<AlertDialogAction onClick={() => vscode.postMessage({ type: "switchUiMode" })}>
-							{t("cloud:switchDialog.confirm")}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
 		</>
 	)
 }
