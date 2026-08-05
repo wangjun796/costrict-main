@@ -1035,7 +1035,7 @@
 		"shell-quote": "^1.8.2",
 		"simple-git": "^3.27.0",
 		"sound-play": "^1.1.0",
-		"stream-json": "^1.8.0",
+		"stream-json": "^3.5.0",
 		"string-similarity": "^4.0.4",
 		"strip-ansi": "^7.1.0",
 		"strip-bom": "^5.0.0",
