@@ -365,27 +365,27 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.window.registerUriHandler({ handleUri }))
 
 	// Register code actions provider.
-	context.subscriptions.push(
-		vscode.languages.registerCodeActionsProvider({ pattern: "**/*" }, new CodeActionProvider(), {
-			providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds,
-		}),
-	)
+	// context.subscriptions.push(
+	// 	vscode.languages.registerCodeActionsProvider({ pattern: "**/*" }, new CodeActionProvider(), {
+	// 		providedCodeActionKinds: CodeActionProvider.providedCodeActionKinds,
+	// 	}),
+	// )
 
 	// Register the 'User Manual' command
-	context.subscriptions.push(
-		vscode.commands.registerCommand(getCommand("view.userHelperDoc"), () => {
-			vscode.env.openExternal(vscode.Uri.parse(`${CostrictAuthConfig.getInstance().getDefaultSite()}`))
-		}),
-	)
+	// context.subscriptions.push(
+	// 	vscode.commands.registerCommand(getCommand("view.userHelperDoc"), () => {
+	// 		vscode.env.openExternal(vscode.Uri.parse(`${CostrictAuthConfig.getInstance().getDefaultSite()}`))
+	// 	}),
+	// )
 
 	// Register the 'Report Issue' command
-	context.subscriptions.push(
-		vscode.commands.registerCommand(getCommand("view.issue"), () => {
-			vscode.env.openExternal(
-				vscode.Uri.parse(`${CostrictAuthConfig.getInstance().getDefaultApiBaseUrl()}/issue/`),
-			)
-		}),
-	)
+	// context.subscriptions.push(
+	// 	vscode.commands.registerCommand(getCommand("view.issue"), () => {
+	// 		vscode.env.openExternal(
+	// 			vscode.Uri.parse(`${CostrictAuthConfig.getInstance().getDefaultApiBaseUrl()}/issue/`),
+	// 		)
+	// 	}),
+	// )
 
 	registerCodeActions(context)
 	registerTerminalActions(context)

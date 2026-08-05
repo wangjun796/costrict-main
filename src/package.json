@@ -293,16 +293,8 @@
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "costrict.view.issue",
-				"title": "%command.view.issue.title%"
-			},
-			{
 				"command": "costrict.addFileToContext",
 				"title": "%command.addFileToContext.title%"
-			},
-			{
-				"command": "costrict.view.userHelperDoc",
-				"title": "%command.view.userHelperDoc.title%"
 			},
 			{
 				"command": "costrict.toggleAutoApprove",
@@ -407,10 +399,6 @@
 					"command": "costrict.securityReviewCode",
 					"group": "costrict@6",
 					"when": "editorHasSelection && workbenchState != 'empty'"
-				},
-				{
-					"command": "costrict.view.issue",
-					"group": "zissue@1"
 				}
 			],
 			"terminal/context": [
@@ -447,16 +435,6 @@
 				{
 					"command": "costrict.cloudButtonClicked",
 					"group": "navigation@3",
-					"when": "view == costrict.SidebarProvider"
-				},
-				{
-					"command": "costrict.view.userHelperDoc",
-					"group": "overflow@2",
-					"when": "view == costrict.SidebarProvider"
-				},
-				{
-					"command": "costrict.view.issue",
-					"group": "overflow@3",
 					"when": "view == costrict.SidebarProvider"
 				},
 				{
@@ -504,16 +482,6 @@
 				{
 					"command": "costrict.popoutButtonClicked",
 					"group": "overflow@3",
-					"when": "activeWebviewPanelId == costrict.TabPanelProvider"
-				},
-				{
-					"command": "costrict.view.userHelperDoc",
-					"group": "overflow@4",
-					"when": "activeWebviewPanelId == costrict.TabPanelProvider"
-				},
-				{
-					"command": "costrict.view.issue",
-					"group": "overflow@5",
 					"when": "activeWebviewPanelId == costrict.TabPanelProvider"
 				},
 				{
