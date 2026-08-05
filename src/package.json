@@ -4,7 +4,7 @@
 	"description": "%extension.description%",
 	"publisher": "dmt",
 	"version": "1.0.0",
-	"icon": "assets/images/sddAgent.svg",
+	"icon": "assets/images/sdd_icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
 		"theme": "dark"
@@ -61,7 +61,7 @@
 				{
 					"id": "costrict-ActivityBar",
 					"title": "%views.activitybar.title%",
-					"icon": "assets/images/sddAgent.svg"
+					"icon": "assets/images/sdd_icon.png"
 				}
 			]
 		},
@@ -71,14 +71,14 @@
 					"type": "webview",
 					"id": "costrict.SidebarProvider",
 					"name": "%views.sidebar.name%",
-					"icon": "assets/images/sddAgent.svg",
+					"icon": "assets/images/sdd_icon.png",
 					"when": "costrict.uiMode == classic"
 				},
 				{
 					"type": "webview",
 					"id": "costrict.AssistantUISidebarProvider",
 					"name": "%views.sidebar.name%",
-					"icon": "assets/images/sddAgent.svg",
+					"icon": "assets/images/sdd_icon.png",
 					"when": "costrict.uiMode == cloud"
 				}
 			]
@@ -92,7 +92,7 @@
 			{
 				"command": "costrict.openNewButtonClicked",
 				"title": "%command.newTask.title%",
-				"icon": "assets/images/sddAgent.svg"
+				"icon": "assets/images/sdd_icon.png"
 			},
 			{
 				"command": "costrict.plusButtonClicked",
@@ -203,7 +203,7 @@
 			{
 				"command": "costrict.reviewCommit",
 				"title": "%command.reviewCommit.title%",
-				"icon": "assets/images/sddAgent.svg"
+				"icon": "assets/images/reviewLogo.png"
 			},
 			{
 				"command": "costrict.coworkflow.runTaskJetbrains",
@@ -313,7 +313,7 @@
 				"command": "costrict.generateCommitMessage",
 				"title": "%command.generateCommitMessage.title%",
 				"category": "%configuration.title%",
-				"icon": "assets/images/sddAgent.svg"
+				"icon": "assets/images/commitLogo.png"
 			},
 			{
 				"command": "costrict.reloadWebview",
