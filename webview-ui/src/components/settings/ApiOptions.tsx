@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react"
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { convertHeadersToObject } from "./utils/headers"
 import { useDebounce } from "react-use"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
@@ -38,6 +38,7 @@ import {
 	// type ToolProtocol,
 	// TOOL_PROTOCOL,
 	unboundDefaultModelId,
+	ollamaDefaultModelId,
 } from "@roo-code/types"
 
 import {
@@ -171,33 +172,36 @@ const ApiOptions = ({
 		}
 	}, [apiConfiguration?.openAiHeaders, customHeaders])
 
-	// Initialize default values for welcome view
+	// Initialize default values for welcome view - use local state so the UI reflects defaults immediately
+	const [effectiveApiConfig, setEffectiveApiConfig] = useState<ProviderSettings>(() => {
+		if (fromWelcomeView && !apiConfiguration?.apiProvider) {
+			return {
+				...apiConfiguration,
+				apiProvider: "ollama",
+				ollamaBaseUrl: "http://localhost:11434",
+				ollamaModelId: "qwen/qwen3.7-coder",
+			}
+		}
+		return apiConfiguration || {}
+	})
+
+	// Keep local state in sync with prop changes, but only when apiConfiguration has actual values
 	useEffect(() => {
-		if (!fromWelcomeView) return
-
-		const updates: Partial<ProviderSettings> = {}
-
-		// Set default provider to ollama
-		if (!apiConfiguration?.apiProvider) {
-			updates.apiProvider = "ollama"
+		if (apiConfiguration?.apiProvider) {
+			setEffectiveApiConfig(apiConfiguration)
 		}
+	}, [apiConfiguration])
 
-		// Set default Ollama base URL
-		if (!apiConfiguration?.ollamaBaseUrl) {
-			updates.ollamaBaseUrl = "http://localhost:11434"
+	// Propagate welcome defaults to parent on mount
+	const hasPropagatedDefaults = useRef(false)
+	useEffect(() => {
+		if (!hasPropagatedDefaults.current && fromWelcomeView && effectiveApiConfig.apiProvider === "ollama") {
+			hasPropagatedDefaults.current = true
+			setApiConfigurationField("apiProvider", "ollama" as any, false)
+			setApiConfigurationField("ollamaBaseUrl", "http://localhost:11434" as any, false)
+			setApiConfigurationField("ollamaModelId", "qwen/qwen3.7-coder" as any, false)
 		}
-
-		// Set default Ollama model
-		if (!apiConfiguration?.ollamaModelId) {
-			updates.ollamaModelId = "qwen/qwen3.7-coder"
-		}
-
-		if (Object.keys(updates).length > 0) {
-			Object.entries(updates).forEach(([field, value]) => {
-				setApiConfigurationField(field as keyof ProviderSettings, value as any, false)
-			})
-		}
-	}, [fromWelcomeView, apiConfiguration, setApiConfigurationField])
+	}, [fromWelcomeView, effectiveApiConfig.apiProvider, setApiConfigurationField])
 
 	// Helper to convert array of tuples to object (filtering out empty keys).
 
@@ -237,7 +241,7 @@ const ApiOptions = ({
 		provider: selectedProvider,
 		id: selectedModelId,
 		info: selectedModelInfo,
-	} = useSelectedModel(apiConfiguration)
+	} = useSelectedModel(effectiveApiConfig)
 	const activeSelectedProvider: ProviderName | undefined = isRetiredProvider(selectedProvider)
 		? undefined
 		: selectedProvider
@@ -443,7 +447,7 @@ const ApiOptions = ({
 				"vercel-ai-gateway": { field: "vercelAiGatewayModelId", default: vercelAiGatewayDefaultModelId },
 				openai: { field: "openAiModelId" },
 				costrict: { field: "costrictModelId", default: costrictDefaultModelId },
-				ollama: { field: "ollamaModelId" },
+				ollama: { field: "ollamaModelId", default: ollamaDefaultModelId },
 				lmstudio: { field: "lmStudioModelId" },
 			}
 
@@ -455,6 +459,11 @@ const ApiOptions = ({
 					config.field,
 					config.default,
 				)
+			}
+
+			// Set default base URL when switching to Ollama
+			if (value === "ollama" && !apiConfiguration?.ollamaBaseUrl) {
+				setApiConfigurationField("ollamaBaseUrl", "http://localhost:11434", false)
 			}
 		},
 		[setApiConfigurationField, apiConfiguration, organizationAllowList],
@@ -526,11 +535,13 @@ const ApiOptions = ({
 		// First filter by organization allow list
 		const allowedProviders = filterProviders(PROVIDERS, organizationAllowList)
 
+		// Use effectiveApiConfig to ensure welcome view defaults are respected
+		const currentProvider = effectiveApiConfig.apiProvider || apiConfiguration?.apiProvider
+
 		// Then filter out static providers that have no models (unless currently selected)
 		const providersWithModels = allowedProviders.filter(({ value }) => {
 			// Always show the currently selected provider to avoid breaking existing configurations
-			// Use apiConfiguration.apiProvider directly since that's what's actually selected
-			if (value === apiConfiguration.apiProvider) {
+			if (value === currentProvider) {
 				return true
 			}
 
@@ -568,7 +579,7 @@ const ApiOptions = ({
 		}
 
 		return options
-	}, [organizationAllowList, apiConfiguration.apiProvider, fromWelcomeView])
+	}, [organizationAllowList, effectiveApiConfig.apiProvider, apiConfiguration.apiProvider, fromWelcomeView])
 
 	return (
 		<div className="flex flex-col gap-3">

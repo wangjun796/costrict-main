@@ -104,17 +104,26 @@ async function main() {
 			name: "copyFiles",
 			setup(build) {
 				build.onEnd(() => {
+					// Copy root-level files (README, CHANGELOG, LICENSE, .env) to buildDir (extension root)
 					copyPaths(
 						[
 							["../README.md", "README.md"],
 							["../CHANGELOG.md", "CHANGELOG.md"],
 							["../LICENSE", "LICENSE"],
 							["../.env", ".env", { optional: true }],
+						],
+						srcDir,
+						buildDir,
+					)
+
+					// Copy runtime assets (material icons, audio) to distDir where the extension loads from
+					copyPaths(
+						[
 							["node_modules/vscode-material-icons/generated", "assets/vscode-material-icons"],
 							["../webview-ui/audio", "webview-ui/audio"],
 						],
 						srcDir,
-						buildDir,
+						distDir,
 					)
 
 					const assistantUiOutSrc = path.join(srcDir, "assets", "cs-cloud-ui", "out")
