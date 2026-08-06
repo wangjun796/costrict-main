@@ -171,6 +171,34 @@ const ApiOptions = ({
 		}
 	}, [apiConfiguration?.openAiHeaders, customHeaders])
 
+	// Initialize default values for welcome view
+	useEffect(() => {
+		if (!fromWelcomeView) return
+
+		const updates: Partial<ProviderSettings> = {}
+
+		// Set default provider to ollama
+		if (!apiConfiguration?.apiProvider) {
+			updates.apiProvider = "ollama"
+		}
+
+		// Set default Ollama base URL
+		if (!apiConfiguration?.ollamaBaseUrl) {
+			updates.ollamaBaseUrl = "http://localhost:11434"
+		}
+
+		// Set default Ollama model
+		if (!apiConfiguration?.ollamaModelId) {
+			updates.ollamaModelId = "qwen/qwen3.7-coder"
+		}
+
+		if (Object.keys(updates).length > 0) {
+			Object.entries(updates).forEach(([field, value]) => {
+				setApiConfigurationField(field as keyof ProviderSettings, value as any, false)
+			})
+		}
+	}, [fromWelcomeView, apiConfiguration, setApiConfigurationField])
+
 	// Helper to convert array of tuples to object (filtering out empty keys).
 
 	// Debounced effect to update the main configuration when local
