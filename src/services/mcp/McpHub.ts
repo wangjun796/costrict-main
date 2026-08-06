@@ -792,10 +792,25 @@ export class McpHub {
 				}
 			} else if (configInjected.type === "streamable-http") {
 				// Streamable HTTP connection
+				// Some MCP servers (e.g. chromadb-remote-mcp) return 404 instead of 405
+				// for GET requests on the MCP endpoint. The SDK only treats 405 as a
+				// "SSE not supported" signal, so we normalize 404 → 405 for GET requests.
+				const fetchWrapper: typeof fetch = async (input, init) => {
+					const response = await fetch(input, init)
+					if (init?.method === "GET" && response.status === 404) {
+						return new Response(null, {
+							status: 405,
+							statusText: "Method Not Allowed",
+							headers: response.headers,
+						})
+					}
+					return response
+				}
 				transport = new StreamableHTTPClientTransport(new URL(configInjected.url), {
 					requestInit: {
 						headers: configInjected.headers,
 					},
+					fetch: fetchWrapper,
 				})
 
 				// Set up Streamable HTTP specific error handling
