@@ -136,7 +136,7 @@ export interface ApiOptionsProps {
 	errorMessage: string | undefined
 	setErrorMessage: React.Dispatch<React.SetStateAction<string | undefined>>
 	useCostrictCustomConfig?: boolean
-	setCachedStateField: SetCachedStateField<"useCostrictCustomConfig">
+	setCachedStateField?: SetCachedStateField<"useCostrictCustomConfig">
 }
 
 const ApiOptions = ({
@@ -533,16 +533,10 @@ const ApiOptions = ({
 				options.unshift(rooOption)
 			}
 		} else {
-			// Filter out roo from the welcome view
-			const filteredOptions = options.filter((opt) => opt.value !== "roo")
+			// Filter out roo and costrict from the welcome view
+			const filteredOptions = options.filter((opt) => opt.value !== "roo" && opt.value !== "costrict")
 			options.length = 0
 			options.push(...filteredOptions)
-
-			const openRouterIndex = options.findIndex((opt) => opt.value === "openrouter")
-			const costrictIndex = options.findIndex((opt) => opt.value === "costrict")
-			if (openRouterIndex > 0) {
-				options.splice(costrictIndex, 1)
-			}
 		}
 
 		return options
@@ -591,7 +585,7 @@ const ApiOptions = ({
 							organizationAllowList={organizationAllowList}
 							modelValidationError={modelValidationError}
 							useCostrictCustomConfig={useCostrictCustomConfig}
-							setCachedStateField={setCachedStateField}
+							setCachedStateField={setCachedStateField!}
 							refetchRouterModels={refetchRouterModels}
 						/>
 					)}
