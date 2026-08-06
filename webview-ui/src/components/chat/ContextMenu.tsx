@@ -47,6 +47,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 	commands = [],
 }) => {
 	const [materialIconsBaseUri, setMaterialIconsBaseUri] = useState("")
+	const [iconLoadErrors, setIconLoadErrors] = useState<Set<string>>(new Set())
 	const menuRef = useRef<HTMLDivElement>(null)
 
 	const filteredOptions = useMemo(() => {
@@ -80,7 +81,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 	// get the icons base uri on mount
 	useEffect(() => {
 		const w = window as any
-		setMaterialIconsBaseUri(w.MATERIAL_ICONS_BASE_URI)
+		setMaterialIconsBaseUri(w.MATERIAL_ICONS_BASE_URI || "")
 	}, [])
 
 	const renderOptionContent = (option: ContextMenuQueryItem) => {
@@ -262,6 +263,14 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 		return getIconUrlByName(iconName, materialIconsBaseUri)
 	}
 
+	const handleIconError = (optionKey: string) => {
+		setIconLoadErrors((prev) => {
+			const next = new Set(prev)
+			next.add(optionKey)
+			return next
+		})
+	}
+
 	const isOptionSelectable = (option: ContextMenuQueryItem): boolean => {
 		return (
 			option.type !== ContextMenuOptionType.NoResults &&
@@ -389,28 +398,41 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 									paddingTop: 0,
 									position: "relative",
 								}}>
-								{((option.type === ContextMenuOptionType.File ||
-									option.type === ContextMenuOptionType.Folder ||
-									option.type === ContextMenuOptionType.OpenedFile) &&
-									option.value && (
-										<img
-											src={getMaterialIconForOption(option)}
-											alt=""
-											style={{
-												marginRight: "6px",
-												flexShrink: 0,
-												width: "16px",
-												height: "16px",
-											}}
-										/>
-									)) ||
-									((((option.type === ContextMenuOptionType.File ||
-										option.type === ContextMenuOptionType.Folder) &&
-										!option.value) ||
+								{(() => {
+									const optionKey = `${option.type}-${option.value || index}`
+									const isFileOrFolder =
+										option.type === ContextMenuOptionType.File ||
+										option.type === ContextMenuOptionType.Folder ||
+										option.type === ContextMenuOptionType.OpenedFile
+									const isActionItem =
 										option.type === ContextMenuOptionType.Problems ||
 										option.type === ContextMenuOptionType.Terminal ||
-										option.type === ContextMenuOptionType.URL) &&
-										getIconForOption(option) && (
+										option.type === ContextMenuOptionType.URL ||
+										(isFileOrFolder && !option.value)
+
+									if (
+										isFileOrFolder &&
+										option.value &&
+										materialIconsBaseUri &&
+										!iconLoadErrors.has(optionKey)
+									) {
+										return (
+											<img
+												src={getMaterialIconForOption(option)}
+												alt=""
+												onError={() => handleIconError(optionKey)}
+												style={{
+													marginRight: "6px",
+													flexShrink: 0,
+													width: "16px",
+													height: "16px",
+												}}
+											/>
+										)
+									}
+
+									if (isActionItem && getIconForOption(option)) {
+										return (
 											<i
 												className={`codicon codicon-${getIconForOption(option)}`}
 												style={{
@@ -420,7 +442,27 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 													marginTop: 0,
 												}}
 											/>
-										))}
+										)
+									}
+
+									// For file/folder with value but no material icon available (or it failed to load),
+									// still render a fallback codicon so the row isn't visually empty.
+									if (isFileOrFolder && option.value && getIconForOption(option)) {
+										return (
+											<i
+												className={`codicon codicon-${getIconForOption(option)}`}
+												style={{
+													marginRight: "6px",
+													flexShrink: 0,
+													fontSize: "14px",
+													marginTop: 0,
+												}}
+											/>
+										)
+									}
+
+									return null
+								})()}
 								{renderOptionContent(option)}
 							</div>
 							{(option.type === ContextMenuOptionType.File ||
