@@ -29,6 +29,18 @@ class ErrorBoundary extends Component<ErrorProps, ErrorState> {
 			errorMessage = `${error}`
 		}
 
+		// Detect ServiceWorker-related errors — these are expected in VS Code Webview
+		// and usually non-fatal. Log a warning instead of showing a full error screen.
+		if (
+			errorMessage.includes("service worker") ||
+			errorMessage.includes("ServiceWorker") ||
+			errorMessage.includes("InvalidStateError")
+		) {
+			console.warn("[ssdAgent] Non-fatal ServiceWorker error caught by ErrorBoundary:", errorMessage)
+			// Return empty state to avoid showing the error screen for expected SW errors
+			return {}
+		}
+
 		return {
 			error: errorMessage,
 			timestamp: Date.now(),

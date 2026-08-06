@@ -1581,6 +1581,46 @@ export class ClineProvider
 						window.COSTRICT_BASE_URI = "${costrictUri}"
 						window.AUDIO_BASE_URI = "${audioUri}"
 						window.MATERIAL_ICONS_BASE_URI = "${materialIconsUri}"
+						// VS Code Webview uses vscode-webview:// protocol which does not support ServiceWorker.
+						// Mock navigator.serviceWorker.register to prevent InvalidStateError from breaking the webview.
+						// This affects both the VS Code shell layer (parent) and any third-party libs in the iframe.
+						(function() {
+							var isVscodeWebview = window.location.protocol === 'vscode-webview:' ||
+								window.location.protocol === 'vscode-webview-resource:';
+							if (isVscodeWebview && 'serviceWorker' in navigator) {
+								var mockRegistration = {
+									addEventListener: function() {},
+									removeEventListener: function() {},
+									postMessage: function() {},
+									unregister: function() { return Promise.resolve(true); },
+									update: function() { return Promise.resolve(); },
+									installing: null,
+									waiting: null,
+									active: null,
+									scope: '/',
+									scriptURL: '',
+									state: 'redundant',
+									onstatechange: null,
+									onerror: null,
+									navigationPreload: { enable: function() { return Promise.resolve(); }, disable: function() { return Promise.resolve(); }, getState: function() { return Promise.resolve({ enabled: false }); }, setRequestHeader: function() {} },
+									pushManager: { subscribe: function() { return Promise.reject(new Error('Push not supported')); }, getSubscription: function() { return Promise.resolve(null); }, permissionState: function() { return Promise.resolve('denied'); } },
+									showNotification: function() { return Promise.resolve(); },
+									getNotifications: function() { return Promise.resolve([]); }
+								};
+								navigator.serviceWorker.register = function() {
+									console.warn('[ssdAgent] ServiceWorker registration mocked in VS Code Webview.');
+									return Promise.resolve(mockRegistration);
+								};
+								// Also mock controller to prevent null-access errors
+								if (!navigator.serviceWorker.controller) {
+									Object.defineProperty(navigator.serviceWorker, 'controller', {
+										value: mockRegistration,
+										writable: false,
+										configurable: true
+									});
+								}
+							}
+						})();
 					</script>
 					<title>ssdAgent</title>
 				</head>
@@ -1665,6 +1705,37 @@ export class ClineProvider
 				window.COSTRICT_BASE_URI = "${costrictUri}"
 				window.AUDIO_BASE_URI = "${audioUri}"
 				window.MATERIAL_ICONS_BASE_URI = "${materialIconsUri}"
+				// VS Code Webview uses vscode-webview:// protocol which does not support ServiceWorker.
+				// Mock navigator.serviceWorker.register to prevent InvalidStateError from breaking the webview.
+				(function() {
+					var isVscodeWebview = window.location.protocol === 'vscode-webview:' ||
+						window.location.protocol === 'vscode-webview-resource:';
+					if (isVscodeWebview && 'serviceWorker' in navigator) {
+						var mockRegistration = {
+							addEventListener: function() {},
+							removeEventListener: function() {},
+							postMessage: function() {},
+							unregister: function() { return Promise.resolve(true); },
+							update: function() { return Promise.resolve(); },
+							installing: null, waiting: null, active: null,
+							scope: '/', scriptURL: '', state: 'redundant',
+							onstatechange: null, onerror: null,
+							navigationPreload: { enable: function() { return Promise.resolve(); }, disable: function() { return Promise.resolve(); }, getState: function() { return Promise.resolve({ enabled: false }); }, setRequestHeader: function() {} },
+							pushManager: { subscribe: function() { return Promise.reject(new Error('Push not supported')); }, getSubscription: function() { return Promise.resolve(null); }, permissionState: function() { return Promise.resolve('denied'); } },
+							showNotification: function() { return Promise.resolve(); },
+							getNotifications: function() { return Promise.resolve([]); }
+						};
+						navigator.serviceWorker.register = function() {
+							console.warn('[ssdAgent] ServiceWorker registration mocked in VS Code Webview.');
+							return Promise.resolve(mockRegistration);
+						};
+						if (!navigator.serviceWorker.controller) {
+							Object.defineProperty(navigator.serviceWorker, 'controller', {
+								value: mockRegistration, writable: false, configurable: true
+							});
+						}
+					}
+				})();
 				Object.assign(window, {
 					isJetbrainsPlatform: ${isJetbrainsPlatform()},
 					"ANTHROPIC_MODEL": "${process.env.ANTHROPIC_MODEL}",
