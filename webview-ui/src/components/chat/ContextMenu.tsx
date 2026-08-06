@@ -389,37 +389,38 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 									paddingTop: 0,
 									position: "relative",
 								}}>
-								{(option.type === ContextMenuOptionType.File ||
+								{((option.type === ContextMenuOptionType.File ||
 									option.type === ContextMenuOptionType.Folder ||
-									option.type === ContextMenuOptionType.OpenedFile) && (
-									<img
-										src={getMaterialIconForOption(option)}
-										alt="Mode"
-										style={{
-											marginRight: "6px",
-											flexShrink: 0,
-											width: "16px",
-											height: "16px",
-										}}
-									/>
-								)}
-								{option.type !== ContextMenuOptionType.Mode &&
-									option.type !== ContextMenuOptionType.Command &&
-									option.type !== ContextMenuOptionType.File &&
-									option.type !== ContextMenuOptionType.Folder &&
-									option.type !== ContextMenuOptionType.OpenedFile &&
-									option.type !== ContextMenuOptionType.SectionHeader &&
-									getIconForOption(option) && (
-										<i
-											className={`codicon codicon-${getIconForOption(option)}`}
+									option.type === ContextMenuOptionType.OpenedFile) &&
+									option.value && (
+										<img
+											src={getMaterialIconForOption(option)}
+											alt=""
 											style={{
 												marginRight: "6px",
 												flexShrink: 0,
-												fontSize: "14px",
-												marginTop: 0,
+												width: "16px",
+												height: "16px",
 											}}
 										/>
-									)}
+									)) ||
+									((((option.type === ContextMenuOptionType.File ||
+										option.type === ContextMenuOptionType.Folder) &&
+										!option.value) ||
+										option.type === ContextMenuOptionType.Problems ||
+										option.type === ContextMenuOptionType.Terminal ||
+										option.type === ContextMenuOptionType.URL) &&
+										getIconForOption(option) && (
+											<i
+												className={`codicon codicon-${getIconForOption(option)}`}
+												style={{
+													marginRight: "6px",
+													flexShrink: 0,
+													fontSize: "14px",
+													marginTop: 0,
+												}}
+											/>
+										))}
 								{renderOptionContent(option)}
 							</div>
 							{(option.type === ContextMenuOptionType.File ||
