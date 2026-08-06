@@ -33,13 +33,13 @@
 		"getCostrictApiKeyAgain": "重新登录",
 		"costrictDefaultBaseUrl": "默认: {{costrictBaseUrl}}",
 		"lmStudio": {
-			"description": "LM Studio允许您在本地计算机上运行模型。有关如何入门的说明，请参阅他们的<a>快速入门指南</a>。您还需要启动LM Studio的<b>本地服务器</b>功能才能在此扩展中使用它。<span>注意：</span>CoStrict 使用复杂的提示，最适合与Claude模型配合使用。功能ssdAgent法按预期工作。"
+			"description": "LM Studio允许您在本地计算机上运行模型。有关如何入门的说明，请参阅他们的<a>快速入门指南</a>。您还需要启动LM Studio的<b>本地服务器</b>功能才能在此扩展中使用它。<span>注意：</span>ssdAgent 使用复杂的提示，最适合与Claude模型配合使用。功能ssdAgent法按预期工作。"
 		},
 		"ollama": {
 			"warning": "注意：ssdAgent 使用复杂的提示，最适合与Claude模型配合使用。功能较弱的模型可能无法按预期工作。"
 		},
 		"customModel": {
-			"capabilities": "配置您的自定义OpenAI兼容模型的功能和定价。在指定模型功能时要小心，因为它们会影响 CoStrict 的表现。"
+			"capabilities": "配置您的自定义OpenAI兼容模型的功能和定价。在指定模型功能时要小心，因为它们会影响 ssdAgent 的表现。"
 		},
 		"useCostrictCustomConfig": "使用自定义配置 (debug 已开启)",
 		"consecutiveMistakeLimit": {
@@ -66,7 +66,7 @@
 	},
 	"contextManagement": {
 		"maxReadFile": {
-			"description": "当模型省略开始/结束值时，ssdAgent 读取此行数。如果此数字小于文件总数，CoStrict 会生成代码定义的行号索引。特殊情况：-1指示 CoStrict 读取整个文件（不建立索引），0指ssdAgent，仅为最小上下文提供行索引。较低的值可最小化初始上下文使用，从而实现精确的后续行范围读取。明确的开始/结束请求不受此设置限制。"
+			"description": "当模型省略开始/结束值时，ssdAgent 读取此行数。如果此数字小于文件总数，ssdAgent 会生成代码定义的行号索引。特殊情况：-1指示 ssdAgent 读取整个文件（不建立索引），0指ssdAgent，仅为最小上下文提供行索引。较低的值可最小化初始上下文使用，从而实现精确的后续行范围读取。明确的开始/结束请求不受此设置限制。"
 		},
 		"maxReadCharacter": {
 			"label": "文件读取字符限制",
@@ -108,7 +108,7 @@
 			"description": "启用后 ssdAgent 可在单个请求中编辑多个文件。禁用后 ssdAgent 必须逐个编辑文件。禁用此功能有助于使用能力较弱的模型或需要更精确控制文件修改时。"
 		},
 		"PREVENT_FOCUS_DISRUPTION": {
-			"description": "启用后防止编辑器焦点干扰。文件编辑在后台进行，不会打开差异视图或抢夺焦点。你可以在 CoStrict 进行更改时继续不受干扰地工作。文件可以在不获取焦点的情况下打开以捕获诊断信息，或保持完全关闭状态。"
+			"description": "启用后防止编辑器焦点干扰。文件编辑在后台进行，不会打开差异视图或抢夺焦点。你可以在 ssdAgent 进行更改时继续不受干扰地工作。文件可以在不获取焦点的情况下打开以捕获诊断信息，或保持完全关闭状态。"
 		},
 		"IMAGE_GENERATION": {
 			"description": "启用后，ssdAgent 可以使用 OpenRouter 的图像生成模型从文本提示生成图像。需要配置 OpenRouter API 密钥。"
@@ -144,7 +144,7 @@
 		}
 	},
 	"modelPicker": {
-		"automaticFetch": "扩展会自动获取<serviceLink>{{serviceName}}</serviceLink>上可用的最新模型列表。如果您不确定选择哪个模型，CoStrict 最适合与<defaultModelLink>{{defaultModelId}}</defaultModelLink>配合使用。您也可以尝试搜索\"免费\"以查找当前可用的免费选项。"
+		"automaticFetch": "扩展会自动获取<serviceLink>{{serviceName}}</serviceLink>上可用的最新模型列表。如果您不确定选择哪个模型，ssdAgent 最适合与<defaultModelLink>{{defaultModelId}}</defaultModelLink>配合使用。您也可以尝试搜索\"免费\"以查找当前可用的免费选项。"
 	},
 	"footer": {
 		"feedback": "如果您有任何问题或反馈，请随时在<costrictGithubLink>github.com/zgsm-ai/costrict</costrictGithubLink>上提出问题",
@@ -215,7 +215,7 @@
 		"general": {
 			"indexBuildFailed": "索引构建失败",
 			"codebaseIndexBuild": "Codebase索引构建",
-			"codebaseIndexBuildDisabledHint": "未开启索引构建时，CoStrict 服务仍会正常启动，但不会自动构建索引。",
+			"codebaseIndexBuildDisabledHint": "未开启索引构建时，ssdAgent 服务仍会正常启动，但不会自动构建索引。",
 			"onlyCostrictProviderSupport": "仅 ssdAgent提供商支持此服务"
 		},
 		"errors": {

@@ -98,13 +98,13 @@
 		}
 	},
 	"shellIntegration": {
-		"description": "您的命令正在沒有 VSCode 終端 Shell 整合的情況下執行。若要隱藏此警告，您可以在 <settingsLink>CoStrict 設定</setssdAgentk> 的 <strong>Terminal</strong> 區段中停用 Shell 整合，或使用下方連結排查 VSCode 終端整合問題。"
+		"description": "您的命令正在沒有 VSCode 終端 Shell 整合的情況下執行。若要隱藏此警告，您可以在 <settingsLink>ssdAgent 設定</settingsLink> 的 <strong>Terminal</strong> 區段中停用 Shell 整合，或使用下方連結排查 VSCode 終端整合問題。"
 	},
 	"task": {
-		"connectToCloudDescription": "登入 CssdAgentoud 以分享工作"
+		"connectToCloudDescription": "登入 ssdAgent Cloud 以分享工作"
 	},
 	"modeSelector": {
-		"description": "專門定制 CossdAgent角色。"
+		"description": "專門定制 ssdAgent 角色。"
 	},
 	"codebaseSearch": {
 		"wantsToSearch": "ssdAgent 想要搜尋程式碼庫：<code>{{query}}</code>",

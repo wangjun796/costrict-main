@@ -84,9 +84,9 @@
 		"rooWantsToUse": "ssdAgent wants to use the browser"
 	},
 	"announcement": {
-		"title": "🎉 CoStrict {{version}} Released",
-		"description": "CoStrict {{version}} brings new features and improvements based on your feedback.",
-		"feature1": "<bold>Message Queueing</bold>: Queue multiple messages while CoStrict is working, allowing you to continue planning your workflow without interruption."
+		"title": "🎉 ssdAgent {{version}} Released",
+		"description": "ssdAgent {{version}} brings new features and improvements based on your feedback.",
+		"feature1": "<bold>Message Queueing</bold>: Queue multiple messages while ssdAgent is working, allowing you to continue planning your workflow without interruption."
 	},
 	"onboarding": "<strong>The task list in this workspace is empty. </strong> Please enter a task below to get started.",
 	"ask": {

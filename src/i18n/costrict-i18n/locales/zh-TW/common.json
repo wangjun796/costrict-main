@@ -19,7 +19,7 @@
 			"login_expired": "登入已過期，請重新登入。",
 			"failed_to_open_source_file": "無法開啟原始碼檔案。請檢查原始碼檔案是否已被刪除。",
 			"failed_to_compare_or_adopt": "目前沒有開啟的檔案，無法比較或採用。",
-			"failed_to_display_diff": "無法顯示差異。請檢查原始碼檔案是否已被刪除。如果錯誤持續存在，請聯繫 CoStrict 客服。",
+			"failed_to_display_diff": "無法顯示差異。請檢查原始碼檔案是否已被刪除。如果錯誤持續存在，請聯繫 ssdAgent 客服。",
 			"failed_to_jump_by_path": "跳轉失敗。檔案路徑為空。",
 			"failed_to_jump": "跳轉失敗",
 			"failed_to_jump_by_path_not_exist": "跳轉失敗，檔案路徑不存在。檔案路徑：",

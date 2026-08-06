@@ -19,7 +19,7 @@
 			"login_expired": "登录已过期，请重新登录。",
 			"failed_to_open_source_file": "无法打开源文件。请检查源文件是否已被删除。",
 			"failed_to_compare_or_adopt": "当前没有打开的文件，无法比较或采用。",
-			"failed_to_display_diff": "无法显示差异。请检查源文件是否已被删除。如果错误持续存在，请联系 CoStrict 客服。",
+			"failed_to_display_diff": "无法显示差异。请检查源文件是否已被删除。如果错误持续存在，请联系 ssdAgent 客服。",
 			"failed_to_jump_by_path": "跳转失败。文件路径为空。",
 			"failed_to_jump": "跳转失败。",
 			"failed_to_jump_by_path_not_exist": "跳转失败，文件路径不存在。文件路径：",
@@ -188,7 +188,7 @@
 	"errors": {
 		"no_assistant_responses": "API返回异常：模型没有回复任何消息。这可能是API或模型出了问题。",
 		"claudeCode": {
-			"notFound": "找不到 Claude Code 可执行文件 '{{claudePath}}'。\n\n请安装 Claude Code CLI：\n1. 访问 {{installationUrl}} 下载 Claude Code\n2. 按照操作系统的安装说明进行操作\n3. 确保 'claude' 命令在 PATH 中可用\n4. 或者在 CoStrict 设置中的 'Claude Code 路径' 下设置自定义路径\n\n原始错误：{{originalError}}"
+			"notFound": "找不到 Claude Code 可执行文件 '{{claudePath}}'。\n\n请安装 Claude Code CLI：\n1. 访问 {{installationUrl}} 下载 Claude Code\n2. 按照操作系统的安装说明进行操作\n3. 确保 'claude' 命令在 PATH 中可用\n4. 或者在 ssdAgent 设置中的 'Claude Code 路径' 下设置自定义路径\n\n原始错误：{{originalError}}"
 		}
 	},
 	"warnings": {
@@ -239,7 +239,7 @@
 		"error": {
 			"title": "服务启动遇到问题",
 			"descRetry": "后台服务未能正常启动，请稍等片刻，我们会自动尝试恢复。",
-			"descNoCsc": "未检测到 csc，请先按提示安装并启动 CoStrict Cloud。",
+			"descNoCsc": "未检测到 csc，请先按提示安装并启动 ssdAgent Cloud。",
 			"startupFailed": "cs-cloud 启动失败",
 			"cscNotInstalled": "未安装 csc",
 			"restart": "重新启动",

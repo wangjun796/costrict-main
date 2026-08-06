@@ -1,9 +1,9 @@
 {
-	"getCostrictApiKey": "登录 CoStrict",
-	"introduction": "<strong>CoStrict 严肃开发的AI智能伙伴</strong>，开源免费，可私有化部署，重视效果可控、质量为先，提供AI Agent、AI CodeReview、AI Completion三大核心能力，登录即可体验。",
-	"greeting": "你好，我是 CoStrict！",
+	"getCostrictApiKey": "登录 ssdAgent",
+	"introduction": "<strong>ssdAgent 严肃开发的AI智能伙伴</strong>，开源免费，可私有化部署，重视效果可控、质量为先，提供AI Agent、AI CodeReview、AI Completion三大核心能力，登录即可体验。",
+	"greeting": "你好，我是 ssdAgent！",
 	"telemetry": {
-		"title": "帮助改进 CoStrict",
+		"title": "帮助改进 ssdAgent",
 		"anonymousTelemetry": "发送匿名的错误和使用数据，以帮助我们修复错误并改进扩展程序。不会涉及代码、提示词或个人隐私信息。"
 	},
 	"chooseProvider": "开始使用需要 LLM 提供商：",
@@ -19,12 +19,12 @@
 	"developmentMode": "开发模式",
 	"commonFeatures": "常用功能",
 	"providerSignup": {
-		"rooCloudProvider": "CoStrict 提供商",
-		"rooCloudDescription": "使用 CoStrict 最简单的方式。低成本精选的免费和付费模型组合",
+		"rooCloudProvider": "ssdAgent 提供商",
+		"rooCloudDescription": "使用 ssdAgent 最简单的方式。低成本精选的免费和付费模型组合",
 		"learnMore": "了解更多",
 		"useAnotherProvider": "使用其他提供商",
 		"useAnotherProviderDescription": "输入 API 密钥即可开始。",
-		"noApiKeys": "不想处理密钥？选择 CoStrict 提供商吧。",
+		"noApiKeys": "不想处理密钥？选择 ssdAgent 提供商吧。",
 		"getStarted": "开始使用"
 	}
 }

@@ -104,7 +104,7 @@
 		"types": {
 			"ENHANCE": {
 				"label": "強化提示詞",
-				"description": "使用提示詞強化功能，為您的輸入取得量身打造的建議或改進。這能確保 CoStrict 理解您的意圖並提ssdAgent過聊天室中的 ✨ 圖示使用。"
+				"description": "使用提示詞強化功能，為您的輸入取得量身打造的建議或改進。這能確保 ssdAgent 理解您的意圖並提ssdAgent過聊天室中的 ✨ 圖示使用。"
 			},
 			"CONDENSE": {
 				"label": "上下文壓縮",
