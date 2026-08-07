@@ -1,0 +1,17 @@
+{
+	"version": "1.0.2",
+	"commitSha": "local-20260807",
+	"locales": ["en", "zh-CN"],
+	"skills": [
+		{
+			"name": "review",
+			"repo": "wangjun796/costrict",
+			"branch": "main"
+		},
+		{
+			"name": "security-review",
+			"repo": "wangjun796/costrict",
+			"branch": "main"
+		}
+	]
+}

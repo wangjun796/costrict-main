@@ -66,9 +66,6 @@ roo-cli-*.tar.gz*
 zgsm-cli-*.tar.gz*
 cos-cli-*.tar.gz*
 
-# Bundled skills (generated during build)
-src/bundled-skills/
-
 .claude
 .costrict
 .gemini*
