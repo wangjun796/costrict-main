@@ -9,7 +9,7 @@
  * Version tracking:
  * - Uses bundled-skills/index.json for version information (commitSha + locales)
  * - Reads/writes .version file in user skill directory for version comparison
- * - Version format: "commitSha:locale" (e.g., "d2bc918:zh-CN")
+ * - Version format: "v{extensionVersion}:{commitSha}:{locale}" (e.g., "v1.0.2:d2bc918:zh-CN")
  * - Does NOT use globalState for version tracking
  * - Does NOT modify SKILL.md content
  */
@@ -155,6 +155,7 @@ async function copyBundledSkill(
 	userPath: string,
 	bundledCommitSha: string,
 	locale: string,
+	extensionVersion: string,
 ): Promise<boolean> {
 	try {
 		// Check if bundled skill exists in locale directory
@@ -170,9 +171,9 @@ async function copyBundledSkill(
 		await fs.mkdir(tempDir, { recursive: true })
 		await fs.cp(skillSourceDir, tempDir, { recursive: true })
 
-		// Write .version file into temp directory
+		// Write .version file into temp directory (includes extension version for re-copy on update)
 		const versionFilePath = path.join(tempDir, ".version")
-		await fs.writeFile(versionFilePath, `${bundledCommitSha}:${locale}`, "utf-8")
+		await fs.writeFile(versionFilePath, `v${extensionVersion}:${bundledCommitSha}:${locale}`, "utf-8")
 
 		// Remove old version and rename temp to target (atomic on same filesystem)
 		await fs.rm(skillTargetDir, { recursive: true, force: true })
@@ -196,6 +197,7 @@ async function initBuiltinSkill(
 	config: BuiltinSkillConfig,
 	bundledSkillsPath: string,
 	preferredLocale: string,
+	extensionVersion: string,
 ): Promise<SkillInstallResult> {
 	const { name, mode } = config
 
@@ -216,9 +218,11 @@ async function initBuiltinSkill(
 	const userSkillsPath = getUserSkillsPath(mode)
 	const skillDir = path.join(userSkillsPath, name)
 
+	// Version string includes extension version to ensure re-copy on extension updates
+	const expectedVersion = `v${extensionVersion}:${bundledCommitSha}:${locale}`
+
 	// Check installed version from .version file
 	const installedVersion = await getInstalledVersion(skillDir)
-	const expectedVersion = `${bundledCommitSha}:${locale}`
 
 	// Check if update is needed
 	const dirExists = await fs
@@ -230,23 +234,24 @@ async function initBuiltinSkill(
 			logger.info(`[BuiltinSkills] ${name}: Up to date (${expectedVersion})`)
 			return "up-to-date"
 		}
-		const shortInstalled = installedVersion?.slice(0, 7) || "unknown"
-		const shortBundled = bundledCommitSha?.slice(0, 7) || "unknown"
-		logger.info(
-			`[BuiltinSkills] ${name}: Version changed (${shortInstalled} -> ${shortBundled}:${locale}), updating`,
-		)
+		logger.info(`[BuiltinSkills] ${name}: Version changed (${installedVersion} -> ${expectedVersion}), updating`)
 	} else {
-		const shortBundled = bundledCommitSha?.slice(0, 7) || "unknown"
-		logger.info(`[BuiltinSkills] ${name}: Installing (${shortBundled}:${locale})`)
+		logger.info(`[BuiltinSkills] ${name}: Installing (${expectedVersion})`)
 	}
 
 	// Copy from bundled skills to mode-specific or generic directory
-	const bundledInstalled = await copyBundledSkill(name, bundledSkillsPath, userSkillsPath, bundledCommitSha, locale)
+	const bundledInstalled = await copyBundledSkill(
+		name,
+		bundledSkillsPath,
+		userSkillsPath,
+		bundledCommitSha,
+		locale,
+		extensionVersion,
+	)
 
 	if (bundledInstalled) {
 		const modeInfo = mode ? ` to ${mode} mode` : ""
-		const shortSha = bundledCommitSha?.slice(0, 7) || "unknown"
-		logger.info(`[BuiltinSkills] ${name}: Installed from bundled skills${modeInfo} (${shortSha}:${locale})`)
+		logger.info(`[BuiltinSkills] ${name}: Installed from bundled skills${modeInfo} (${expectedVersion})`)
 		return dirExists ? "updated" : "installed"
 	}
 
@@ -305,7 +310,7 @@ export async function initReviewSkills(
 	// Install all skills (copy from bundled to user directory)
 	const results = await Promise.all(
 		BUILTIN_SKILLS.map(async (config) => {
-			const result = await initBuiltinSkill(config, bundledSkillsPath, preferredLocale)
+			const result = await initBuiltinSkill(config, bundledSkillsPath, preferredLocale, extensionVersion)
 			return { name: config.name, result }
 		}),
 	)
