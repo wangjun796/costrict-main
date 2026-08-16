@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  openwebui-mcp-server:
+    build: .
+    container_name: openwebui-mcp-server
+    ports:
+      - "8765:8765"
+    environment:
+      - OPENWEBUI_BASE_URL=http://open-webui:8080
+      - OPENWEBUI_AUTH_STYLE=bearer
+      - ALLOW_TOKEN_IN_TOOL_ARGUMENT=true
+      - HOST=0.0.0.0
+      - PORT=8765
+      - LOG_LEVEL=INFO
+      - MAX_TOP_K=20
+    restart: unless-stopped
+    networks:
+      - open-webui_network
+
+networks:
+  open-webui_network:
+    external: true
