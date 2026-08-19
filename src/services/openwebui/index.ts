@@ -55,6 +55,14 @@ const KNOWLEDGE_LIST_PATHS = [
 
 const RETRIEVAL_QUERY_PATHS = ["/api/v1/retrieval/query", "/api/v1/retrieval/query/"]
 
+// 单文档检索：OpenWebUI 把每篇文档作为独立 vector collection 存储，命名规则为 `file-{file_id}`。
+// `/api/v1/retrieval/query/doc` 端点接受 `collection_name` 入参。
+// 参考 CVE-2026-45398 PoC + open-webui issue #18689。
+const RETRIEVAL_QUERY_DOC_PATHS = ["/api/v1/retrieval/query/doc", "/api/v1/retrieval/query/doc/"]
+
+// 整个知识库检索：`/api/v1/retrieval/query/collection` 接受 `collection_names`（列表）入参。
+const RETRIEVAL_QUERY_COLLECTION_PATHS = ["/api/v1/retrieval/query/collection", "/api/v1/retrieval/query/collection/"]
+
 export class OpenWebUIError extends Error {
 	constructor(
 		public readonly status: number,
@@ -277,26 +285,56 @@ interface RetrievalResultChunk {
 	distance?: unknown
 }
 
+/**
+ * 在 OpenWebUI 向量库内做 RAG 检索。
+ *
+ * 关键设计：OpenWebUI 把"知识库"和"知识库里的每个文件"都存成独立的 vector collection：
+ *   - 知识库：collection_name = <knowledge_id>（即 KB 的 UUID）
+ *   - 文件：  collection_name = `file-{file_id}`
+ * （参考 open-webui `get_sources_from_items()` + CVE-2026-44560 advisory）
+ *
+ * 因此"按知识库查"和"按文件查"在客户端只是构造不同的 `collection_name`：
+ *   - 提供 `fileId` 时 → POST /api/v1/retrieval/query/doc
+ *     body: { query, k, collection_name: "file-{fileId}" }
+ *   - 只提供 `knowledgeId` 时 → POST /api/v1/retrieval/query/collection
+ *     body: { query, k, collection_name, collection_names: [id] }
+ *   - 都没提供时 → 兜底走统一入口 /api/v1/retrieval/query
+ */
 export async function queryKnowledge(
 	config: OpenWebUIConfig,
 	options: {
 		query: string
-		collectionName?: string
+		/** 知识库 id（KB 的 UUID）。和 fileId 互斥优先：只在未提供 fileId 时使用。 */
+		knowledgeId?: string
+		/** 单文件 id（UUID）。提供时只在该文件内做向量检索。 */
+		fileId?: string
 		topK?: number
 	},
 ): Promise<OpenWebUIChunk[]> {
 	const topK = Math.max(1, Math.min(options.topK ?? 8, 20))
 	const body: Record<string, unknown> = {
 		query: options.query,
+		// OpenWebUI 不同版本分别使用 `k` / `top_k`，同时传两个以兼容。
+		k: topK,
 		top_k: topK,
 	}
-	if (options.collectionName) {
-		// OpenWebUI versions differ on the accepted field name; send both.
-		body["collection_name"] = options.collectionName
-		body["collection_names"] = [options.collectionName]
+
+	let paths: string[]
+	if (options.fileId) {
+		// 按文件检索：collection_name 必须带 `file-` 前缀。
+		body["collection_name"] = `file-${options.fileId}`
+		paths = RETRIEVAL_QUERY_DOC_PATHS
+	} else if (options.knowledgeId) {
+		// 按知识库检索：传 `collection_name` 和 `collection_names`（数组形式）。
+		body["collection_name"] = options.knowledgeId
+		body["collection_names"] = [options.knowledgeId]
+		paths = RETRIEVAL_QUERY_COLLECTION_PATHS
+	} else {
+		// 兜底：未指定范围时走统一入口（不带 collection 过滤）。
+		paths = RETRIEVAL_QUERY_PATHS
 	}
 
-	const data = await tryPaths(config, "POST", RETRIEVAL_QUERY_PATHS, body)
+	const data = await tryPaths(config, "POST", paths, body)
 	const items = extractList(data, ["results", "documents", "chunks", "items", "records", "hits"])
 
 	const chunks: OpenWebUIChunk[] = []

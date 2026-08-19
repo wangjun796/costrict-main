@@ -514,24 +514,37 @@ async function getKnowledgeMentionContent(
 	const mode = config?.retrievalMode ?? "direct"
 
 	if (mode === "mcp") {
-		// MCP mode: generate tool-call instructions for LLMs with tool-calling capability.
-		// The LLM will decide when and how to call the MCP tools.
+		// MCP 模式：生成 tool-call 指令给有工具调用能力的 LLM。
+		// 由 LLM 自行决定何时调、如何调 OpenWebUI MCP 工具。
+		// - 引用的是知识库 → 传 knowledge_ids（KB UUID）
+		// - 引用的是某篇文档 → 传 knowledge_ids + document_names
+		//   （openwebui-rag-mcp-server 的 handle_ask_knowledge 不支持 file_ids，
+		//    只能按文件名称过滤；见 openwebui-rag-mcp-server/src/tools.py）
+		const fileIdHint = fileId
+			? `, file_id="${fileId}" (use as document_names via list_documents if file name lookup fails)`
+			: ""
 		lines.push(
 			"",
 			"REQUIRED RETRIEVAL STEP - perform this BEFORE answering the user:",
-			`1. Call the OpenWebUI MCP tool \`openwebui_ask_knowledge\` with: question="${question.slice(0, 300)}", knowledge_ids=["${knowledgeId}"]${ref.fileName ? `, document_names=["${ref.fileName}"]` : ""}, top_k=5.`,
-			`   (Alternative: \`openwebui_search_knowledge\` with query="${question.slice(0, 300)}", knowledge_id="${knowledgeId}"${collectionId ? `, collection_name="${collectionId}"` : ""}${ref.fileName ? `, document_name="${ref.fileName}"` : ""}, top_k=5.)`,
+			`1. Call the OpenWebUI MCP tool \`openwebui_ask_knowledge\` with: question="${question.slice(0, 300)}", knowledge_ids=["${knowledgeId}"]${ref.fileName ? `, document_names=["${ref.fileName}"]${fileIdHint}` : ""}, top_k=5.`,
+			`   (Alternative: \`openwebui_search_knowledge\` with query="${question.slice(0, 300)}", knowledge_id="${knowledgeId}"${ref.fileName ? `, document_name="${ref.fileName}"` : ""}, top_k=5.)`,
 			"2. Wait for the retrieval results, then assemble your final answer based on the retrieved passages and cite the source document names.",
 			"3. If the tools return no passages or are unavailable, tell the user knowledge retrieval failed - do not invent knowledge base content.",
 		)
 	} else {
-		// Direct mode: host calls the REST API and injects results into the prompt.
-		// Works for all models including those without tool-calling capability.
+		// Direct 模式：host 调 REST API 把结果直接注入到 prompt。
+		// 适用于所有模型（即便没有 tool-calling 能力）。
+		// - 引用的是知识库 → POST /api/v1/retrieval/query/collection
+		//   body: { query, k, collection_name=<KB id>, collection_names=[<KB id>] }
+		// - 引用的是某篇文档 → POST /api/v1/retrieval/query/doc
+		//   body: { query, k, collection_name="file-{file_id}" }
 		if (config) {
 			try {
 				const chunks = await queryKnowledge(config, {
 					query: question.slice(0, 300),
-					collectionName: collectionId,
+					// 优先按文档检索（更精确），没有 fileId 时回退到知识库级。
+					fileId: fileId,
+					knowledgeId: fileId ? undefined : knowledgeId,
 					topK: 5,
 				})
 
