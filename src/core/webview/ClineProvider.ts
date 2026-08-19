@@ -39,6 +39,7 @@ import {
 	type ExtensionMessage,
 	type ExtensionState,
 	type MarketplaceInstalledMetadata,
+	type KnowledgeReferenceMeta,
 	RooCodeEventName,
 	requestyDefaultModelId,
 	openRouterDefaultModelId,
@@ -201,6 +202,15 @@ export class ClineProvider
 	private static readonly GLOBAL_STATE_WRITE_THROUGH_DEBOUNCE_MS = 5000 // 5 seconds
 	private pendingOperations: Map<string, PendingEditOperation> = new Map()
 	private static readonly PENDING_OPERATION_TIMEOUT_MS = 30000 // 30 seconds
+
+	/**
+	 * Ids for @kb:// references selected from the knowledge menu. The chat input
+	 * stores plain-name references only; these metadata entries let the
+	 * extension host resolve mentions without extra API round-trips. Bounded
+	 * FIFO - replays that miss an entry fall back to name-based resolution.
+	 */
+	public readonly knowledgeRefRegistry = new Map<string, KnowledgeReferenceMeta>()
+	public static readonly KNOWLEDGE_REF_REGISTRY_LIMIT = 500
 
 	// private cloudOrganizationsCache: CloudOrganizationMembership[] | null = null
 	// private cloudOrganizationsCacheTimestamp: number | null = null
@@ -2892,6 +2902,12 @@ export class ClineProvider
 			imageGenerationProvider,
 			openRouterImageApiKey,
 			openRouterImageGenerationSelectedModel,
+			openWebUIBaseUrl,
+			openWebUIToken,
+			openWebUIKnowledgeListUrl,
+			openWebUIKnowledgeFilesUrl,
+			openWebUIRetrievalMode,
+			developerMode,
 			autoCleanup,
 			debug,
 			hasClosedCodeReviewWelcomeTips,
@@ -3066,6 +3082,12 @@ export class ClineProvider
 			imageGenerationProvider,
 			openRouterImageApiKey,
 			openRouterImageGenerationSelectedModel,
+			openWebUIBaseUrl,
+			openWebUIToken,
+			openWebUIKnowledgeListUrl,
+			openWebUIKnowledgeFilesUrl,
+			openWebUIRetrievalMode,
+			developerMode,
 			hasClosedCodeReviewWelcomeTips: hasClosedCodeReviewWelcomeTips ?? false,
 			claudeCodeIsAuthenticated: await (async () => {
 				try {
@@ -3320,6 +3342,12 @@ export class ClineProvider
 			imageGenerationProvider: stateValues.imageGenerationProvider,
 			openRouterImageApiKey: stateValues.openRouterImageApiKey,
 			openRouterImageGenerationSelectedModel: stateValues.openRouterImageGenerationSelectedModel,
+			openWebUIBaseUrl: stateValues.openWebUIBaseUrl,
+			openWebUIToken: stateValues.openWebUIToken,
+			openWebUIKnowledgeListUrl: stateValues.openWebUIKnowledgeListUrl,
+			openWebUIKnowledgeFilesUrl: stateValues.openWebUIKnowledgeFilesUrl,
+			openWebUIRetrievalMode: stateValues.openWebUIRetrievalMode ?? "direct",
+			developerMode: stateValues.developerMode ?? false,
 		}
 	}
 

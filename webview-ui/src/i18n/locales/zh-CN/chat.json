@@ -490,7 +490,9 @@
 		"url": "粘贴URL以获取内容",
 		"gitCommits": "Git提交信息",
 		"addFile": "添加文件",
-		"addFolder": "添加文件夹"
+		"addFolder": "添加文件夹",
+		"addKnowledgeBase": "添加知识库",
+		"useEntireKnowledgeBase": "引用整个知识库"
 	},
 	"queuedMessages": {
 		"title": "队列消息",

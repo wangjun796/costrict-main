@@ -9,6 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from "react"
+import { VSCodeTextField, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react"
 import {
 	CheckCheck,
 	Bell,
@@ -177,6 +178,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		ttsEnabled,
 		ttsSpeed,
 		soundVolume,
+		developerMode,
 		telemetrySetting,
 		terminalOutputPreviewSize,
 		terminalShellIntegrationTimeout,
@@ -202,6 +204,11 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		imageGenerationProvider,
 		openRouterImageApiKey,
 		openRouterImageGenerationSelectedModel,
+		openWebUIBaseUrl,
+		openWebUIToken,
+		openWebUIKnowledgeListUrl,
+		openWebUIKnowledgeFilesUrl,
+		openWebUIRetrievalMode,
 		reasoningBlockCollapsed,
 		showSpeedInfo,
 		automaticallyFocus,
@@ -445,6 +452,12 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					imageGenerationProvider,
 					openRouterImageApiKey,
 					openRouterImageGenerationSelectedModel,
+					openWebUIBaseUrl,
+					openWebUIToken,
+					openWebUIKnowledgeListUrl,
+					openWebUIKnowledgeFilesUrl,
+					openWebUIRetrievalMode,
+					developerMode: developerMode ?? false,
 					experiments,
 					experimentSettings,
 					customSupportPrompts,
@@ -839,6 +852,98 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 										setCachedStateField={setCachedStateField}
 									/>
 								</Section>
+
+								<SectionHeader>{t("settings:sections.openWebUIKnowledgeBase")}</SectionHeader>
+
+								<Section>
+									<div className="space-y-4">
+										<div>
+											<label className="block font-medium mb-1">
+												{t("settings:openWebUI.baseUrlLabel")}
+											</label>
+											<VSCodeTextField
+												value={openWebUIBaseUrl || ""}
+												onInput={(e: any) =>
+													setCachedStateField("openWebUIBaseUrl", e.target.value)
+												}
+												placeholder="http://localhost:3000"
+												className="w-full"
+											/>
+											<p className="text-vscode-descriptionForeground text-xs mt-1">
+												{t("settings:openWebUI.baseUrlDescription")}
+											</p>
+										</div>
+										<div>
+											<label className="block font-medium mb-1">
+												{t("settings:openWebUI.tokenLabel")}
+											</label>
+											<VSCodeTextField
+												value={openWebUIToken || ""}
+												onInput={(e: any) =>
+													setCachedStateField("openWebUIToken", e.target.value)
+												}
+												placeholder="Bearer token (from OpenWebUI Settings → Account)"
+												className="w-full"
+											/>
+											<p className="text-vscode-descriptionForeground text-xs mt-1">
+												{t("settings:openWebUI.tokenDescription")}
+											</p>
+										</div>
+										<div>
+											<label className="block font-medium mb-1">
+												{t("settings:openWebUI.listRouteLabel")}
+											</label>
+											<VSCodeTextField
+												value={openWebUIKnowledgeListUrl || ""}
+												onInput={(e: any) =>
+													setCachedStateField("openWebUIKnowledgeListUrl", e.target.value)
+												}
+												placeholder="/api/v1/knowledge/"
+												className="w-full"
+											/>
+											<p className="text-vscode-descriptionForeground text-xs mt-1">
+												{t("settings:openWebUI.listRouteDescription")}
+											</p>
+										</div>
+										<div>
+											<label className="block font-medium mb-1">
+												{t("settings:openWebUI.filesRouteLabel")}
+											</label>
+											<VSCodeTextField
+												value={openWebUIKnowledgeFilesUrl || ""}
+												onInput={(e: any) =>
+													setCachedStateField("openWebUIKnowledgeFilesUrl", e.target.value)
+												}
+												placeholder="/api/v1/knowledge/{id}/files"
+												className="w-full"
+											/>
+											<p className="text-vscode-descriptionForeground text-xs mt-1">
+												{t("settings:openWebUI.filesRouteDescription")}
+											</p>
+										</div>
+										<div>
+											<label className="block font-medium mb-1">
+												{t("settings:openWebUI.retrievalModeLabel")}
+											</label>
+											<VSCodeDropdown
+												value={openWebUIRetrievalMode || "direct"}
+												onChange={(e: any) =>
+													setCachedStateField("openWebUIRetrievalMode", e.target.value)
+												}
+												className="w-full">
+												<VSCodeOption value="direct">
+													{t("settings:openWebUI.retrievalModeDirect")}
+												</VSCodeOption>
+												<VSCodeOption value="mcp">
+													{t("settings:openWebUI.retrievalModeMcp")}
+												</VSCodeOption>
+											</VSCodeDropdown>
+											<p className="text-vscode-descriptionForeground text-xs mt-1">
+												{t("settings:openWebUI.retrievalModeDescription")}
+											</p>
+										</div>
+									</div>
+								</Section>
 							</div>
 						)}
 
@@ -888,6 +993,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 								ttsSpeed={ttsSpeed}
 								soundEnabled={soundEnabled}
 								soundVolume={soundVolume}
+								developerMode={developerMode}
 								setCachedStateField={setCachedStateField}
 							/>
 						)}

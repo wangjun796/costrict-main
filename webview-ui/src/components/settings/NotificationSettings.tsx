@@ -13,7 +13,10 @@ type NotificationSettingsProps = HTMLAttributes<HTMLDivElement> & {
 	ttsSpeed?: number
 	soundEnabled?: boolean
 	soundVolume?: number
-	setCachedStateField: SetCachedStateField<"ttsEnabled" | "ttsSpeed" | "soundEnabled" | "soundVolume">
+	developerMode?: boolean
+	setCachedStateField: SetCachedStateField<
+		"ttsEnabled" | "ttsSpeed" | "soundEnabled" | "soundVolume" | "developerMode"
+	>
 }
 
 export const NotificationSettings = ({
@@ -21,6 +24,7 @@ export const NotificationSettings = ({
 	ttsSpeed,
 	soundEnabled,
 	soundVolume,
+	developerMode,
 	setCachedStateField,
 	...props
 }: NotificationSettingsProps) => {
@@ -30,6 +34,21 @@ export const NotificationSettings = ({
 			<SectionHeader>{t("settings:sections.notifications")}</SectionHeader>
 
 			<Section>
+				<SearchableSetting
+					settingId="notifications-developer-mode"
+					section="notifications"
+					label={t("settings:notifications.developerMode.label")}>
+					<VSCodeCheckbox
+						checked={developerMode}
+						onChange={(e: any) => setCachedStateField("developerMode", e.target.checked)}
+						data-testid="developer-mode-checkbox">
+						<span className="font-medium">{t("settings:notifications.developerMode.label")}</span>
+					</VSCodeCheckbox>
+					<div className="text-vscode-descriptionForeground text-sm mt-1">
+						{t("settings:notifications.developerMode.description")}
+					</div>
+				</SearchableSetting>
+
 				<SearchableSetting
 					settingId="notifications-tts"
 					section="notifications"

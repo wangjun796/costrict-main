@@ -4,9 +4,17 @@ import DynamicTextArea from "react-textarea-autosize"
 import { ReviewTaskStatus } from "@roo/codeReview"
 import { VolumeX, Image, WandSparkles, SendHorizontal, ListEnd, Square } from "lucide-react"
 
-import type { ExtensionMessage, ProviderName, RouterModels } from "@roo-code/types"
+import type { ExtensionMessage, KnowledgeSearchResult, ProviderName, RouterModels } from "@roo-code/types"
 
-import { mentionRegex, mentionRegexGlobal, commandRegexGlobal, unescapeSpaces } from "@roo/context-mentions"
+import {
+	mentionRegex,
+	mentionRegexGlobal,
+	commandRegexGlobal,
+	unescapeSpaces,
+	parseKnowledgeRef,
+	encodeKnowledgeRef,
+	type ParsedKnowledgeRef,
+} from "@roo/context-mentions"
 import { WebviewMessage } from "@roo/WebviewMessage"
 import { Mode, getAllModes, isProviderAllowedForCostrictCodeMode } from "@roo/modes"
 
@@ -22,7 +30,7 @@ import {
 	SearchResult,
 } from "@src/utils/context-mentions"
 import { cn } from "@src/lib/utils"
-import { convertToMentionPath } from "@src/utils/path-mentions"
+import { convertToMentionPath, escapeSpaces } from "@src/utils/path-mentions"
 import { StandardTooltip } from "@src/components/ui"
 
 import Thumbnails from "../common/Thumbnails"
@@ -41,6 +49,26 @@ import { ProviderSettings } from "@roo-code/types"
 import ProviderRenderer from "../settings/ProviderRenderer"
 // import { CloudAccountSwitcher } from "../cloud/CloudAccountSwitcher"
 import { ModeSwitch } from "./ModeSwitch"
+
+/**
+ * Registers the metadata of a selected knowledge base/document with the
+ * extension host. The input box keeps pure-name @kb:// mentions; the host-side
+ * registry preserves the ids (knowledge/collection/file) that the send-time
+ * MCP retrieval flow needs.
+ */
+const registerKnowledgeSelection = (ref: ParsedKnowledgeRef) => {
+	vscode.postMessage({
+		type: "registerKnowledgeRef" as const,
+		knowledgeReference: {
+			reference: encodeKnowledgeRef({ knowledgeName: ref.knowledgeName, fileName: ref.fileName }),
+			knowledgeName: ref.knowledgeName,
+			fileName: ref.fileName,
+			knowledgeId: ref.knowledgeId,
+			collectionId: ref.collectionId,
+			fileId: ref.fileId,
+		},
+	})
+}
 
 interface ChatTextAreaProps {
 	inputValue: string
@@ -179,6 +207,8 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 		const [fileSearchResults, setFileSearchResults] = useState<SearchResult[]>([])
 		const [searchLoading, setSearchLoading] = useState(false)
 		const [searchRequestId, setSearchRequestId] = useState<string>("")
+		const [knowledgeResults, setKnowledgeResults] = useState<KnowledgeSearchResult[]>([])
+		const [knowledgeRequestId, setKnowledgeRequestId] = useState<string>("")
 
 		// Close dropdown when clicking outside.
 		useEffect(() => {
@@ -265,12 +295,16 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					if (message.requestId === searchRequestId) {
 						setFileSearchResults(message.results || [])
 					}
+				} else if (message.type === "knowledgeSearchResults") {
+					if (message.requestId === knowledgeRequestId) {
+						setKnowledgeResults(message.knowledgeResults || [])
+					}
 				}
 			}
 
 			window.addEventListener("message", messageHandler)
 			return () => window.removeEventListener("message", messageHandler)
-		}, [setInputValue, searchRequestId, inputValue])
+		}, [setInputValue, searchRequestId, inputValue, knowledgeRequestId])
 
 		const [isDraggingOver, setIsDraggingOver] = useState(false)
 		const [textAreaBaseHeight, setTextAreaBaseHeight] = useState<number | undefined>(undefined)
@@ -309,6 +343,30 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				vscode.postMessage(message)
 			}
 		}, [selectedType, searchQuery])
+
+		// Request knowledge base results whenever the @ context menu query changes
+		// (covers the initial "@" with an empty query and the "kb://<name>/" drill-down).
+		// Also re-fetch when selectedType changes to KnowledgeBase so the list is populated.
+		useEffect(() => {
+			if (!showContextMenu) return
+
+			const timeout = setTimeout(() => {
+				let query = searchQuery
+				// A manually typed "kb://<name>" without a trailing slash should drill down too.
+				if (query.startsWith("kb://") && !query.slice("kb://".length).includes("/")) {
+					query += "/"
+				}
+				const reqId = Math.random().toString(36).substring(2, 9)
+				setKnowledgeRequestId(reqId)
+				vscode.postMessage({
+					type: "searchKnowledge",
+					query: unescapeSpaces(query),
+					requestId: reqId,
+				})
+			}, 200)
+
+			return () => clearTimeout(timeout)
+		}, [showContextMenu, searchQuery, selectedType])
 
 		const handleEnhancePrompt = useCallback(() => {
 			const trimmedInput = inputValue?.trim()
@@ -398,7 +456,7 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					// Handle command selection.
 					setSelectedMenuIndex(-1)
 					setShowContextMenu(false)
-	
+
 					// Insert the command mention into the textarea. Only replace the slash-command
 					// query (from the "/" up to the cursor) with the selected command, preserving
 					// any content that already existed after the cursor (e.g. when "/" was typed
@@ -413,7 +471,7 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					const newCommandCursorPosition = beforeSlash.length + commandMention.length + 1
 					setCursorPosition(newCommandCursorPosition)
 					setIntendedCursorPosition(newCommandCursorPosition)
-	
+
 					// Focus the textarea
 					setTimeout(() => {
 						if (textAreaRef.current) {
@@ -423,10 +481,80 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					return
 				}
 
+				if (type === ContextMenuOptionType.Knowledge && value) {
+					// In drill-down mode the knowledge row means "use the entire knowledge base";
+					// at the top level it drills into the knowledge base's files.
+					const isDrillDown = searchQuery.startsWith("kb://")
+
+					if (isDrillDown) {
+						setShowContextMenu(false)
+						setSelectedType(null)
+
+						if (textAreaRef.current) {
+							// Insert a pure-name mention; the ids were registered in the
+							// extension host so the send flow can still resolve them.
+							const ref = parseKnowledgeRef(value)
+							registerKnowledgeSelection(ref)
+							const insertValue = `kb://${encodeKnowledgeRef({ knowledgeName: ref.knowledgeName })}`
+							const { newValue, mentionIndex } = insertMention(
+								textAreaRef.current.value,
+								cursorPosition,
+								insertValue,
+							)
+							setInputValue(newValue)
+							const newCursorPosition = newValue.indexOf(" ", mentionIndex + insertValue.length) + 1
+							setCursorPosition(newCursorPosition)
+							setIntendedCursorPosition(newCursorPosition)
+
+							setTimeout(() => {
+								if (textAreaRef.current) {
+									textAreaRef.current.blur()
+									textAreaRef.current.focus()
+								}
+							}, 0)
+						}
+						return
+					}
+
+					if (textAreaRef.current) {
+						// Replace the typed query with "@kb://<name>/" (no trailing space so further
+						// typing keeps the menu open in drill-down mode). Register the ids so the
+						// pure-name drill-down query and final mention can be resolved by the host.
+						const ref = parseKnowledgeRef(value)
+						registerKnowledgeSelection(ref)
+						// Escape spaces so the textarea keeps treating this as one
+						// in-progress mention (the host unescapes on arrival).
+						const pureName = encodeKnowledgeRef({ knowledgeName: ref.knowledgeName })
+						const mention = `kb://${pureName.includes(" ") ? escapeSpaces(pureName) : pureName}/`
+						const fullText = textAreaRef.current.value
+						const lastAtIndex = fullText.lastIndexOf("@", cursorPosition)
+						const insertPos = lastAtIndex >= 0 ? lastAtIndex : cursorPosition
+						const afterCursor = fullText.slice(cursorPosition)
+						const afterCursorContent = /^[a-zA-Z0-9\s]*$/.test(afterCursor)
+							? afterCursor.replace(/^[^\s]*/, "")
+							: afterCursor
+						const newValue = fullText.slice(0, insertPos) + "@" + mention + afterCursorContent
+						setInputValue(newValue)
+						const newCursorPosition = insertPos + 1 + mention.length
+						setCursorPosition(newCursorPosition)
+						setIntendedCursorPosition(newCursorPosition)
+						setSearchQuery(mention)
+						setSelectedType(null) // Clear selectedType so drill-down shows files, not knowledge bases
+						setSelectedMenuIndex(0)
+
+						setTimeout(() => {
+							textAreaRef.current?.focus()
+						}, 0)
+					}
+
+					return
+				}
+
 				if (
 					type === ContextMenuOptionType.File ||
 					type === ContextMenuOptionType.Folder ||
-					type === ContextMenuOptionType.Git
+					type === ContextMenuOptionType.Git ||
+					type === ContextMenuOptionType.KnowledgeBase
 				) {
 					if (!value) {
 						setSelectedType(type)
@@ -446,6 +574,11 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 						insertValue = value || ""
 					} else if (type === ContextMenuOptionType.File || type === ContextMenuOptionType.Folder) {
 						insertValue = value || ""
+					} else if (type === ContextMenuOptionType.KnowledgeFile) {
+						// Pure-name mention; the file ids were registered in the extension host.
+						const ref = parseKnowledgeRef(value || "")
+						registerKnowledgeSelection(ref)
+						insertValue = `kb://${encodeKnowledgeRef({ knowledgeName: ref.knowledgeName, fileName: ref.fileName })}`
 					} else if (type === ContextMenuOptionType.Problems) {
 						insertValue = "problems"
 					} else if (type === ContextMenuOptionType.Terminal) {
@@ -481,7 +614,7 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				}
 			},
 			// eslint-disable-next-line react-hooks/exhaustive-deps
-			[setInputValue, cursorPosition],
+			[setInputValue, cursorPosition, searchQuery],
 		)
 
 		const handleKeyDown = useCallback(
@@ -506,6 +639,7 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 								allModes,
 								commands,
 								costrictCodeMode,
+								knowledgeResults,
 							)
 							const optionsLength = options.length
 
@@ -545,6 +679,7 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 							allModes,
 							commands,
 							costrictCodeMode,
+							knowledgeResults,
 						)[selectedMenuIndex]
 						if (
 							selectedOption &&
@@ -640,6 +775,7 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				allModes,
 				commands,
 				costrictCodeMode,
+				knowledgeResults,
 				handleMentionSelect,
 				enterBehavior,
 				resetHistoryNavigation,
@@ -731,6 +867,7 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					setSearchQuery("")
 					setSelectedMenuIndex(-1)
 					setFileSearchResults([]) // Clear file search results.
+					setKnowledgeResults([]) // Clear knowledge search results.
 				}
 			},
 			[setInputValue, setSearchRequestId, setFileSearchResults, setSearchLoading, resetOnInputChange],
@@ -1141,6 +1278,7 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 									costrictCodeMode={costrictCodeMode ?? "vibe"}
 									loading={searchLoading}
 									dynamicSearchResults={fileSearchResults}
+									knowledgeResults={knowledgeResults}
 									commands={commands}
 								/>
 							</div>

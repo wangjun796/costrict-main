@@ -198,6 +198,8 @@ describe("processUserContentMentions", () => {
 				"code",
 				undefined, // language
 				undefined, // mentionBudgetChars
+				undefined, // knowledgeConfig
+				undefined, // knowledgeRefRegistry
 			)
 		})
 
@@ -228,6 +230,8 @@ describe("processUserContentMentions", () => {
 				"code",
 				undefined, // language
 				undefined, // mentionBudgetChars
+				undefined, // knowledgeConfig
+				undefined, // knowledgeRefRegistry
 			)
 		})
 	})

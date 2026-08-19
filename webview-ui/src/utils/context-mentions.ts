@@ -1,8 +1,8 @@
 import { Fzf } from "fzf"
 
-import type { ModeConfig, Command, CostrictCodeMode } from "@roo-code/types"
+import type { ModeConfig, Command, CostrictCodeMode, KnowledgeSearchResult } from "@roo-code/types"
 
-import { mentionRegex } from "@roo/context-mentions"
+import { mentionRegex, parseKnowledgeRef, encodeKnowledgeRef } from "@roo/context-mentions"
 
 import { escapeSpaces } from "./path-mentions"
 
@@ -44,9 +44,9 @@ export function insertMention(
 	// Find the position of the last '@' symbol before the cursor
 	const lastAtIndex = beforeCursor.lastIndexOf("@")
 
-	// Process the value - escape spaces if it's a file path
+	// Process the value - escape spaces if it's a file path or knowledge mention
 	let processedValue = value
-	if (value && value.startsWith("/")) {
+	if (value && (value.startsWith("/") || value.startsWith("kb://"))) {
 		// Only escape if the path contains spaces that aren't already escaped
 		if (value.includes(" ") && !value.includes("\\ ")) {
 			processedValue = escapeSpaces(value)
@@ -104,10 +104,13 @@ export enum ContextMenuOptionType {
 	Terminal = "terminal",
 	URL = "url",
 	Git = "git",
+	Knowledge = "knowledge",
+	KnowledgeBase = "knowledgeBase", // "添加知识库"入口项（类似"添加文件夹"）
+	KnowledgeFile = "knowledgeFile",
 	NoResults = "noResults",
-	Mode = "mode", // Add mode type
-	Command = "command", // Add command type
-	SectionHeader = "sectionHeader", // Add section header type
+	Mode = "mode",
+	Command = "command",
+	SectionHeader = "sectionHeader",
 }
 
 export interface ContextMenuQueryItem {
@@ -129,7 +132,53 @@ export function getContextMenuOptions(
 	modes?: ModeConfig[],
 	commands?: Command[],
 	costrictCodeMode?: CostrictCodeMode,
+	knowledgeResults: KnowledgeSearchResult[] = [],
 ): ContextMenuQueryItem[] {
+	// Knowledge base drill-down: query looks like "kb://<name>[ids]" or "kb://<name>[ids]/<file filter>"
+	if (query.startsWith("kb://")) {
+		const ref = parseKnowledgeRef(query.slice("kb://".length))
+		const fileQuery = (ref.fileFilter || "").toLowerCase()
+
+		// The menu only displays names; the value embeds the ids needed later
+		// by the OpenWebUI MCP retrieval flow.
+		const knowledgeValue = encodeKnowledgeRef({
+			knowledgeName: ref.knowledgeName,
+			knowledgeId: ref.knowledgeId,
+			collectionId: ref.collectionId,
+		})
+
+		const results: ContextMenuQueryItem[] = [
+			{
+				type: ContextMenuOptionType.Knowledge,
+				value: knowledgeValue,
+				label: ref.knowledgeName,
+			},
+		]
+
+		const fileItems = knowledgeResults
+			.filter((item) => item.kind === "file")
+			.filter((item) => !fileQuery || item.name.toLowerCase().includes(fileQuery))
+			.map((item) => ({
+				type: ContextMenuOptionType.KnowledgeFile,
+				value: encodeKnowledgeRef({
+					knowledgeName: ref.knowledgeName,
+					fileName: item.name,
+					knowledgeId: item.id || ref.knowledgeId,
+					collectionId: item.collectionName || ref.collectionId,
+					fileId: item.fileId,
+				}),
+				label: item.name,
+				description: item.knowledgeName,
+			}))
+
+		if (fileItems.length > 0) {
+			results.push({ type: ContextMenuOptionType.SectionHeader, label: ref.knowledgeName })
+			results.push(...fileItems)
+		}
+
+		return results.length > 0 ? results : [{ type: ContextMenuOptionType.NoResults }]
+	}
+
 	// Handle slash commands for modes and commands
 	// Only process as slash command if the query itself starts with "/" (meaning we're typing a slash command)
 	if (query.startsWith("/")) {
@@ -253,6 +302,22 @@ export function getContextMenuOptions(
 			return folders.length > 0 ? folders : [{ type: ContextMenuOptionType.NoResults }]
 		}
 
+		if (selectedType === ContextMenuOptionType.KnowledgeBase) {
+			const knowledgeBases = knowledgeResults
+				.filter((item) => item.kind === "knowledge")
+				.map((item) => ({
+					type: ContextMenuOptionType.Knowledge,
+					value: encodeKnowledgeRef({
+						knowledgeName: item.name,
+						knowledgeId: item.id,
+						collectionId: item.collectionName,
+					}),
+					label: item.name,
+					description: item.description,
+				}))
+			return knowledgeBases.length > 0 ? knowledgeBases : [{ type: ContextMenuOptionType.NoResults }]
+		}
+
 		if (selectedType === ContextMenuOptionType.Git) {
 			const commits = queryItems.filter((item) => item.type === ContextMenuOptionType.Git)
 			return commits.length > 0 ? [workingChanges, ...commits] : [workingChanges]
@@ -264,6 +329,7 @@ export function getContextMenuOptions(
 			{ type: ContextMenuOptionType.URL },
 			{ type: ContextMenuOptionType.Folder },
 			{ type: ContextMenuOptionType.File },
+			{ type: ContextMenuOptionType.KnowledgeBase },
 			// { type: ContextMenuOptionType.Git },
 		]
 	}
@@ -287,6 +353,9 @@ export function getContextMenuOptions(
 	}
 	if ("terminal".startsWith(lowerQuery)) {
 		suggestions.push({ type: ContextMenuOptionType.Terminal })
+	}
+	if ("knowledge".startsWith(lowerQuery) || "知识库".startsWith(lowerQuery)) {
+		suggestions.push({ type: ContextMenuOptionType.KnowledgeBase })
 	}
 	if (query.startsWith("http")) {
 		suggestions.push({ type: ContextMenuOptionType.URL, value: query })
@@ -349,7 +418,26 @@ export function getContextMenuOptions(
 		}
 	})
 
-	const allItems = [...suggestions, ...openedFileMatches, ...searchResultItems, ...gitMatches]
+	// Knowledge base matches for the typed query (top-level mode)
+	const knowledgeMatches = knowledgeResults
+		.filter((item) => item.kind === "knowledge")
+		.filter(
+			(item) =>
+				item.name.toLowerCase().includes(lowerQuery) ||
+				(item.description || "").toLowerCase().includes(lowerQuery),
+		)
+		.map((item) => ({
+			type: ContextMenuOptionType.Knowledge,
+			value: encodeKnowledgeRef({
+				knowledgeName: item.name,
+				knowledgeId: item.id,
+				collectionId: item.collectionName,
+			}),
+			label: item.name,
+			description: item.description,
+		}))
+
+	const allItems = [...suggestions, ...knowledgeMatches, ...openedFileMatches, ...searchResultItems, ...gitMatches]
 
 	// Remove duplicates - normalize paths by ensuring all have leading slashes
 	const seen = new Set()

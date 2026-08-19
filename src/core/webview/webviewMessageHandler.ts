@@ -16,6 +16,7 @@ import {
 	type ModelRecord,
 	type Command as SlashCommand,
 	type WebviewMessage,
+	type KnowledgeSearchResult,
 	type EditQueuedMessagePayload,
 	type CodeReviewWelcomeTipsPayload,
 	type CreateReviewTaskPayload,
@@ -29,6 +30,7 @@ import {
 import { customToolRegistry } from "@roo-code/core"
 import { CloudService } from "@roo-code/cloud"
 import { TelemetryService } from "@roo-code/telemetry"
+import { parseKnowledgeRef } from "../../shared/context-mentions"
 
 import { type ApiMessage } from "../task-persistence/apiMessages"
 import { saveTaskMessages } from "../task-persistence"
@@ -58,6 +60,12 @@ import { openImage, saveImage } from "../../integrations/misc/image-handler"
 import { selectImages } from "../../integrations/misc/process-images"
 import { getTheme } from "../../integrations/theme/getTheme"
 import { searchWorkspaceFiles } from "../../services/search/file-search"
+import {
+	findKnowledgeBase,
+	listKnowledgeBases,
+	listKnowledgeFiles,
+	type OpenWebUIConfig,
+} from "../../services/openwebui"
 import { fileExistsAtPath } from "../../utils/fs"
 import { playTts, setTtsEnabled, setTtsSpeed, stopTts } from "../../utils/tts"
 import { searchCommits, getUncommittedFiles, addFilesIntent, restoreFilesFromStaged } from "../../utils/git"
@@ -2138,6 +2146,161 @@ export const webviewMessageHandler = async (
 				await provider.postMessageToWebview({
 					type: "fileSearchResults",
 					results: [],
+					error: errorMessage,
+					requestId: message.requestId,
+				})
+			}
+			break
+		}
+		case "registerKnowledgeRef": {
+			const meta = message.knowledgeReference
+			if (meta?.reference) {
+				const registry = provider.knowledgeRefRegistry
+				// Later selections of the same reference may arrive without ids
+				// (pure-name drill-down rows); keep the ids already known.
+				const existing = registry.get(meta.reference)
+				const merged = existing
+					? {
+							...meta,
+							fileName: meta.fileName ?? existing.fileName,
+							knowledgeId: meta.knowledgeId ?? existing.knowledgeId,
+							collectionId: meta.collectionId ?? existing.collectionId,
+							fileId: meta.fileId ?? existing.fileId,
+						}
+					: meta
+				registry.delete(meta.reference) // re-insert to refresh FIFO ordering
+				registry.set(meta.reference, merged)
+				while (registry.size > ClineProvider.KNOWLEDGE_REF_REGISTRY_LIMIT) {
+					const oldest = registry.keys().next().value
+					if (oldest === undefined) break
+					registry.delete(oldest)
+				}
+			}
+			break
+		}
+		case "searchKnowledge": {
+			const baseUrl = provider.contextProxy.getValue("openWebUIBaseUrl")
+			const token = provider.contextProxy.getValue("openWebUIToken")
+			const developerMode = provider.contextProxy.getValue("developerMode")
+
+			if (!baseUrl || !token) {
+				const debugMsg = `[OpenWebUI] 配置缺失: baseUrl=${!!baseUrl}, token=${!!token} (长度:${token?.length ?? 0})`
+				provider.log(debugMsg)
+				if (developerMode) {
+					void vscode.window.showInformationMessage(debugMsg)
+				}
+				await provider.postMessageToWebview({
+					type: "knowledgeSearchResults",
+					knowledgeResults: [],
+					knowledgeConfigured: false,
+					requestId: message.requestId,
+				})
+				break
+			}
+
+			const config: OpenWebUIConfig = {
+				baseUrl,
+				token,
+				knowledgeListUrl: provider.contextProxy.getValue("openWebUIKnowledgeListUrl"),
+				knowledgeFilesUrl: provider.contextProxy.getValue("openWebUIKnowledgeFilesUrl"),
+			}
+			const query = (message.query || "").trim()
+
+			// 构建调试信息
+			const debugInfo: string[] = []
+			debugInfo.push(`查询参数: query="${query}"`)
+			debugInfo.push(`baseUrl: ${baseUrl}`)
+			debugInfo.push(`token: ${token.slice(0, 8)}...${token.slice(-4)} (长度:${token.length})`)
+			debugInfo.push(`knowledgeListUrl: ${config.knowledgeListUrl || "(默认)"}`)
+			debugInfo.push(`knowledgeFilesUrl: ${config.knowledgeFilesUrl || "(默认)"}`)
+
+			try {
+				let results: KnowledgeSearchResult[] = []
+
+				if (query.startsWith("kb://") && query.slice(5).includes("/")) {
+					debugInfo.push(`模式: 钻取文件列表`)
+					// Drill-down: list files of a specific knowledge base.
+					const ref = parseKnowledgeRef(query.slice(5))
+					const fileQuery = (ref.fileFilter || "").toLowerCase()
+
+					const registered = provider.knowledgeRefRegistry.get(`kb://${ref.knowledgeName}`)
+					let knowledgeId = ref.knowledgeId || registered?.knowledgeId
+					let knowledgeName = ref.knowledgeName
+					let collectionName = ref.collectionId || registered?.collectionId
+
+					if (!knowledgeId) {
+						const base = await findKnowledgeBase(config, knowledgeName)
+						if (base) {
+							knowledgeId = base.id
+							collectionName = base.collectionName
+						}
+					}
+
+					if (!knowledgeId) {
+						debugInfo.push(`未找到知识库 ID (name=${knowledgeName})`)
+						results = []
+					} else {
+						const filesUrl = config.knowledgeFilesUrl?.trim()
+							? config.knowledgeFilesUrl
+									.replace(/\{knowledgeId\}/g, knowledgeId)
+									.replace(/\{id\}/g, knowledgeId)
+							: `/api/v1/knowledge/${knowledgeId}/files`
+						debugInfo.push(`请求文件列表: GET ${baseUrl}${filesUrl}`)
+						const files = await listKnowledgeFiles(config, knowledgeId)
+						debugInfo.push(`返回文件数: ${files.length}`)
+						results = files
+							.filter((file) => !fileQuery || file.name.toLowerCase().includes(fileQuery))
+							.map((file) => ({
+								kind: "file" as const,
+								name: file.name,
+								knowledgeName,
+								id: knowledgeId,
+								collectionName,
+								fileId: file.id,
+							}))
+					}
+				} else {
+					debugInfo.push(`模式: 列出知识库`)
+					// Top level: list knowledge bases the user can access.
+					const listUrl = config.knowledgeListUrl?.trim()
+						? config.knowledgeListUrl
+						: "/api/v1/knowledge/search?page=1 (默认)"
+					debugInfo.push(`请求知识库列表: GET ${baseUrl}${listUrl}`)
+					const bases = await listKnowledgeBases(config)
+					debugInfo.push(`返回知识库数: ${bases.length}`)
+					bases.forEach((b) => debugInfo.push(`  - ${b.name} (id=${b.id})`))
+					results = bases.map((base) => ({
+						kind: "knowledge" as const,
+						name: base.name,
+						description: base.description,
+						id: base.id,
+						collectionName: base.collectionName,
+					}))
+				}
+
+				debugInfo.push(`最终结果数: ${results.length}`)
+				const debugMsg = debugInfo.join("\n")
+				provider.log(`[OpenWebUI] ${debugMsg}`)
+				if (developerMode) {
+					void vscode.window.showInformationMessage(debugMsg)
+				}
+
+				await provider.postMessageToWebview({
+					type: "knowledgeSearchResults",
+					knowledgeResults: results,
+					knowledgeConfigured: true,
+					requestId: message.requestId,
+				})
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : String(error)
+				debugInfo.push(`错误: ${errorMessage}`)
+				const debugMsg = debugInfo.join("\n")
+				provider.log(`[OpenWebUI] ${debugMsg}`)
+				void vscode.window.showErrorMessage(debugMsg)
+				await provider.postMessageToWebview({
+					type: "knowledgeSearchResults",
+					knowledgeResults: [],
+					knowledgeConfigured: true,
 					error: errorMessage,
 					requestId: message.requestId,
 				})

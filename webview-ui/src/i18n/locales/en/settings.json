@@ -43,7 +43,22 @@
 		"ui": "UI",
 		"experimental": "Experimental",
 		"language": "Language",
-		"about": "About ssdAgent"
+		"about": "About ssdAgent",
+		"openWebUIKnowledgeBase": "OpenWebUI Knowledge Base"
+	},
+	"openWebUI": {
+		"baseUrlLabel": "Server URL",
+		"baseUrlDescription": "Address of your OpenWebUI instance, e.g. http://localhost:3000. Once configured, knowledge bases can be referenced with @ in the chat input.",
+		"tokenLabel": "API Token",
+		"tokenDescription": "OpenWebUI API key (generated in OpenWebUI under Settings → Account). Stored securely in the local secret store.",
+		"listRouteLabel": "Knowledge List Route",
+		"listRouteDescription": "Route requested when \"@\" lists the knowledge bases visible to the user, e.g. /api/v1/knowledge/. Leave empty to use the built-in default.",
+		"filesRouteLabel": "Knowledge Files Route",
+		"filesRouteDescription": "Route requested when a knowledge base is selected to list its files. Use {id} as the knowledge base id placeholder, e.g. /api/v1/knowledge/{id}/files. Leave empty to use the built-in default.",
+		"retrievalModeLabel": "Knowledge Retrieval Mode",
+		"retrievalModeDirect": "Direct Injection (Recommended, works with all models)",
+		"retrievalModeMcp": "MCP Tool Calling (Requires model with tool calling capability)",
+		"retrievalModeDescription": "Choose how @knowledge base references are resolved. Direct mode: host calls the REST API and injects results into the prompt, works with all models. MCP mode: generates tool-call instructions for the LLM to execute, requires tool calling capability."
 	},
 	"about": {
 		"bugReport": {
@@ -698,6 +713,10 @@
 		}
 	},
 	"notifications": {
+		"developerMode": {
+			"label": "Developer Mode",
+			"description": "When enabled, debug-related popup notifications will be shown (e.g., knowledge base request debugging information)."
+		},
 		"sound": {
 			"label": "Enable sound effects",
 			"description": "When enabled, ssdAgent will play sound effects for notifications and events.",

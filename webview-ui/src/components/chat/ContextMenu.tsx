@@ -4,7 +4,7 @@ import { Trans } from "react-i18next"
 import { t } from "i18next"
 import { Settings } from "lucide-react"
 
-import type { ModeConfig, Command, CostrictCodeMode } from "@roo-code/types"
+import type { ModeConfig, Command, CostrictCodeMode, KnowledgeSearchResult } from "@roo-code/types"
 
 import {
 	ContextMenuOptionType,
@@ -30,6 +30,7 @@ interface ContextMenuProps {
 	modes?: ModeConfig[]
 	loading?: boolean
 	dynamicSearchResults?: SearchResult[]
+	knowledgeResults?: KnowledgeSearchResult[]
 	commands?: Command[]
 }
 
@@ -44,6 +45,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 	queryItems,
 	modes,
 	dynamicSearchResults = [],
+	knowledgeResults = [],
 	commands = [],
 }) => {
 	const [materialIconsBaseUri, setMaterialIconsBaseUri] = useState("")
@@ -59,8 +61,18 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 			modes,
 			commands,
 			costrictCodeMode,
+			knowledgeResults,
 		)
-	}, [costrictCodeMode, searchQuery, selectedType, queryItems, dynamicSearchResults, modes, commands])
+	}, [
+		costrictCodeMode,
+		searchQuery,
+		selectedType,
+		queryItems,
+		dynamicSearchResults,
+		modes,
+		commands,
+		knowledgeResults,
+	])
 
 	useEffect(() => {
 		if (menuRef.current) {
@@ -134,6 +146,46 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 								</span>
 							)}
 						</div>
+						{option.description && (
+							<span
+								style={{
+									opacity: 0.5,
+									fontSize: "0.9em",
+									lineHeight: "1.2",
+									whiteSpace: "nowrap",
+									overflow: "hidden",
+									textOverflow: "ellipsis",
+								}}>
+								{option.description}
+							</span>
+						)}
+					</div>
+				)
+			case ContextMenuOptionType.Knowledge:
+				return (
+					<div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+						<div style={{ lineHeight: "1.2" }}>{option.label || option.value}</div>
+						{option.description && (
+							<span
+								style={{
+									opacity: 0.5,
+									fontSize: "0.9em",
+									lineHeight: "1.2",
+									whiteSpace: "nowrap",
+									overflow: "hidden",
+									textOverflow: "ellipsis",
+								}}>
+								{option.description}
+							</span>
+						)}
+					</div>
+				)
+			case ContextMenuOptionType.KnowledgeBase:
+				return <span>{t("chat:contextMenu.addKnowledgeBase")}</span>
+			case ContextMenuOptionType.KnowledgeFile:
+				return (
+					<div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+						<div style={{ lineHeight: "1.2" }}>{option.label || option.value}</div>
 						{option.description && (
 							<span
 								style={{
@@ -247,6 +299,12 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 				return "link"
 			case ContextMenuOptionType.Git:
 				return "git-commit"
+			case ContextMenuOptionType.Knowledge:
+				return "library"
+			case ContextMenuOptionType.KnowledgeBase:
+				return "library"
+			case ContextMenuOptionType.KnowledgeFile:
+				return "file"
 			case ContextMenuOptionType.NoResults:
 				return "info"
 			default:
@@ -404,10 +462,15 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 										option.type === ContextMenuOptionType.File ||
 										option.type === ContextMenuOptionType.Folder ||
 										option.type === ContextMenuOptionType.OpenedFile
+									const isKnowledgeItem =
+										option.type === ContextMenuOptionType.Knowledge ||
+										option.type === ContextMenuOptionType.KnowledgeFile
 									const isActionItem =
 										option.type === ContextMenuOptionType.Problems ||
 										option.type === ContextMenuOptionType.Terminal ||
 										option.type === ContextMenuOptionType.URL ||
+										option.type === ContextMenuOptionType.KnowledgeBase ||
+										isKnowledgeItem ||
 										(isFileOrFolder && !option.value)
 
 									if (
@@ -465,15 +528,18 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
 								})()}
 								{renderOptionContent(option)}
 							</div>
-							{(option.type === ContextMenuOptionType.File ||
+							{(((option.type === ContextMenuOptionType.File ||
 								option.type === ContextMenuOptionType.Folder ||
-								option.type === ContextMenuOptionType.Git) &&
-								!option.value && (
-									<i
-										className="codicon codicon-chevron-right"
-										style={{ fontSize: "10px", flexShrink: 0, marginLeft: 8 }}
-									/>
-								)}
+								option.type === ContextMenuOptionType.Git ||
+								option.type === ContextMenuOptionType.KnowledgeBase) &&
+								!option.value) ||
+								(option.type === ContextMenuOptionType.Knowledge &&
+									!searchQuery.startsWith("kb://"))) && (
+								<i
+									className="codicon codicon-chevron-right"
+									style={{ fontSize: "10px", flexShrink: 0, marginLeft: 8 }}
+								/>
+							)}
 						</div>
 					))
 				) : (

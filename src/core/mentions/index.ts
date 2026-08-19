@@ -4,7 +4,12 @@ import * as path from "path"
 import * as vscode from "vscode"
 import { isBinaryFileWithEncodingDetection } from "../../utils/encoding"
 
-import { mentionRegexGlobal, commandRegexGlobal, unescapeSpaces } from "../../shared/context-mentions"
+import {
+	mentionRegexGlobal,
+	commandRegexGlobal,
+	unescapeSpaces,
+	parseKnowledgeRef,
+} from "../../shared/context-mentions"
 
 import { getCommitInfo, getWorkingState } from "../../utils/git"
 
@@ -19,6 +24,14 @@ import { RooIgnoreController } from "../ignore/RooIgnoreController"
 import { getCommand, type Command } from "../../services/command/commands"
 import { buildSkillResult, resolveSkillContentForMode, type SkillLookup } from "../../services/skills/skillInvocation"
 import type { SkillContent } from "../../shared/skills"
+import {
+	findKnowledgeBase,
+	listKnowledgeBases,
+	listKnowledgeFiles,
+	queryKnowledge,
+	type OpenWebUIConfig,
+} from "../../services/openwebui"
+import type { KnowledgeReferenceMeta } from "@roo-code/types"
 
 /**
  * Maximum number of files to read from a folder mention.
@@ -80,7 +93,16 @@ export async function openMention(cwd: string, mention?: string): Promise<void> 
  * proper formatting as distinct message blocks.
  */
 export interface MentionContentBlock {
-	type: "file" | "folder" | "url" | "diagnostics" | "git_changes" | "git_commit" | "terminal" | "command"
+	type:
+		| "file"
+		| "folder"
+		| "url"
+		| "diagnostics"
+		| "git_changes"
+		| "git_commit"
+		| "terminal"
+		| "command"
+		| "knowledge"
 	/** Path for file/folder mentions */
 	path?: string
 	/** The content to display */
@@ -210,6 +232,8 @@ export async function parseMentions(
 	currentMode: string = "code",
 	language?: string,
 	mentionBudgetChars?: number,
+	knowledgeConfig?: OpenWebUIConfig,
+	knowledgeRefRegistry?: ReadonlyMap<string, KnowledgeReferenceMeta>,
 ): Promise<ParseMentionsResult> {
 	const mentions: Set<string> = new Set()
 	const validCommands: Map<string, Command> = new Map()
@@ -271,6 +295,10 @@ export async function parseMentions(
 		mentions.add(mention)
 		if (mention.startsWith("http")) {
 			return `'${mention}'`
+		} else if (mention.startsWith("kb://")) {
+			const ref = parseKnowledgeRef(mention.slice("kb://".length))
+			const label = ref.fileName ? `${ref.knowledgeName}/${ref.fileName}` : ref.knowledgeName
+			return `Knowledge Base '${label}' (knowledge reference below - you MUST retrieve its content via the OpenWebUI MCP tools before answering)`
 		} else if (mention.startsWith("/")) {
 			// Clean path reference - no "see below" since we format like tool results
 			const mentionPath = mention.slice(1)
@@ -335,6 +363,25 @@ export async function parseMentions(
 			} catch (error) {
 				parsedText += `\n\n<terminal_output>\nError fetching terminal output: ${error.message}\n</terminal_output>`
 			}
+		} else if (mention.startsWith("kb://")) {
+			const queryText = text.replace(mentionRegexGlobal, "").replace(/\s+/g, " ").trim().slice(0, 500)
+
+			try {
+				const content = await getKnowledgeMentionContent(
+					knowledgeConfig,
+					mention,
+					queryText,
+					knowledgeRefRegistry,
+				)
+				tryAddMentionContentBlock(mentionBudgetState, contentBlocks, content)
+			} catch (error) {
+				const errorMsg = error instanceof Error ? error.message : String(error)
+				contentBlocks.push({
+					type: "knowledge",
+					path: mention,
+					content: `[knowledge_reference for '${mention}']\nError: ${errorMsg}`,
+				})
+			}
 		}
 	}
 
@@ -367,6 +414,165 @@ export async function parseMentions(
 		contentBlocks,
 		mode: commandMode,
 		slashCommandHelp: slashCommandHelp.trim() || undefined,
+	}
+}
+
+/**
+ * Resolves an @kb:// mention into a knowledge reference block that instructs
+ * the agent to retrieve the referenced content through the OpenWebUI MCP tools
+ * (vector store query) BEFORE answering. The ids embedded in the mention
+ * (knowledge id, collection id, file id) are passed straight through so the
+ * MCP tools can address the vector store without re-resolving names; when the
+ * mention carries no ids, a best-effort name lookup enriches the reference.
+ */
+async function getKnowledgeMentionContent(
+	config: OpenWebUIConfig | undefined,
+	mention: string,
+	queryText: string,
+	knowledgeRefRegistry?: ReadonlyMap<string, KnowledgeReferenceMeta>,
+): Promise<MentionContentBlock> {
+	const ref = parseKnowledgeRef(mention.slice("kb://".length))
+
+	// Pure-name mentions keep their ids in the host-side selection registry
+	// (keyed by the normalized pure reference).
+	const registered = knowledgeRefRegistry?.get(`kb://${ref.knowledgeName}${ref.fileName ? `/${ref.fileName}` : ""}`)
+
+	let knowledgeId = ref.knowledgeId ?? registered?.knowledgeId
+	let collectionId = ref.collectionId ?? registered?.collectionId
+	let fileId = ref.fileId ?? registered?.fileId
+	let description: string | undefined
+	let documentNames: string[] = []
+
+	// Best-effort enrichment: fill missing ids / metadata via the REST API.
+	if (config && (!knowledgeId || !collectionId)) {
+		try {
+			const base = knowledgeId
+				? (await listKnowledgeBases(config)).find((entry) => entry.id === knowledgeId)
+				: await findKnowledgeBase(config, ref.knowledgeName)
+			if (base) {
+				knowledgeId = knowledgeId ?? base.id
+				collectionId = collectionId ?? base.collectionName
+				description = base.description
+			}
+		} catch {
+			// Enrichment is optional; the ids embedded in the mention are enough.
+		}
+	}
+
+	if (!knowledgeId && config) {
+		try {
+			const base = await findKnowledgeBase(config, ref.knowledgeName)
+			if (base) {
+				knowledgeId = base.id
+				collectionId = collectionId ?? base.collectionName
+				description = base.description
+			}
+		} catch {
+			// Ignore - the error block below covers the not-found case.
+		}
+	}
+
+	if (!knowledgeId) {
+		return {
+			type: "knowledge",
+			path: mention,
+			content: [
+				`[knowledge_reference for '${mention}']`,
+				`Error: Knowledge base '${ref.knowledgeName}' could not be resolved${config ? "" : " (OpenWebUI is not configured)"}.`,
+			].join("\n"),
+		}
+	}
+
+	const targetLabel = ref.fileName
+		? `document '${ref.fileName}' in knowledge base '${ref.knowledgeName}'`
+		: `knowledge base '${ref.knowledgeName}'`
+
+	const lines = [
+		`[knowledge_reference for '${mention}']`,
+		`Target: ${targetLabel}`,
+		`knowledge_id: ${knowledgeId}`,
+		collectionId ? `collection_id: ${collectionId}` : undefined,
+		ref.fileName ? `document_name: ${ref.fileName}` : undefined,
+		fileId ? `document_id: ${fileId}` : undefined,
+		description ? `description: ${description}` : undefined,
+	]
+
+	if (!ref.fileName) {
+		try {
+			if (config) {
+				documentNames = (await listKnowledgeFiles(config, knowledgeId)).map((file) => file.name)
+			}
+		} catch {
+			// Document list is optional metadata.
+		}
+		if (documentNames.length > 0) {
+			lines.push(`documents (${documentNames.length}): ${documentNames.join(", ")}`)
+		}
+	}
+
+	const question = (queryText || ref.fileName || ref.knowledgeName).trim()
+	const mode = config?.retrievalMode ?? "direct"
+
+	if (mode === "mcp") {
+		// MCP mode: generate tool-call instructions for LLMs with tool-calling capability.
+		// The LLM will decide when and how to call the MCP tools.
+		lines.push(
+			"",
+			"REQUIRED RETRIEVAL STEP - perform this BEFORE answering the user:",
+			`1. Call the OpenWebUI MCP tool \`openwebui_ask_knowledge\` with: question="${question.slice(0, 300)}", knowledge_ids=["${knowledgeId}"]${ref.fileName ? `, document_names=["${ref.fileName}"]` : ""}, top_k=5.`,
+			`   (Alternative: \`openwebui_search_knowledge\` with query="${question.slice(0, 300)}", knowledge_id="${knowledgeId}"${collectionId ? `, collection_name="${collectionId}"` : ""}${ref.fileName ? `, document_name="${ref.fileName}"` : ""}, top_k=5.)`,
+			"2. Wait for the retrieval results, then assemble your final answer based on the retrieved passages and cite the source document names.",
+			"3. If the tools return no passages or are unavailable, tell the user knowledge retrieval failed - do not invent knowledge base content.",
+		)
+	} else {
+		// Direct mode: host calls the REST API and injects results into the prompt.
+		// Works for all models including those without tool-calling capability.
+		if (config) {
+			try {
+				const chunks = await queryKnowledge(config, {
+					query: question.slice(0, 300),
+					collectionName: collectionId,
+					topK: 5,
+				})
+
+				if (chunks.length > 0) {
+					lines.push("", "Retrieved knowledge base passages (use these to answer the user's question):")
+					chunks.forEach((chunk, idx) => {
+						const sourceLabel = chunk.source ? ` [source: ${chunk.source}]` : ""
+						const scoreLabel = chunk.score !== undefined ? ` (score: ${chunk.score.toFixed(3)})` : ""
+						lines.push(`--- Passage ${idx + 1}${sourceLabel}${scoreLabel} ---`)
+						lines.push(chunk.content)
+					})
+					lines.push("--- End of retrieved passages ---")
+					lines.push("")
+					lines.push(
+						"Answer the user's question based on the retrieved passages above. Cite the source document names where applicable. If the passages do not contain relevant information, tell the user honestly.",
+					)
+				} else {
+					lines.push(
+						"",
+						"[Knowledge retrieval returned no results. The knowledge base may not contain relevant information for this question.]",
+					)
+				}
+			} catch (error) {
+				const errMsg = error instanceof Error ? error.message : String(error)
+				lines.push(
+					"",
+					`[Knowledge retrieval failed: ${errMsg}. Please check OpenWebUI configuration and MCP server status.]`,
+				)
+			}
+		} else {
+			lines.push(
+				"",
+				"[OpenWebUI is not configured. Please set the OpenWebUI service address and API Token in Settings → Providers to enable knowledge base retrieval.]",
+			)
+		}
+	}
+
+	return {
+		type: "knowledge",
+		path: mention,
+		content: lines.filter((line) => line !== undefined).join("\n"),
 	}
 }
 

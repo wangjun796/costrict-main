@@ -4,6 +4,8 @@ import { parseMentions, ParseMentionsResult, MentionContentBlock } from "./index
 import { FileContextTracker } from "../context-tracking/FileContextTracker"
 import { Task } from "../task/Task"
 import type { SkillLookup } from "../../services/skills/skillInvocation"
+import type { OpenWebUIConfig } from "../../services/openwebui"
+import type { KnowledgeReferenceMeta } from "@roo-code/types"
 
 // Internal aliases for the Anthropic content block subtypes used during processing.
 type TextPart = Anthropic.Messages.TextBlockParam
@@ -47,6 +49,8 @@ export async function processUserContentMentions({
 	currentMode = "code",
 	language,
 	mentionBudgetChars,
+	knowledgeConfig,
+	knowledgeRefRegistry,
 }: {
 	userContent: Anthropic.Messages.ContentBlockParam[]
 	cwd: string
@@ -60,6 +64,8 @@ export async function processUserContentMentions({
 	currentMode?: string
 	language?: string
 	mentionBudgetChars?: number
+	knowledgeConfig?: OpenWebUIConfig
+	knowledgeRefRegistry?: ReadonlyMap<string, KnowledgeReferenceMeta>
 }): Promise<ProcessUserContentMentionsResult> {
 	// Track the first mode found from slash commands
 	let commandMode: string | undefined
@@ -77,6 +83,8 @@ export async function processUserContentMentions({
 					currentMode,
 					language,
 					mentionBudgetChars,
+					knowledgeConfig,
+					knowledgeRefRegistry,
 				)
 			: parseMentions(
 					text,
@@ -90,6 +98,8 @@ export async function processUserContentMentions({
 					currentMode,
 					language,
 					mentionBudgetChars,
+					knowledgeConfig,
+					knowledgeRefRegistry,
 				)
 
 	// Process userContent array, which contains text and image parts.

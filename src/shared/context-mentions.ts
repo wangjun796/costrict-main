@@ -109,3 +109,112 @@ export function formatGitSuggestion(commit: {
 export function unescapeSpaces(path: string): string {
 	return path.replace(/\\ /g, " ")
 }
+
+/*
+ * Knowledge base (@kb://) mention reference format:
+ *
+ *   Final mention:    kb://知识库名            (pure names; ids live in the host-side registry)
+ *                     kb://知识库名/文件名
+ *   With metadata:    kb://知识库名[knowledgeId|collectionId]  (fallback when a name can't be parsed)
+ *   Drill-down query: kb://知识库名/过滤词      (transient, while browsing the file list)
+ *
+ * The webview registers selection metadata (knowledge/file/collection ids) via
+ * "registerKnowledgeRef"; menus and the chat input display pure names only.
+ * The extension host resolves pure-name mentions through that registry first,
+ * then falls back to a REST name lookup.
+ */
+
+export interface ParsedKnowledgeRef {
+	/** Full reference as typed (the part after "kb://") */
+	raw: string
+	knowledgeName: string
+	/** Document name for final mentions */
+	fileName?: string
+	/** Trailing filter text while drilling down (after the "/") */
+	fileFilter?: string
+	/** OpenWebUI knowledge base id */
+	knowledgeId?: string
+	/** Vector collection id (collection_name) */
+	collectionId?: string
+	/** OpenWebUI file/document id */
+	fileId?: string
+}
+
+const KNOWLEDGE_REF_PARTS = /^((?:[^[\]|\\]|\\ )*)\[([^\[\]]*)\](?:\/(.*))?$/
+
+export function parseKnowledgeRef(reference: string): ParsedKnowledgeRef {
+	const match = reference.match(KNOWLEDGE_REF_PARTS)
+	const ids = match ? match[2].split("|") : []
+
+	let namePart: string
+	let trailing: string | undefined
+	if (match) {
+		namePart = match[1]
+		trailing = match[3]
+	} else {
+		const slashIndex = reference.indexOf("/")
+		namePart = slashIndex >= 0 ? reference.slice(0, slashIndex) : reference
+		trailing = slashIndex >= 0 ? reference.slice(slashIndex + 1) : undefined
+	}
+
+	let knowledgeName = namePart
+	let fileName: string | undefined
+	const slashIndex = namePart.indexOf("/")
+	if (slashIndex >= 0) {
+		knowledgeName = namePart.slice(0, slashIndex)
+		fileName = namePart.slice(slashIndex + 1)
+	}
+
+	let knowledgeId: string | undefined
+	let collectionId: string | undefined
+	let fileId: string | undefined
+	if (ids.length >= 3) {
+		fileId = ids[0] || undefined
+		knowledgeId = ids[1] || undefined
+		collectionId = ids[2] || undefined
+	} else if (ids.length === 2) {
+		knowledgeId = ids[0] || undefined
+		collectionId = ids[1] || undefined
+	} else if (ids.length === 1) {
+		knowledgeId = ids[0] || undefined
+	}
+
+	return {
+		raw: reference,
+		knowledgeName: unescapeSpaces(knowledgeName),
+		fileName: fileName !== undefined ? unescapeSpaces(fileName) : undefined,
+		fileFilter: trailing !== undefined ? unescapeSpaces(trailing) : undefined,
+		knowledgeId,
+		collectionId,
+		fileId,
+	}
+}
+
+export interface EncodeKnowledgeRefInput {
+	knowledgeName: string
+	fileName?: string
+	knowledgeId?: string
+	collectionId?: string
+	fileId?: string
+}
+
+/**
+ * Builds the reference (without the "kb://" prefix). Falls back to a plain
+ * name-only reference when a name contains characters that would break parsing.
+ */
+export function encodeKnowledgeRef(input: EncodeKnowledgeRefInput): string {
+	const safe = (value: string) => !/[[\]|/\s]/.test(value)
+	if (!safe(input.knowledgeName) || (input.fileName && !safe(input.fileName))) {
+		return input.fileName ? `${input.knowledgeName}/${input.fileName}` : input.knowledgeName
+	}
+
+	const ids = input.fileName
+		? [input.fileId, input.knowledgeId, input.collectionId]
+		: [input.knowledgeId, input.collectionId]
+
+	const base = input.fileName ? `${input.knowledgeName}/${input.fileName}` : input.knowledgeName
+	if (ids.every((id) => !id)) {
+		return base
+	}
+	return `${base}[${ids.map((id) => id ?? "").join("|")}]`
+}

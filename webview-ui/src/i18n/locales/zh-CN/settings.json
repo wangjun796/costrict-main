@@ -43,7 +43,22 @@
 		"language": "语言",
 		"about": "关于 ssdAgent",
 		"autoCleanup": "自动清理",
-		"skills": "Skills"
+		"skills": "Skills",
+		"openWebUIKnowledgeBase": "OpenWebUI 知识库"
+	},
+	"openWebUI": {
+		"baseUrlLabel": "服务地址",
+		"baseUrlDescription": "OpenWebUI 的访问地址，例如 http://localhost:3000。配置后可在聊天输入框使用 @ 引用知识库。",
+		"tokenLabel": "API Token",
+		"tokenDescription": "OpenWebUI 的 API 密钥（在 OpenWebUI 的 设置 → 账号 中生成），将安全地存储在本地密钥库中。",
+		"listRouteLabel": "知识库列表查询路由",
+		"listRouteDescription": "输入 @ 时列出用户可见知识库所请求的路由，例如 /api/v1/knowledge/。留空则使用内置默认路由。",
+		"filesRouteLabel": "知识库文件列表查询路由",
+		"filesRouteDescription": "点击知识库后查询其下文件列表所请求的路由，用 {id} 占位知识库 ID，例如 /api/v1/knowledge/{id}/files。留空则使用内置默认路由。",
+		"retrievalModeLabel": "知识库检索模式",
+		"retrievalModeDirect": "直接注入（推荐，兼容所有模型）",
+		"retrievalModeMcp": "MCP 工具调用（需要模型支持 tool calling）",
+		"retrievalModeDescription": "选择 @知识库 引用后的检索方式。直接注入由 host 调用 REST API 并将结果注入 prompt，适用于所有模型；MCP 模式生成工具调用指令，由 LLM 自主决定何时调用，需要模型具备 tool calling 能力。"
 	},
 	"about": {
 		"bugReport": {
@@ -591,6 +606,10 @@
 		}
 	},
 	"notifications": {
+		"developerMode": {
+			"label": "开发者模式",
+			"description": "启用后，将显示调试相关的弹窗通知（如知识库请求调试信息）。"
+		},
 		"sound": {
 			"label": "启用声音通知",
 			"description": "启用后，ssdAgent 将为通知和事件播放音效。",

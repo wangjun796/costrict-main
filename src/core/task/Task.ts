@@ -2903,6 +2903,20 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				currentMode,
 				language: state?.language,
 				mentionBudgetChars: this.getMentionBudgetChars(),
+				knowledgeConfig: (() => {
+					const baseUrl = provider?.contextProxy.getValue("openWebUIBaseUrl")
+					const token = provider?.contextProxy.getValue("openWebUIToken")
+					return baseUrl && token
+						? {
+								baseUrl,
+								token,
+								knowledgeListUrl: provider?.contextProxy.getValue("openWebUIKnowledgeListUrl"),
+								knowledgeFilesUrl: provider?.contextProxy.getValue("openWebUIKnowledgeFilesUrl"),
+								retrievalMode: provider?.contextProxy.getValue("openWebUIRetrievalMode"),
+							}
+						: undefined
+				})(),
+				knowledgeRefRegistry: provider?.knowledgeRefRegistry,
 			})
 
 			// Switch mode if specified in a slash command's frontmatter

@@ -28,6 +28,45 @@ import type { SkillMetadata } from "./skills.js"
 import type { WorktreeIncludeStatus } from "./worktree.js"
 export type CostrictCodeMode = "vibe" | "strict" | "raw" | "plan"
 /**
+ * Knowledge base search result for @kb:// context mentions.
+ * Returned by the "searchKnowledge" request handled in the extension host.
+ * The UI only displays names; the id fields are preserved so the mention and
+ * the OpenWebUI MCP retrieval flow can address the vector store directly.
+ */
+export interface KnowledgeSearchResult {
+	/** "knowledge" = a knowledge base entry; "file" = a document inside a knowledge base */
+	kind: "knowledge" | "file"
+	/** Display name (knowledge base name or file name) */
+	name: string
+	/** Knowledge base name the item belongs to (for kind === "file") */
+	knowledgeName?: string
+	description?: string
+	/** OpenWebUI knowledge base id */
+	id?: string
+	/** Vector collection id (collection_name) used for retrieval filtering */
+	collectionName?: string
+	/** OpenWebUI file/document id (for kind === "file") */
+	fileId?: string
+}
+
+/**
+ * Metadata registered by the webview when the user selects a knowledge base or
+ * document from the @ menu. The chat input only stores plain-name references
+ * (kb://name or kb://name/file); these ids live in the extension host registry
+ * so the retrieval flow can address the vector store directly. Task replays
+ * that miss the registry fall back to name-based resolution.
+ */
+export interface KnowledgeReferenceMeta {
+	/** Registry key, identical to the inserted reference (without "@") */
+	reference: string
+	knowledgeName: string
+	fileName?: string
+	knowledgeId?: string
+	collectionId?: string
+	fileId?: string
+}
+
+/**
  * ExtensionMessage
  * Extension -> Webview | CLI
  */
@@ -79,6 +118,7 @@ export interface ExtensionMessage {
 		| "ttsStart"
 		| "ttsStop"
 		| "fileSearchResults"
+		| "knowledgeSearchResults"
 		| "toggleApiConfigPin"
 		| "acceptInput"
 		| "setHistoryPreviewCollapsed"
@@ -190,6 +230,10 @@ export interface ExtensionMessage {
 	results?:
 		| { path: string; type: "file" | "folder"; label?: string }[]
 		| { name: string; description?: string; argumentHint?: string; source: "global" | "project" | "built-in" }[]
+	/** For knowledgeSearchResults: knowledge bases or documents matching the query */
+	knowledgeResults?: KnowledgeSearchResult[]
+	/** For knowledgeSearchResults: whether OpenWebUI is configured */
+	knowledgeConfigured?: boolean
 	error?: string
 	setting?: string
 	value?: any // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -414,6 +458,18 @@ export type ExtensionState = Pick<
 	hasOpenedModeSelector: boolean
 	hasClosedCodeReviewWelcomeTips: boolean
 	openRouterImageApiKey?: string
+	/** OpenWebUI knowledge base service address (used by @kb:// mentions) */
+	openWebUIBaseUrl?: string
+	/** OpenWebUI API token, stored in SecretStorage (used by @kb:// mentions) */
+	openWebUIToken?: string
+	/** Optional route override for the knowledge base list query triggered by "@" */
+	openWebUIKnowledgeListUrl?: string
+	/** Optional route override for the file list query of a knowledge base ("{id}" placeholder) */
+	openWebUIKnowledgeFilesUrl?: string
+	/** Retrieval strategy for @kb:// mentions: "direct" (host injects results) or "mcp" (LLM calls tools) */
+	openWebUIRetrievalMode?: "direct" | "mcp"
+	/** Developer mode: when enabled, debug-related popup notifications are shown */
+	developerMode?: boolean
 	messageQueue?: QueuedMessage[]
 	lastShownAnnouncementId?: string
 	apiModelId?: string
@@ -591,6 +647,8 @@ export interface WebviewMessage {
 		| "codebaseIndexEnabled"
 		| "telemetrySetting"
 		| "searchFiles"
+		| "searchKnowledge"
+		| "registerKnowledgeRef"
 		| "toggleApiConfigPin"
 		| "hasOpenedModeSelector"
 		| "lockApiConfigAcrossModes"
@@ -744,6 +802,8 @@ export interface WebviewMessage {
 	/** Target mode slugs for updateSkillModes */
 	newSkillModeSlugs?: string[] // For updateSkillModes (new mode restrictions)
 	requestId?: string
+	/** For registerKnowledgeRef: metadata of the selected knowledge reference */
+	knowledgeReference?: KnowledgeReferenceMeta
 	ids?: string[]
 	terminalOperation?: "continue" | "abort"
 	messageTs?: number

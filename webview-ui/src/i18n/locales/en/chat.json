@@ -475,7 +475,9 @@
 		"url": "Paste URL to fetch contents",
 		"gitCommits": "Git Commits",
 		"addFile": "Add File",
-		"addFolder": "Add Folder"
+		"addFolder": "Add Folder",
+		"addKnowledgeBase": "Add Knowledge Base",
+		"useEntireKnowledgeBase": "Use entire knowledge base"
 	},
 	"queuedMessages": {
 		"title": "Queued Messages",

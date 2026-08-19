@@ -7,6 +7,7 @@ MCP 工具实现
 2. openwebui_search_knowledge - 语义检索知识库内容
 3. openwebui_get_knowledge_detail - 获取知识库详情
 4. openwebui_list_documents - 列出知识库中的文档
+5. openwebui_ask_knowledge - 引用知识库/文件后提问（新增）
 
 工具调用流程：
 1. MCP Client 调用工具
@@ -143,6 +144,50 @@ def register_tools(server: Server):
                     },
                     "required": ["knowledge_id"]
                 }
+            ),
+            types.Tool(
+                name="openwebui_ask_knowledge",
+                description=(
+                    "引用 OpenWebUI 知识库或指定文件进行提问。"
+                    "先在指定知识库/文件中检索与问题相关的内容，然后返回检索结果供 LLM 参考回答。"
+                    "支持同时引用多个知识库或多个文件。"
+                ),
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "question": {
+                            "type": "string",
+                            "description": "要提问的问题"
+                        },
+                        "knowledge_names": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "可选：引用的知识库名称列表（如 ['数学', '语文']）"
+                        },
+                        "knowledge_ids": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "可选：引用的知识库 ID 列表"
+                        },
+                        "document_names": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "可选：引用的文件名称列表（如 ['文质彬彬.docx', '萤窗小集.pdf']）"
+                        },
+                        "top_k": {
+                            "type": "integer",
+                            "description": "每个知识库返回的片段数量",
+                            "default": 5,
+                            "minimum": 1,
+                            "maximum": config.MAX_TOP_K
+                        },
+                        "user_token": {
+                            "type": "string",
+                            "description": "可选：OpenWebUI API Key"
+                        }
+                    },
+                    "required": ["question"]
+                }
             )
         ]
 
@@ -167,6 +212,8 @@ def register_tools(server: Server):
                 result = await handle_get_knowledge_detail(token, arguments)
             elif name == "openwebui_list_documents":
                 result = await handle_list_documents(token, arguments)
+            elif name == "openwebui_ask_knowledge":
+                result = await handle_ask_knowledge(token, arguments)
             else:
                 return [
                     types.TextContent(
@@ -378,4 +425,136 @@ async def handle_list_documents(
         "knowledge_id": knowledge_id,
         "documents": documents,
         "total": len(documents)
+    }
+
+
+# =========================
+# 引用知识库提问（新增）
+# =========================
+
+async def handle_ask_knowledge(
+    token: str,
+    arguments: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    处理引用知识库/文件后提问
+
+    流程：
+    1. 收集所有引用的知识库（按名称或 ID）
+    2. 收集所有引用的文件名称
+    3. 对每个知识库分别检索，按文件过滤
+    4. 汇总所有结果返回
+
+    Args:
+        token: OpenWebUI Token
+        arguments: 工具参数
+            - question: 问题
+            - knowledge_names: 知识库名称列表
+            - knowledge_ids: 知识库 ID 列表
+            - document_names: 文件名称列表
+            - top_k: 每个知识库返回片段数
+    """
+    question = arguments.get("question", "")
+    if not question or not str(question).strip():
+        raise ValueError("question 不能为空")
+
+    knowledge_names = arguments.get("knowledge_names") or []
+    knowledge_ids = arguments.get("knowledge_ids") or []
+    document_names = arguments.get("document_names") or []
+    top_k = arguments.get("top_k", 5)
+
+    # 如果既没有指定知识库也没有指定文件，则全局检索
+    if not knowledge_names and not knowledge_ids and not document_names:
+        raise ValueError(
+            "必须指定 knowledge_names、knowledge_ids 或 document_names 中的至少一个"
+        )
+
+    # 收集所有需要检索的知识库（去重）
+    all_knowledge_ids = set(knowledge_ids)
+    all_knowledge_names = list(knowledge_names)
+
+    # 如果指定了文件但没有指定知识库，需要先找到文件所属的知识库
+    if document_names and not knowledge_names and not knowledge_ids:
+        kb_list = await openwebui_client.list_knowledge_bases(token)
+        for kb in kb_list["knowledge_bases"]:
+            all_knowledge_ids.add(kb["id"])
+
+    # 将知识库名称转换为 ID
+    if all_knowledge_names:
+        kb_list = await openwebui_client.list_knowledge_bases(token)
+        for name in all_knowledge_names:
+            matched = None
+            for kb in kb_list["knowledge_bases"]:
+                if kb["name"] == name:
+                    matched = kb
+                    break
+            if matched:
+                all_knowledge_ids.add(matched["id"])
+            else:
+                raise ValueError(f"未找到知识库: {name}")
+
+    # 对每个知识库分别检索
+    all_chunks = []
+    kb_results = []
+
+    for kb_id in all_knowledge_ids:
+        # 获取知识库名称（用于返回）
+        kb_name = None
+        kb_list = await openwebui_client.list_knowledge_bases(token)
+        for kb in kb_list["knowledge_bases"]:
+            if kb["id"] == kb_id:
+                kb_name = kb["name"]
+                break
+
+        # 构建检索 payload
+        payload = {
+            "query": question,
+            "top_k": top_k * 2 if document_names else top_k,
+            "collection_names": [kb_id],
+        }
+
+        # 调用检索 API
+        data = await openwebui_client.try_post_paths(
+            config.OPENWEBUI_SEARCH_PATHS,
+            token,
+            payload
+        )
+
+        chunks = openwebui_client.normalize_chunks(data)
+
+        # 按文件过滤
+        if document_names:
+            filtered = []
+            for chunk in chunks:
+                source = chunk.get("source", "")
+                metadata = chunk.get("metadata", {})
+                file_name = metadata.get("file_name", "")
+
+                for doc_name in document_names:
+                    if doc_name.lower() in source.lower() or \
+                       doc_name.lower() in file_name.lower():
+                        filtered.append(chunk)
+                        break
+            chunks = filtered[:top_k]
+        else:
+            chunks = chunks[:top_k]
+
+        # 添加知识库信息
+        for chunk in chunks:
+            chunk["knowledge_id"] = kb_id
+            chunk["knowledge_name"] = kb_name
+
+        all_chunks.extend(chunks)
+        kb_results.append({
+            "knowledge_id": kb_id,
+            "knowledge_name": kb_name,
+            "chunk_count": len(chunks)
+        })
+
+    return {
+        "question": question,
+        "referenced_knowledge_bases": kb_results,
+        "referenced_documents": document_names if document_names else None,
+        "chunks": all_chunks,
+        "total": len(all_chunks)
     }

@@ -111,6 +111,19 @@ export const globalSettingsSchema = z.object({
 	openRouterImageGenerationSelectedModel: z.string().optional(),
 
 	customCondensingPrompt: z.string().optional(),
+
+	// OpenWebUI knowledge base (@kb:// mentions)
+	openWebUIBaseUrl: z.string().optional(),
+	openWebUIToken: z.string().optional(),
+	// Optional route overrides for the @ knowledge queries.
+	// Examples: "/api/v1/knowledge/" and "/api/v1/knowledge/{id}/files".
+	// When unset, built-in defaults with fallbacks are used.
+	openWebUIKnowledgeListUrl: z.string().optional(),
+	openWebUIKnowledgeFilesUrl: z.string().optional(),
+	// Retrieval strategy for @kb:// mentions: "direct" (host injects results) or "mcp" (LLM calls tools).
+	openWebUIRetrievalMode: z.union([z.literal("direct"), z.literal("mcp")]).optional(),
+	// Developer mode: when enabled, debug-related popup notifications are shown.
+	developerMode: z.boolean().optional(),
 	// costrict
 	useCostrictCustomConfig: z.boolean().optional(),
 	costrictCodeMode: z.union([z.literal("vibe"), z.literal("strict"), z.literal("raw"), z.literal("plan")]).optional(),
@@ -321,6 +334,7 @@ export const SECRET_STATE_KEYS = [
 // Global secrets that are part of GlobalSettings (not ProviderSettings)
 export const GLOBAL_SECRET_KEYS = [
 	"openRouterImageApiKey", // For image generation
+	"openWebUIToken", // For OpenWebUI knowledge base access
 ] as const
 
 // Type for the actual secret storage keys
