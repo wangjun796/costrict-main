@@ -122,7 +122,11 @@ export const globalSettingsSchema = z.object({
 	openWebUIKnowledgeFilesUrl: z.string().optional(),
 	// Retrieval strategy for @kb:// mentions: "direct" (host injects results) or "mcp" (LLM calls tools).
 	openWebUIRetrievalMode: z.union([z.literal("direct"), z.literal("mcp")]).optional(),
-	// Developer mode: when enabled, debug-related popup notifications are shown.
+	/**
+	 * Developer mode: when enabled, debug-related popup notifications are shown.
+	 * Runtime default is `false`; consumers should apply `?? false` to guarantee off-by-default.
+	 * @default false
+	 */
 	developerMode: z.boolean().optional(),
 	// costrict
 	useCostrictCustomConfig: z.boolean().optional(),
@@ -397,6 +401,7 @@ export const EVALS_SETTINGS: RooCodeSettings = {
 	ttsSpeed: 1,
 	soundEnabled: false,
 	soundVolume: 0.5,
+	developerMode: false,
 
 	// maxReadCharacterLimit: DEFAULT_FILE_READ_CHARACTER_LIMIT,
 	terminalShellIntegrationTimeout: 30000,

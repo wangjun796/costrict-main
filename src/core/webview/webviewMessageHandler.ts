@@ -2181,7 +2181,7 @@ export const webviewMessageHandler = async (
 		case "searchKnowledge": {
 			const baseUrl = provider.contextProxy.getValue("openWebUIBaseUrl")
 			const token = provider.contextProxy.getValue("openWebUIToken")
-			const developerMode = provider.contextProxy.getValue("developerMode")
+			const developerMode = provider.contextProxy.getValue("developerMode") ?? false
 
 			if (!baseUrl || !token) {
 				const debugMsg = `[OpenWebUI] 配置缺失: baseUrl=${!!baseUrl}, token=${!!token} (长度:${token?.length ?? 0})`
@@ -2296,7 +2296,9 @@ export const webviewMessageHandler = async (
 				debugInfo.push(`错误: ${errorMessage}`)
 				const debugMsg = debugInfo.join("\n")
 				provider.log(`[OpenWebUI] ${debugMsg}`)
-				void vscode.window.showErrorMessage(debugMsg)
+				if (developerMode) {
+					void vscode.window.showErrorMessage(debugMsg)
+				}
 				await provider.postMessageToWebview({
 					type: "knowledgeSearchResults",
 					knowledgeResults: [],

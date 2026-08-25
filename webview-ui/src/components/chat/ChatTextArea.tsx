@@ -344,9 +344,10 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			}
 		}, [selectedType, searchQuery])
 
-		// Request knowledge base results whenever the @ context menu query changes
-		// (covers the initial "@" with an empty query and the "kb://<name>/" drill-down).
-		// Also re-fetch when selectedType changes to KnowledgeBase so the list is populated.
+		// Request knowledge base results only after the user has explicitly entered
+		// the Knowledge Base section (clicked its option) or is drilling into a
+		// specific kb:// reference. This avoids firing a list query (and any
+		// resulting error popup) the moment the user just types "@".
 		useEffect(() => {
 			if (!showContextMenu) return
 
@@ -355,6 +356,9 @@ export const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				// A manually typed "kb://<name>" without a trailing slash should drill down too.
 				if (query.startsWith("kb://") && !query.slice("kb://".length).includes("/")) {
 					query += "/"
+				}
+				if (selectedType !== ContextMenuOptionType.KnowledgeBase && !query.startsWith("kb://")) {
+					return
 				}
 				const reqId = Math.random().toString(36).substring(2, 9)
 				setKnowledgeRequestId(reqId)
