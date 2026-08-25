@@ -118,8 +118,8 @@ export class CompletionStatusBar {
 			codeMsg = t("common:completion.code.429")
 			solutionMsg = t("common:completion.solution.429")
 		} else if (error.message?.includes(OPENAI_CLIENT_NOT_INITIALIZED)) {
-			codeMsg = t("common:completion.code.401")
-			solutionMsg = t("common:completion.solution.401")
+			codeMsg = t("common:completion.code.clientNotInit")
+			solutionMsg = t("common:completion.solution.clientNotInit")
 		} else if (error.message?.includes(OPENAI_REQUEST_ABORTED) || (error as any)?.name === "AbortError") {
 			codeMsg = t("common:completion.code.aborted")
 			solutionMsg = t("common:completion.solution.aborted")
