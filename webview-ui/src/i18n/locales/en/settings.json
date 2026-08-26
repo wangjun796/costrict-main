@@ -706,7 +706,7 @@
 		},
 		"customStoragePath": {
 			"label": "Custom storage path",
-			"description": "Custom storage path. Leave empty to use the default location. Supports absolute paths (e.g. 'D:\\CostrictCodeStorage')",
+			"description": "Custom storage path. Leave empty to use the default location. Supports absolute paths (e.g. 'D:\\sddAgentCodeStorage')",
 			"browse": "Browse",
 			"clear": "Clear",
 			"dialogTitle": "Select checkpoint storage folder"

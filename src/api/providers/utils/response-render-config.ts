@@ -27,7 +27,7 @@ export function getApiResponseRenderMode() {
 		return renderModes.fast
 	}
 	const apiResponseRenderMode = vscode.workspace
-		.getConfiguration("costrict")
+		.getConfiguration("sddAgent")
 		.get<string>("apiResponseRenderMode", "noLimit") as "fast" | "medium" | "slow" | "noLimit"
 
 	return renderModes[apiResponseRenderMode] || renderModes["noLimit"]

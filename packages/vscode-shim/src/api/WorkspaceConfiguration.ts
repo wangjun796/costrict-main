@@ -53,7 +53,7 @@ export function clearRuntimeConfig(): void {
 
 /**
  * Get a runtime configuration value.
- * @param fullKey The full configuration key (e.g., "costrict.commandExecutionTimeout")
+ * @param fullKey The full configuration key (e.g., "sddAgent.commandExecutionTimeout")
  * @returns The value or undefined if not set
  */
 export function getRuntimeConfig(fullKey: string): unknown {

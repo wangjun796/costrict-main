@@ -599,7 +599,7 @@
 		},
 		"customStoragePath": {
 			"label": "自定义存储路径",
-			"description": "自定义存储路径。留空以使用默认位置。支持绝对路径（例如：'D:\\CostrictCodeStorage'）",
+			"description": "自定义存储路径。留空以使用默认位置。支持绝对路径（例如：'D:\\sddAgentCodeStorage'）",
 			"browse": "浏览",
 			"clear": "清空",
 			"dialogTitle": "选择存档存储目录"

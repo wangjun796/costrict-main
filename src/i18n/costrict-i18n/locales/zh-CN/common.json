@@ -3,8 +3,8 @@
 		"name": "ssdAgent"
 	},
 	"storage": {
-		"path_placeholder": "D:\\CostrictCodeStorage",
-		"enter_absolute_path": "请输入绝对路径（例如：D:\\CostrictCodeStorage 或 /home/user/storage）"
+		"path_placeholder": "D:\\sddAgentCodeStorage",
+		"enter_absolute_path": "请输入绝对路径（例如：D:\\sddAgentCodeStorage 或 /home/user/storage）"
 	},
 	"input": {
 		"task_prompt": "ssdAgent 应该做什么？"

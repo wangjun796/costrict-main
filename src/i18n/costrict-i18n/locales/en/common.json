@@ -3,8 +3,8 @@
 		"name": "ssdAgent"
 	},
 	"storage": {
-		"path_placeholder": "D:\\CostrictCodeStorage",
-		"enter_absolute_path": "Please enter an absolute path (e.g. D:\\CostrictCodeStorage or /home/user/storage)"
+		"path_placeholder": "D:\\sddAgentCodeStorage",
+		"enter_absolute_path": "Please enter an absolute path (e.g. D:\\sddAgentCodeStorage or /home/user/storage)"
 	},
 	"input": {
 		"task_prompt": "What should ssdAgent do?"

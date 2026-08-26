@@ -291,9 +291,9 @@ export class AssistantUISidebarProvider implements vscode.WebviewViewProvider {
 				if (message.type === "switchToClassicUiMode") {
 					try {
 						await vscode.workspace
-							.getConfiguration("costrict")
+							.getConfiguration("sddAgent")
 							.update("uiMode", "classic", vscode.ConfigurationTarget.Global)
-						await vscode.commands.executeCommand("setContext", "costrict.uiMode", "classic")
+						await vscode.commands.executeCommand("setContext", "sddAgent.uiMode", "classic")
 						void vscode.commands.executeCommand("workbench.action.reloadWindow")
 					} catch (err) {
 						const reason = err instanceof Error ? err.message : String(err)

@@ -1255,7 +1255,7 @@ describe("ClineProvider", () => {
 		configGet.mockImplementation((key: string) => (key === "allowedCommands" ? ["workspace-allow-2"] : []))
 
 		await listener?.({
-			affectsConfiguration: (section: string) => section === "costrict.allowedCommands",
+			affectsConfiguration: (section: string) => section === "sddAgent.allowedCommands",
 		} as any)
 
 		const state = await provider.getStateToPostToWebview()
@@ -1289,7 +1289,7 @@ describe("ClineProvider", () => {
 		const onDidChangeConfiguration = vi.mocked(vscode.workspace.onDidChangeConfiguration)
 		const listener = onDidChangeConfiguration.mock.calls.at(-1)?.[0]
 		await listener?.({
-			affectsConfiguration: (section: string) => section === "costrict.allowedCommands",
+			affectsConfiguration: (section: string) => section === "sddAgent.allowedCommands",
 		} as any)
 
 		const state = await provider.getStateToPostToWebview()
@@ -1342,7 +1342,7 @@ describe("ClineProvider", () => {
 		configGet.mockReturnValue("/tmp/costrict-storage-2")
 
 		await listener?.({
-			affectsConfiguration: (section: string) => section === "costrict.customStoragePath",
+			affectsConfiguration: (section: string) => section === "sddAgent.customStoragePath",
 		} as any)
 
 		const third = await provider.getState()

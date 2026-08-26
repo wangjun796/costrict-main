@@ -664,7 +664,7 @@
 						}
 					}
 				},
-				"costrict.allowedCommands": {
+				"sddAgent.allowedCommands": {
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -676,7 +676,7 @@
 					],
 					"description": "%commands.allowedCommands.description%"
 				},
-				"costrict.deniedCommands": {
+				"sddAgent.deniedCommands": {
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -684,14 +684,14 @@
 					"default": [],
 					"description": "%commands.deniedCommands.description%"
 				},
-				"costrict.commandExecutionTimeout": {
+				"sddAgent.commandExecutionTimeout": {
 					"type": "number",
 					"default": 0,
 					"minimum": 0,
 					"maximum": 600,
 					"description": "%commands.commandExecutionTimeout.description%"
 				},
-				"costrict.commandTimeoutAllowlist": {
+				"sddAgent.commandTimeoutAllowlist": {
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -699,12 +699,12 @@
 					"default": [],
 					"description": "%commands.commandTimeoutAllowlist.description%"
 				},
-				"costrict.preventCompletionWithOpenTodos": {
+				"sddAgent.preventCompletionWithOpenTodos": {
 					"type": "boolean",
 					"default": false,
 					"description": "%commands.preventCompletionWithOpenTodos.description%"
 				},
-				"costrict.vsCodeLmModelSelector": {
+				"sddAgent.vsCodeLmModelSelector": {
 					"type": "object",
 					"properties": {
 						"vendor": {
@@ -718,12 +718,12 @@
 					},
 					"description": "%settings.vsCodeLmModelSelector.description%"
 				},
-				"costrict.customStoragePath": {
+				"sddAgent.customStoragePath": {
 					"type": "string",
 					"default": "",
 					"description": "%settings.customStoragePath.description%"
 				},
-				"costrict.uiMode": {
+				"sddAgent.uiMode": {
 					"type": "string",
 					"enum": [
 						"classic",
@@ -732,17 +732,17 @@
 					"default": "classic",
 					"description": "Controls which UI mode ssdAgent loads on startup. Changes apply after reloading the window."
 				},
-				"costrict.csCloudBaseUrl": {
+				"sddAgent.csCloudBaseUrl": {
 					"type": "string",
 					"default": "http://127.0.0.1:34961",
 					"description": "Base URL for the local cs-cloud control plane used by Cloud UI mode."
 				},
-				"costrict.assistantUI.enabled": {
+				"sddAgent.assistantUI.enabled": {
 					"type": "boolean",
 					"default": true,
 					"description": "Enable the isolated Assistant UI / cs-cloud mode."
 				},
-				"costrict.assistantUI.defaultCli": {
+				"sddAgent.assistantUI.defaultCli": {
 					"type": "string",
 					"enum": [
 						"csc",
@@ -751,29 +751,29 @@
 					"default": "csc",
 					"description": "CLI binary used to start and query cs-cloud (e.g. csc cloud start)."
 				},
-				"costrict.assistantUI.port": {
+				"sddAgent.assistantUI.port": {
 					"type": "number",
 					"default": 45489,
 					"minimum": 1,
 					"maximum": 65535,
 					"description": "Local port used by Assistant UI mode when starting cs-cloud."
 				},
-				"costrict.assistantUI.autoStartCsCloud": {
+				"sddAgent.assistantUI.autoStartCsCloud": {
 					"type": "boolean",
 					"default": true,
 					"description": "Automatically start cs-cloud when opening Assistant UI mode if no service is already available on the configured port."
 				},
-				"costrict.assistantUI.baseUrl": {
+				"sddAgent.assistantUI.baseUrl": {
 					"type": "string",
 					"default": "",
 					"description": "Explicit OpenCode-compatible cs-cloud API base URL for Assistant UI mode, for example http://127.0.0.1:45489/api/v1. When set, the extension will not start cs-cloud."
 				},
-				"costrict.assistantUI.webUrl": {
+				"sddAgent.assistantUI.webUrl": {
 					"type": "string",
 					"default": "http://127.0.0.1:3000",
 					"description": "Temporary Assistant UI web app URL loaded by the VSCode Webview demo. Use the with-opencode Next dev server until static Webview assets are added."
 				},
-				"costrict.assistantUI.webviewMode": {
+				"sddAgent.assistantUI.webviewMode": {
 					"type": "string",
 					"enum": [
 						"static",
@@ -782,29 +782,29 @@
 					"default": "static",
 					"description": "Assistant UI Webview loading mode. Use static for bundled Phase 4B assets or iframe for the local Next.js development server fallback."
 				},
-				"costrict.assistantUI.debug": {
+				"sddAgent.assistantUI.debug": {
 					"type": "boolean",
 					"default": false,
 					"description": "Show Assistant UI diagnostics and pass assistantUIDebug=1 to the iframe fallback. Keep disabled for normal isolated static mode."
 				},
-				"costrict.enableCodeActions": {
+				"sddAgent.enableCodeActions": {
 					"type": "boolean",
 					"default": true,
 					"description": "%settings.enableCodeActions.description%"
 				},
-				"costrict.autoImportSettingsPath": {
+				"sddAgent.autoImportSettingsPath": {
 					"type": "string",
 					"default": "",
 					"description": "%settings.autoImportSettingsPath.description%"
 				},
-				"costrict.maximumIndexedFilesForFileSearch": {
+				"sddAgent.maximumIndexedFilesForFileSearch": {
 					"type": "number",
 					"default": 10000,
 					"minimum": 5000,
 					"maximum": 500000,
 					"description": "%settings.maximumIndexedFilesForFileSearch.description%"
 				},
-				"costrict.useAgentRules": {
+				"sddAgent.useAgentRules": {
 					"type": "boolean",
 					"default": true,
 					"description": "%settings.useAgentRules.description%"
@@ -817,14 +817,14 @@
 						"experimental"
 					]
 				},
-				"costrict.apiRequestTimeout": {
+				"sddAgent.apiRequestTimeout": {
 					"type": "number",
 					"default": 300,
 					"minimum": 0,
 					"maximum": 3600,
 					"description": "%settings.apiRequestTimeout.description%"
 				},
-				"costrict.apiResponseRenderMode": {
+				"sddAgent.apiResponseRenderMode": {
 					"type": "string",
 					"enum": [
 						"noLimit",
@@ -835,36 +835,36 @@
 					"default": "noLimit",
 					"description": "%settings.apiResponseRenderMode.description%"
 				},
-				"costrict.newTaskRequireTodos": {
+				"sddAgent.newTaskRequireTodos": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.newTaskRequireTodos.description%"
 				},
-				"costrict.codeIndex.embeddingBatchSize": {
+				"sddAgent.codeIndex.embeddingBatchSize": {
 					"type": "number",
 					"default": 60,
 					"minimum": 1,
 					"maximum": 200,
 					"description": "%settings.codeIndex.embeddingBatchSize.description%"
 				},
-				"costrict.commit.useConventionalCommits": {
+				"sddAgent.commit.useConventionalCommits": {
 					"type": "boolean",
 					"default": true,
 					"description": "%settings.commit.useConventionalCommits.description%"
 				},
-				"costrict.commit.commitModelId": {
+				"sddAgent.commit.commitModelId": {
 					"type": "string",
 					"default": "",
 					"description": "%settings.commit.commitModelId.description%"
 				},
-				"costrict.commit.maxLength": {
+				"sddAgent.commit.maxLength": {
 					"type": "number",
 					"default": 72,
 					"minimum": 20,
 					"maximum": 300,
 					"description": "%settings.commit.maxLength.description%"
 				},
-				"costrict.commit.language": {
+				"sddAgent.commit.language": {
 					"type": "string",
 					"enum": [
 						"auto",
@@ -875,24 +875,24 @@
 					"default": "auto",
 					"description": "%settings.commit.language.description%"
 				},
-				"costrict.debug": {
+				"sddAgent.debug": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.debug.description%"
 				},
-				"costrict.debugProxy.enabled": {
+				"sddAgent.debugProxy.enabled": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.debugProxy.enabled.description%",
 					"markdownDescription": "%settings.debugProxy.enabled.description%"
 				},
-				"costrict.debugProxy.serverUrl": {
+				"sddAgent.debugProxy.serverUrl": {
 					"type": "string",
 					"default": "http://127.0.0.1:8888",
 					"description": "%settings.debugProxy.serverUrl.description%",
 					"markdownDescription": "%settings.debugProxy.serverUrl.description%"
 				},
-				"costrict.debugProxy.tlsInsecure": {
+				"sddAgent.debugProxy.tlsInsecure": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.debugProxy.tlsInsecure.description%",
