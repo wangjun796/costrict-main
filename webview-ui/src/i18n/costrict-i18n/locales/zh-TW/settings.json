@@ -134,6 +134,10 @@
 			"name": "Commit 審查",
 			"description": "啟用後，ssdAgent 可以對提交進行代碼審查。"
 		},
+		"AST_CONTEXT_EXPANSION": {
+			"name": "AST 上下文擴充",
+			"description": "啟用後，程式碼補全才會將基於 AST 分析的跨檔案上下文擴充到前綴（Prefix）"
+		},
 		"SMART_MISTAKE_DETECTION": {
 			"name": "強制完成模式",
 			"description": "啟用後，ssdAgent 將使用智能錯誤檢測系統，該系統採用加權評分和漸進式警告。相比簡單的連續錯誤計數，這提供了更細緻的錯誤追蹤和自動執行恢復能力。（token 消耗量大）",

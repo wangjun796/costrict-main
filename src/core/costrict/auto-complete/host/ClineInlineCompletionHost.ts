@@ -16,4 +16,9 @@ export class ClineInlineCompletionHost implements InlineCompletionHost {
 		const { apiConfiguration } = await this.provider.getState()
 		return apiConfiguration.apiProvider
 	}
+
+	async getExperiments() {
+		const { experiments } = await this.provider.getState()
+		return experiments ?? {}
+	}
 }

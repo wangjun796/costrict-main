@@ -8,7 +8,6 @@ import {
 	CancellationToken,
 	ExtensionContext,
 	Disposable,
-	workspace,
 	InlineCompletionList,
 	SelectedCompletionInfo,
 } from "vscode"
@@ -23,11 +22,12 @@ import { AutocompleteOutcome, CalculateHideScore } from "./types"
 import { LangSetting, LangSwitch } from "../base/common/lang-util"
 import { RecentlyEditedTracker } from "./context/recentlyEditedTracker"
 import { RecentlyVisitedRangesService } from "./context/recentlyVisitedRangesService"
+import { getAstContext } from "./context/astContextProvider"
 import { VsCodeIde } from "./core/VSCodeIde"
 import { IDE } from "./types/ide"
 import { getAllSnippets } from "./snippets"
 import { openedFilesLruCache } from "./utils/openedFilesLruCache"
-import { configCompletion } from "../base/common/constant"
+import { EXPERIMENT_IDS, experiments as experimentsUtil } from "../../../shared/experiments"
 import { TelemetryService } from "@roo-code/telemetry"
 import { CodeCompletionError } from "../telemetry"
 import { TextAcceptanceAction } from "./utils/autocompleteLoggingService"
@@ -146,6 +146,14 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 		const calculateHideScore = await this._calculateHideScore(document, position)
 		const relativePath = toRelativePath(document.uri.fsPath, projectPath)
 		const importContent = getDependencyImports(relativePath, document.getText())
+		// AST 跨文件上下文扩充：仅在用户开启「AST 上下文扩充」实验选项时计算并注入，
+		// 避免每次补全请求都触发 tree-sitter 解析与文件 IO 开销。
+		const experimentsConfig = await this.host.getExperiments()
+		const astContextExpansionEnabled =
+			experimentsUtil.isEnabled(experimentsConfig, EXPERIMENT_IDS.AST_CONTEXT_EXPANSION) ?? false
+		const astContext = astContextExpansionEnabled
+			? await getAstContext(document.uri.fsPath, document.getText())
+			: ""
 		const filepath = document.uri.toString()
 		const recentlyVisitedRanges = this.recentlyVisitedRanges.getSnippets()
 		const recentlyEditedRanges = await this.recentlyEditedTracker.getRecentlyEditedRanges()
@@ -170,6 +178,7 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 				project_path: projectPath,
 				file_project_path: relativePath,
 				import_content: importContent.join("\n"),
+				ast_context: astContext,
 				recently_edited_ranges: recentlyEditedRangeSnippets,
 				recently_visited_ranges: recentlyVisitedRangesSnippets,
 				clipboard_content: clipboardSnippets,
@@ -224,7 +233,7 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 
 	private async isProviderSupported(): Promise<boolean> {
 		const apiProvider = await this.host.getApiProvider()
-		return apiProvider === "costrict"
+		return apiProvider !== "costrictx"
 	}
 
 	private _setupActiveTextEditorChangeListener(): void {

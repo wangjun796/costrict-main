@@ -12,6 +12,7 @@ export const EXPERIMENT_IDS = {
 	RUN_SLASH_COMMAND: "runSlashCommand",
 	CUSTOM_TOOLS: "customTools",
 	SMART_MISTAKE_DETECTION: "smartMistakeDetection",
+	AST_CONTEXT_EXPANSION: "astContextExpansion",
 } as const satisfies Record<string, ExperimentId>
 
 // type _AssertExperimentIds = AssertEqual<Equals<ExperimentId, Values<typeof EXPERIMENT_IDS>>>
@@ -32,6 +33,7 @@ export const experimentConfigsMap: Record<ExperimentKey, ExperimentConfig> = {
 	IMAGE_GENERATION: { enabled: false },
 	RUN_SLASH_COMMAND: { enabled: false },
 	CUSTOM_TOOLS: { enabled: false },
+	AST_CONTEXT_EXPANSION: { enabled: false },
 }
 
 export const experimentDefault = Object.fromEntries(

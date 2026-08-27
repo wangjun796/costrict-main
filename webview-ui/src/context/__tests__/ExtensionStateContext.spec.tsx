@@ -243,6 +243,7 @@ describe("mergeExtensionState", () => {
 				useKPTtree: false,
 				commitReview: false,
 				useLitePrompts: false,
+				astContextExpansion: false,
 				smartMistakeDetection: false,
 			} as Record<ExperimentId, boolean>,
 			checkpointTimeout: DEFAULT_CHECKPOINT_TIMEOUT_SECONDS + 5,
@@ -267,6 +268,7 @@ describe("mergeExtensionState", () => {
 			useKPTtree: false,
 			commitReview: false,
 			useLitePrompts: false,
+			astContextExpansion: false,
 			smartMistakeDetection: false,
 		})
 	})

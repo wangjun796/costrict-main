@@ -16,6 +16,7 @@ export const experimentIds = [
 	"useKPTtree",
 	"useLitePrompts",
 	"smartMistakeDetection",
+	"astContextExpansion",
 ] as const
 
 export const experimentIdsSchema = z.enum(experimentIds)
@@ -45,6 +46,7 @@ export const experimentsSchema = z.object({
 	runSlashCommand: z.boolean().optional(),
 	customTools: z.boolean().optional(),
 	smartMistakeDetection: z.boolean().optional(),
+	astContextExpansion: z.boolean().optional(),
 })
 
 export type Experiments = z.infer<typeof experimentsSchema>

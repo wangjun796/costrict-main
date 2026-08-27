@@ -141,6 +141,10 @@
 		"COMMIT_REVIEW": {
 			"name": "Commit 审查",
 			"description": "启用后，ssdAgent 可以在提交时提供代码审查建议。"
+		},
+		"AST_CONTEXT_EXPANSION": {
+			"name": "AST 上下文扩充",
+			"description": "启用后，代码补全才会将基于 AST 分析的跨文件上下文扩充到前缀（Prefix）"
 		}
 	},
 	"modelPicker": {

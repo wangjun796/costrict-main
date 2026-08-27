@@ -141,6 +141,10 @@
 		"COMMIT_REVIEW": {
 			"name": "Commit Review",
 			"description": "Enable after committing to provide code review suggestions."
+		},
+		"AST_CONTEXT_EXPANSION": {
+			"name": "AST Context Expansion",
+			"description": "When enabled, expand AST-based cross-file context into the completion prefix"
 		}
 	},
 	"modelPicker": {

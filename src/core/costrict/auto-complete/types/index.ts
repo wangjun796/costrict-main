@@ -7,6 +7,7 @@ export interface PromptOptions {
 	project_path: string
 	file_project_path: string
 	import_content: string
+	ast_context: string
 	recently_edited_ranges: AutocompleteCodeSnippet[]
 	recently_visited_ranges: AutocompleteCodeSnippet[]
 	clipboard_content: AutocompleteClipboardSnippet[]
