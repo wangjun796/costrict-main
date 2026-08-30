@@ -32,6 +32,8 @@ import { TelemetryService } from "@roo-code/telemetry"
 import { CodeCompletionError } from "../telemetry"
 import { TextAcceptanceAction } from "./utils/autocompleteLoggingService"
 import { Package } from "shared/package"
+import { CompletionTrace } from "./fim/debug"
+import type { CompletionPosition } from "./core/completionProvider"
 
 export class InlineCompletionProvider implements InlineCompletionItemProvider {
 	private completionProvider: CompletionProvider
@@ -54,34 +56,79 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 			TelemetryService.instance.captureError(`TabCompletion_${CodeCompletionError.ApiError}`)
 			this.completionStatusBar.fail(error as any)
 		}
-		this.completionProvider = new CompletionProvider(onError)
+		this.completionProvider = new CompletionProvider(onError, () => this.host.isCostrictLoggedIn())
 		this._setupActiveTextEditorChangeListener()
+		this._setupCursorMoveCancellation()
 	}
+
+	/**
+	 * 光标位置发生变化时取消上一次未完成的补全。
+	 *
+	 * 补全结果只对触发它的那个光标位置有意义；一旦光标移动，旧请求即使返回
+	 * 也不应该再被显示（在「永不超时」模式下尤其重要，否则慢请求会把过期
+	 * 结果插到新位置上）。
+	 */
+	private _setupCursorMoveCancellation(): void {
+		this.disposables.push(
+			vscode.window.onDidChangeTextEditorSelection((event) => {
+				// 多光标场景下不做补全，也不需要取消逻辑
+				if (event.selections.length !== 1) {
+					return
+				}
+				const active = event.selections[0].active
+				const position: CompletionPosition = {
+					uri: event.textEditor.document.uri.toString(),
+					line: active.line,
+					character: active.character,
+				}
+				// 光标没动说明这个事件只是当前请求自身的产物，不能取消自己
+				if (!this.completionProvider.isPositionChanged(position)) {
+					return
+				}
+				this.completionProvider.cancelInflight("-", `cursor moved to ${active.line}:${active.character}`)
+			}),
+		)
+	}
+
 	public async provideInlineCompletionItems(
 		document: TextDocument,
 		position: Position,
 		context: InlineCompletionContext,
 		token: CancellationToken,
 	): Promise<InlineCompletionItem[] | InlineCompletionList> {
+		// 用 completionId 的前半段做 gate 阶段的日志关联（此时还没生成 id）
+		const trace = new CompletionTrace("gate")
 		const abortController = new AbortController()
 		const signal = abortController.signal
 		token.onCancellationRequested(() => {
 			abortController.abort()
 		})
+
+		trace.step("gate", "provider triggered", {
+			file: document.uri.toString(true),
+			pos: `${position.line}:${position.character}`,
+			language: document.languageId,
+			triggerKind: context.triggerKind,
+		})
+
 		if (!(await this.isProviderSupported())) {
+			trace.end("gate", "provider not supported (apiProvider)")
 			this.completionStatusBar.notSupport()
 			return []
 		}
 		if (document.uri.scheme === "vscode-scm") {
+			trace.end("gate", "scm document, skipped")
 			return []
 		}
 
 		const editor = vscode.window.activeTextEditor
 		if (!editor) {
+			trace.end("gate", "no active editor")
 			return []
 		}
 		// Don't autocomplete with multi-cursor
 		if (editor && editor.selections.length > 1) {
+			trace.end("gate", "multi-cursor, skipped")
 			return []
 		}
 
@@ -97,10 +144,12 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 			const typedLength = range.end.character - range.start.character
 
 			if (typedLength < 4) {
+				trace.end("gate", "typed length < 4")
 				return []
 			}
 
 			if (!text.startsWith(typedText)) {
+				trace.end("gate", "selected completion info mismatch")
 				return []
 			}
 		}
@@ -112,20 +161,31 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 			this.context.workspaceState.update("shortCutKeys", false)
 		}
 		if (!this.isCompletionAllowed(triggerMode, document.languageId)) {
+			trace.end("gate", "completion not allowed", { triggerMode, language: document.languageId })
 			this.completionStatusBar.noSuggest()
 			return []
 		}
 
 		const input = await this._prepareInput(document, position)
+
+		// _prepareInput 是异步的（剪贴板 / AST / 最近编辑范围），期间光标可能
+		// 已经移动，此时这份输入已经失效，直接丢弃，避免把过期结果插到新位置。
+		if (signal.aborted || this._hasCursorMoved(document, position)) {
+			trace.end("gate", "cursor moved while preparing input")
+			return []
+		}
+
 		const result = await this.completionProvider.provideInlineCompletionItems(input, signal)
 
 		if (!result || !result.completion) {
+			trace.end("result", "no completion produced")
 			this.completionStatusBar.noSuggest()
 			return []
 		}
 		this.host.log(`[Completions]: ${JSON.stringify(result)}`)
 		const willDisplay = this.willDisplay(document, selectedCompletionInfo, signal, result)
 		if (!willDisplay) {
+			trace.end("result", "willDisplay() rejected the completion", { reason: "aborted or prefix mismatch" })
 			return []
 		}
 		this.completionProvider.markDisplayed(result.completionId, result)
@@ -136,8 +196,24 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 			command: `${Package.commandIDPrefix}-completion.logAutocompleteOutcome`,
 			arguments: [result.completionId, this.completionProvider],
 		})
+		trace.end("result", "returning inline completion item", { len: result.completion.length })
 		// 返回 InlineCompletionItem
 		return [autocompleteItem]
+	}
+
+	/**
+	 * 判断编辑器当前光标是否已经离开了本次补全触发时的位置。
+	 */
+	private _hasCursorMoved(document: TextDocument, position: Position): boolean {
+		const editor = vscode.window.activeTextEditor
+		if (!editor) {
+			return true
+		}
+		if (editor.document.uri.toString() !== document.uri.toString()) {
+			return true
+		}
+		const active = editor.selection.active
+		return active.line !== position.line || active.character !== position.character
 	}
 	private async _prepareInput(document: TextDocument, position: Position): Promise<AutoCompleteInput> {
 		const completionId = uuidv7()
@@ -172,6 +248,11 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 		return {
 			completionId,
 			languageId: document.languageId,
+			position: {
+				uri: document.uri.toString(),
+				line: position.line,
+				character: position.character,
+			},
 			promptOptions: {
 				prefix,
 				suffix,

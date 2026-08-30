@@ -43,6 +43,16 @@ import {
 
 import { vscode } from "@src/utils/vscode"
 import { cn } from "@src/lib/utils"
+
+// 受“开发者模式”控制的本地修改调试打印。
+// 仅当 enabled 为 true（开发者模式开启）时才输出，用于在 Developer Tools Console
+// 中观察本地修改（cachedState 缓冲）的产生、检测与提交过程，避免污染正常日志。
+// enabled 允许为 undefined（开发者模式未定义时等同关闭）。
+const debugLocalEdit = (enabled?: boolean, ...args: unknown[]) => {
+	if (enabled) {
+		console.log("[LocalEdit]", ...args)
+	}
+}
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { ExtensionStateContextType, useExtensionState } from "@src/context/ExtensionStateContext"
 import {
@@ -80,6 +90,7 @@ import PromptsSettings from "./PromptsSettings"
 import { SlashCommandsSettings } from "./SlashCommandsSettings"
 import { SkillsSettings } from "./SkillsSettings"
 import { UISettings } from "./UISettings"
+import { CompletionModelSettings } from "./CompletionModelSettings"
 import ModesView from "../modes/ModesView"
 import McpView from "../mcp/McpView"
 import { WorktreesView } from "../worktrees/WorktreesView"
@@ -99,6 +110,7 @@ export interface SettingsViewRef {
 
 export const sectionNames = [
 	"providers",
+	"completionModel",
 	"autoApprove",
 	"slashCommands",
 	"skills",
@@ -195,6 +207,23 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		maxImageFileSize,
 		maxTotalImageSize,
 		customSupportPrompts,
+		fimEnabled,
+		fimApiUrl,
+		fimModelName,
+		fimApiKey,
+		fimPreset,
+		fimMaxPrefixTokens,
+		fimMaxSuffixTokens,
+		fimMaxOutputTokens,
+		fimTemperature,
+		fimTopP,
+		fimTopK,
+		fimRepetitionPenalty,
+		fimDoSample,
+		fimStopSequences,
+		fimTimeoutMs,
+		fimDebounceMs,
+		fimDebug,
 		profileThresholds,
 		alwaysAllowFollowupQuestions,
 		followupAutoApproveTimeoutMs,
@@ -224,6 +253,11 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 
 	const experimentSettings = cachedState.experimentSettings ?? {}
 
+	// 用 ref 跟踪开发者模式的最新值，避免 setCachedStateField 等 useCallback
+	// 因依赖为空而捕获到过期的初始 developerMode 值。
+	const developerModeRef = useRef(developerMode)
+	developerModeRef.current = developerMode
+
 	const apiConfiguration = useMemo(() => cachedState.apiConfiguration ?? {}, [cachedState.apiConfiguration])
 
 	useEffect(() => {
@@ -252,6 +286,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 				return prevState
 			}
 
+			debugLocalEdit(developerModeRef.current, "setCachedStateField → change detected:", field, value)
 			setChangeDetected(true)
 			return { ...prevState, [field]: value }
 		})
@@ -290,6 +325,12 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 				const isAutomaticNoOpSync = !isUserAction && areValuesEqual(previousValue, value)
 
 				if (!isInitialSync && !isAutomaticNoOpSync) {
+					debugLocalEdit(
+						developerModeRef.current,
+						"setApiConfigurationField → change detected:",
+						field,
+						value,
+					)
 					setChangeDetected(true)
 				}
 				return { ...prevState, apiConfiguration: { ...prevState.apiConfiguration, [field]: value } }
@@ -387,6 +428,12 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 
 	const handleSubmit = () => {
 		if (isSettingValid) {
+			debugLocalEdit(
+				developerModeRef.current,
+				"handleSubmit: saving local edits (changeDetected =",
+				isChangeDetected,
+				")",
+			)
 			setIsSaving(true)
 			vscode.postMessage({
 				type: "updateSettings",
@@ -464,6 +511,23 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					useCostrictCustomConfig: useCostrictCustomConfig ?? false,
 					autoCleanup,
 					debug,
+					fimEnabled: fimEnabled ?? false,
+					fimApiUrl: fimApiUrl ?? "",
+					fimModelName: fimModelName ?? "bigcode/starcoder2-7b",
+					fimApiKey: fimApiKey ?? "",
+					fimPreset: fimPreset ?? "starcoder",
+					fimMaxPrefixTokens: fimMaxPrefixTokens ?? 2048,
+					fimMaxSuffixTokens: fimMaxSuffixTokens ?? 512,
+					fimMaxOutputTokens: fimMaxOutputTokens ?? 256,
+					fimTemperature: fimTemperature ?? null,
+					fimTopP: fimTopP ?? 0.95,
+					fimTopK: fimTopK ?? 50,
+					fimRepetitionPenalty: fimRepetitionPenalty ?? null,
+					fimDoSample: fimDoSample ?? true,
+					fimStopSequences: fimStopSequences ?? [],
+					fimTimeoutMs: fimTimeoutMs ?? 3000,
+					fimDebounceMs: fimDebounceMs ?? 300,
+					fimDebug: fimDebug ?? false,
 				},
 			})
 			// These have more complex logic so they aren't (yet) handled
@@ -487,6 +551,10 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	const checkUnsaveChanges = useCallback(
 		(then: () => void) => {
 			if (isChangeDetected) {
+				debugLocalEdit(
+					developerModeRef.current,
+					"checkUnsaveChanges: unsaved local edits detected → show discard dialog",
+				)
 				confirmDialogHandler.current = then
 				setDiscardDialogShow(true)
 			} else {
@@ -577,6 +645,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	const sections: { id: SectionName; icon: LucideIcon }[] = useMemo(
 		() => [
 			{ id: "providers", icon: Plug },
+			{ id: "completionModel", icon: Server },
 			{ id: "modes", icon: Users2 },
 			{ id: "skills", icon: GraduationCap },
 			{ id: "slashCommands", icon: SquareSlash },
@@ -945,6 +1014,46 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 									</div>
 								</Section>
 							</div>
+						)}
+
+						{/* Completion Model Section */}
+						{renderTab === "completionModel" && (
+							<CompletionModelSettings
+								fimEnabled={fimEnabled ?? false}
+								fimApiUrl={fimApiUrl ?? ""}
+								fimModelName={fimModelName ?? ""}
+								fimApiKey={fimApiKey ?? ""}
+								fimPreset={fimPreset ?? "starcoder"}
+								fimMaxPrefixTokens={fimMaxPrefixTokens ?? 2048}
+								fimMaxSuffixTokens={fimMaxSuffixTokens ?? 512}
+								fimMaxOutputTokens={fimMaxOutputTokens ?? 256}
+								fimTemperature={fimTemperature ?? null}
+								fimTopP={fimTopP ?? 0.95}
+								fimTopK={fimTopK ?? 50}
+								fimRepetitionPenalty={fimRepetitionPenalty ?? null}
+								fimDoSample={fimDoSample ?? true}
+								fimStopSequences={fimStopSequences ?? []}
+								fimTimeoutMs={fimTimeoutMs ?? 3000}
+								fimDebounceMs={fimDebounceMs ?? 300}
+								fimDebug={fimDebug ?? false}
+								onFimEnabledChange={(v) => setCachedStateField("fimEnabled", v)}
+								onFimApiUrlChange={(v) => setCachedStateField("fimApiUrl", v)}
+								onFimModelNameChange={(v) => setCachedStateField("fimModelName", v)}
+								onFimApiKeyChange={(v) => setCachedStateField("fimApiKey", v)}
+								onFimPresetChange={(v) => setCachedStateField("fimPreset", v)}
+								onFimMaxPrefixTokensChange={(v) => setCachedStateField("fimMaxPrefixTokens", v)}
+								onFimMaxSuffixTokensChange={(v) => setCachedStateField("fimMaxSuffixTokens", v)}
+								onFimMaxOutputTokensChange={(v) => setCachedStateField("fimMaxOutputTokens", v)}
+								onFimTemperatureChange={(v) => setCachedStateField("fimTemperature", v)}
+								onFimTopPChange={(v) => setCachedStateField("fimTopP", v)}
+								onFimTopKChange={(v) => setCachedStateField("fimTopK", v)}
+								onFimRepetitionPenaltyChange={(v) => setCachedStateField("fimRepetitionPenalty", v)}
+								onFimDoSampleChange={(v) => setCachedStateField("fimDoSample", v)}
+								onFimStopSequencesChange={(v) => setCachedStateField("fimStopSequences", v)}
+								onFimTimeoutMsChange={(v) => setCachedStateField("fimTimeoutMs", v)}
+								onFimDebounceMsChange={(v) => setCachedStateField("fimDebounceMs", v)}
+								onFimDebugChange={(v) => setCachedStateField("fimDebug", v)}
+							/>
 						)}
 
 						{/* Auto-Approve Section */}

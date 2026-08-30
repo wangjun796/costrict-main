@@ -16,4 +16,7 @@ export interface InlineCompletionHost {
 
 	/** Read the current experiments state (used to gate experimental completion features). */
 	getExperiments(): Promise<Experiments>
+
+	/** Resolve whether the user is logged in to the costrict cloud service. */
+	isCostrictLoggedIn(): Promise<boolean>
 }

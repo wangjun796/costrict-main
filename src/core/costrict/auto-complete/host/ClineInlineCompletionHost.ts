@@ -21,4 +21,9 @@ export class ClineInlineCompletionHost implements InlineCompletionHost {
 		const { experiments } = await this.provider.getState()
 		return experiments ?? {}
 	}
+
+	async isCostrictLoggedIn(): Promise<boolean> {
+		const { apiConfiguration } = await this.provider.getState()
+		return !!(apiConfiguration.costrictAccessToken && apiConfiguration.costrictRefreshToken)
+	}
 }

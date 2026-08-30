@@ -131,6 +131,7 @@ import { CostrictAuthCommands, CostrictAuthConfig } from "../costrict/auth"
 import { generateNewSessionClientId, getClientId } from "../../utils/getClientId"
 import { defaultCodebaseIndexEnabled } from "../../services/code-index/constants"
 import { CodeReviewService, ReviewTargetType } from "../costrict/code-review"
+import { configCompletion } from "../costrict/base/common/constant"
 import { defaultLang } from "../../utils/language"
 import { REQUESTY_BASE_URL } from "../../shared/utils/requesty"
 import { isJetbrainsPlatform } from "../../utils/platform"
@@ -3224,6 +3225,25 @@ export class ClineProvider
 
 		const customStoragePath = this.getCachedCustomStoragePath()
 
+		// FIM completion model settings live in VS Code configuration
+		// (IntelligentCodeCompletion.fim.*), read directly by the completion engine.
+		const fimConfig = vscode.workspace.getConfiguration(configCompletion)
+		const fimEnabled = fimConfig.get<boolean>("fim.enabled", false)
+		const fimApiUrl = fimConfig.get<string>("fim.apiUrl", "")
+		const fimModelName = fimConfig.get<string>("fim.modelName", "bigcode/starcoder2-7b")
+		const fimApiKey = fimConfig.get<string>("fim.apiKey", "")
+		const fimPreset = fimConfig.get<string>("fim.fimPreset", "starcoder")
+		const fimMaxPrefixTokens = fimConfig.get<number>("fim.maxPrefixTokens", 2048)
+		const fimMaxSuffixTokens = fimConfig.get<number>("fim.maxSuffixTokens", 512)
+		const fimMaxOutputTokens = fimConfig.get<number>("fim.maxOutputTokens", 256)
+		const fimTemperature = fimConfig.get<number | null>("fim.temperature", 0.1)
+		const fimTopP = fimConfig.get<number>("fim.topP", 0.95)
+		const fimTopK = fimConfig.get<number>("fim.topK", 50)
+		const fimRepetitionPenalty = fimConfig.get<number | null>("fim.repetitionPenalty", 1.0)
+		const fimDoSample = fimConfig.get<boolean>("fim.doSample", true)
+		const fimStopSequences = fimConfig.get<string[]>("fim.stopSequences", [])
+		const fimTimeoutMs = fimConfig.get<number>("fim.timeoutMs", 3000)
+
 		// Return the same structure as before.
 		return {
 			debug: stateValues.debug ?? false,
@@ -3348,6 +3368,21 @@ export class ClineProvider
 			openWebUIKnowledgeFilesUrl: stateValues.openWebUIKnowledgeFilesUrl,
 			openWebUIRetrievalMode: stateValues.openWebUIRetrievalMode ?? "direct",
 			developerMode: stateValues.developerMode ?? false,
+			fimEnabled,
+			fimApiUrl,
+			fimModelName,
+			fimApiKey,
+			fimPreset,
+			fimMaxPrefixTokens,
+			fimMaxSuffixTokens,
+			fimMaxOutputTokens,
+			fimTemperature,
+			fimTopP,
+			fimTopK,
+			fimRepetitionPenalty,
+			fimDoSample,
+			fimStopSequences,
+			fimTimeoutMs,
 		}
 	}
 

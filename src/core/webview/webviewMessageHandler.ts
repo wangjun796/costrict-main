@@ -50,6 +50,7 @@ import { changeLanguage, t } from "../../i18n"
 import { Package } from "../../shared/package"
 import { type RouterName, toRouterName } from "../../shared/api"
 import { MessageEnhancer } from "./messageEnhancer"
+import { configCompletion } from "../costrict/base/common/constant"
 
 // import { CodeIndexManager } from "../../services/code-index/manager"
 import { checkExistKey } from "../../shared/checkExistApiConfig"
@@ -96,6 +97,32 @@ import { resolveDefaultSaveUri, saveLastExportPath } from "../../utils/export"
 import { getCommand } from "../../utils/commands"
 
 const ALLOWED_VSCODE_SETTINGS = new Set(["terminal.integrated.inheritEnv"])
+
+/**
+ * Maps webview FIM settings fields (camelCase) to VS Code configuration keys
+ * under the "IntelligentCodeCompletion" section. The completion engine reads
+ * these values directly from vscode.workspace.getConfiguration(...), so the
+ * settings page must persist to the same location.
+ */
+const FIM_SETTING_KEYS: Record<string, string> = {
+	fimEnabled: "fim.enabled",
+	fimApiUrl: "fim.apiUrl",
+	fimModelName: "fim.modelName",
+	fimApiKey: "fim.apiKey",
+	fimPreset: "fim.fimPreset",
+	fimMaxPrefixTokens: "fim.maxPrefixTokens",
+	fimMaxSuffixTokens: "fim.maxSuffixTokens",
+	fimMaxOutputTokens: "fim.maxOutputTokens",
+	fimTemperature: "fim.temperature",
+	fimTopP: "fim.topP",
+	fimTopK: "fim.topK",
+	fimRepetitionPenalty: "fim.repetitionPenalty",
+	fimDoSample: "fim.doSample",
+	fimStopSequences: "fim.stopSequences",
+	fimTimeoutMs: "fim.timeoutMs",
+	fimDebounceMs: "fim.debounceMs",
+	fimDebug: "fim.debug",
+}
 
 // Cache to prevent duplicate calls - stores ongoing requests
 // const pendingIndexStatusRequests = new Map<string, Promise<any>>()
@@ -829,125 +856,166 @@ export const webviewMessageHandler = async (
 			}
 			break
 
-		case "updateSettings":
+		case "updateSettings": {
 			if (message.updatedSettings) {
-				for (const [key, value] of Object.entries(message.updatedSettings)) {
-					let newValue = value
-					if (key === "language") {
-						newValue = value ?? "en"
-						changeLanguage(newValue as Language)
-						// Initialize subtask files for the new language.
-						await ensureProjectWikiSubtasksExists(newValue as string)
-						// Reinstall bundled skills with the new locale
-						void initReviewSkills(provider.context, newValue as string)
-							.then((summary) => {
-								provider.log("[BuiltinSkills] Bundled skills reinstalled")
-								showSkillsInitNotification(summary)
-							})
-							.catch((error) =>
-								provider.log(
-									`[BuiltinSkills] Failed to reinstall: ${error instanceof Error ? error.message : String(error)}`,
-								),
-							)
-					} else if (key === "allowedCommands") {
-						const commands = value ?? []
-
-						newValue = Array.isArray(commands)
-							? commands.filter((cmd) => typeof cmd === "string" && cmd.trim().length > 0)
-							: []
-
-						await vscode.workspace
-							.getConfiguration(Package.commandIDPrefix)
-							.update("allowedCommands", newValue, vscode.ConfigurationTarget.Global)
-					} else if (key === "deniedCommands") {
-						const commands = value ?? []
-
-						newValue = Array.isArray(commands)
-							? commands.filter((cmd) => typeof cmd === "string" && cmd.trim().length > 0)
-							: []
-
-						await vscode.workspace
-							.getConfiguration(Package.commandIDPrefix)
-							.update("deniedCommands", newValue, vscode.ConfigurationTarget.Global)
-					} else if (key === "customStoragePath") {
-						newValue = typeof value === "string" ? value.trim() : ""
-
-						await vscode.workspace
-							.getConfiguration(Package.commandIDPrefix)
-							.update("customStoragePath", newValue, vscode.ConfigurationTarget.Global)
-						continue
-					} else if (key === "ttsEnabled") {
-						newValue = value ?? true
-						setTtsEnabled(newValue as boolean)
-					} else if (key === "ttsSpeed") {
-						newValue = value ?? 1.0
-						setTtsSpeed(newValue as number)
-					} else if (key === "terminalShellIntegrationTimeout") {
-						if (value !== undefined) {
-							Terminal.setShellIntegrationTimeout(value as number)
-						}
-					} else if (key === "terminalShellIntegrationDisabled") {
-						if (value !== undefined) {
-							Terminal.setShellIntegrationDisabled(value as boolean)
-						}
-					} else if (key === "terminalCommandDelay") {
-						if (value !== undefined) {
-							Terminal.setCommandDelay(value as number)
-						}
-					} else if (key === "terminalPowershellCounter") {
-						if (value !== undefined) {
-							Terminal.setPowershellCounter(value as boolean)
-						}
-					} else if (key === "terminalZshClearEolMark") {
-						if (value !== undefined) {
-							Terminal.setTerminalZshClearEolMark(value as boolean)
-						}
-					} else if (key === "terminalZshOhMy") {
-						if (value !== undefined) {
-							Terminal.setTerminalZshOhMy(value as boolean)
-						}
-					} else if (key === "terminalZshP10k") {
-						if (value !== undefined) {
-							Terminal.setTerminalZshP10k(value as boolean)
-						}
-					} else if (key === "terminalZdotdir") {
-						if (value !== undefined) {
-							Terminal.setTerminalZdotdir(value as boolean)
-						}
-					} else if (key === "execaShellPath") {
-						Terminal.setExecaShellPath(value as string | undefined)
-					} else if (key === "mcpEnabled") {
-						newValue = value ?? true
-						const mcpHub = provider.getMcpHub()
-
-						if (mcpHub) {
-							await Promise.race([mcpHub.handleMcpEnabledChange(newValue as boolean), delay(150)]).catch(
-								() => {},
-							)
-						}
-					} else if (key === "experiments") {
-						if (!value) {
-							continue
-						}
-
-						newValue = {
-							...(getGlobalState("experiments") ?? experimentDefault),
-							...(value as Record<ExperimentId, boolean>),
-						}
-					} else if (key === "customSupportPrompts") {
-						if (!value) {
-							continue
-						}
+				// 受“开发者模式”控制的本地修改调试打印（与 webview 侧 SettingsView.debugLocalEdit 思路一致）。
+				// developerMode 由 webview 的 handleSubmit 随每次 updateSettings 一起发送，直接读取即可。
+				const debugLocalEditEnabled = !!message.updatedSettings.developerMode
+				const logLocalEdit = (...args: unknown[]) => {
+					if (debugLocalEditEnabled) {
+						console.log("[LocalEdit:updateSettings]", ...args)
 					}
-
-					await provider.contextProxy.setValue(key as keyof RooCodeSettings, newValue)
 				}
 
-				await provider.postStateToWebview()
-				await provider.postMessageToWebview({ type: "settingsUpdated" })
+				try {
+					logLocalEdit("start -> keys:", Object.keys(message.updatedSettings))
+					for (const [key, value] of Object.entries(message.updatedSettings)) {
+						let newValue = value
+
+						// FIM completion model settings are persisted to VS Code
+						// configuration (IntelligentCodeCompletion.fim.*) because the
+						// completion engine reads them directly from there.
+						const fimConfigKey = FIM_SETTING_KEYS[key]
+						if (fimConfigKey) {
+							logLocalEdit("write FIM config:", configCompletion, fimConfigKey, value)
+							await vscode.workspace
+								.getConfiguration(configCompletion)
+								.update(fimConfigKey, value, vscode.ConfigurationTarget.Global)
+							continue
+						}
+
+						if (key === "language") {
+							newValue = value ?? "en"
+							changeLanguage(newValue as Language)
+							// Initialize subtask files for the new language.
+							await ensureProjectWikiSubtasksExists(newValue as string)
+							// Reinstall bundled skills with the new locale
+							void initReviewSkills(provider.context, newValue as string)
+								.then((summary) => {
+									provider.log("[BuiltinSkills] Bundled skills reinstalled")
+									showSkillsInitNotification(summary)
+								})
+								.catch((error) =>
+									provider.log(
+										`[BuiltinSkills] Failed to reinstall: ${error instanceof Error ? error.message : String(error)}`,
+									),
+								)
+						} else if (key === "allowedCommands") {
+							const commands = value ?? []
+
+							newValue = Array.isArray(commands)
+								? commands.filter((cmd) => typeof cmd === "string" && cmd.trim().length > 0)
+								: []
+
+							await vscode.workspace
+								.getConfiguration(Package.commandIDPrefix)
+								.update("allowedCommands", newValue, vscode.ConfigurationTarget.Global)
+						} else if (key === "deniedCommands") {
+							const commands = value ?? []
+
+							newValue = Array.isArray(commands)
+								? commands.filter((cmd) => typeof cmd === "string" && cmd.trim().length > 0)
+								: []
+
+							await vscode.workspace
+								.getConfiguration(Package.commandIDPrefix)
+								.update("deniedCommands", newValue, vscode.ConfigurationTarget.Global)
+						} else if (key === "customStoragePath") {
+							newValue = typeof value === "string" ? value.trim() : ""
+
+							await vscode.workspace
+								.getConfiguration(Package.commandIDPrefix)
+								.update("customStoragePath", newValue, vscode.ConfigurationTarget.Global)
+							continue
+						} else if (key === "ttsEnabled") {
+							newValue = value ?? true
+							setTtsEnabled(newValue as boolean)
+						} else if (key === "ttsSpeed") {
+							newValue = value ?? 1.0
+							setTtsSpeed(newValue as number)
+						} else if (key === "terminalShellIntegrationTimeout") {
+							if (value !== undefined) {
+								Terminal.setShellIntegrationTimeout(value as number)
+							}
+						} else if (key === "terminalShellIntegrationDisabled") {
+							if (value !== undefined) {
+								Terminal.setShellIntegrationDisabled(value as boolean)
+							}
+						} else if (key === "terminalCommandDelay") {
+							if (value !== undefined) {
+								Terminal.setCommandDelay(value as number)
+							}
+						} else if (key === "terminalPowershellCounter") {
+							if (value !== undefined) {
+								Terminal.setPowershellCounter(value as boolean)
+							}
+						} else if (key === "terminalZshClearEolMark") {
+							if (value !== undefined) {
+								Terminal.setTerminalZshClearEolMark(value as boolean)
+							}
+						} else if (key === "terminalZshOhMy") {
+							if (value !== undefined) {
+								Terminal.setTerminalZshOhMy(value as boolean)
+							}
+						} else if (key === "terminalZshP10k") {
+							if (value !== undefined) {
+								Terminal.setTerminalZshP10k(value as boolean)
+							}
+						} else if (key === "terminalZdotdir") {
+							if (value !== undefined) {
+								Terminal.setTerminalZdotdir(value as boolean)
+							}
+						} else if (key === "execaShellPath") {
+							Terminal.setExecaShellPath(value as string | undefined)
+						} else if (key === "mcpEnabled") {
+							newValue = value ?? true
+							const mcpHub = provider.getMcpHub()
+
+							if (mcpHub) {
+								await Promise.race([
+									mcpHub.handleMcpEnabledChange(newValue as boolean),
+									delay(150),
+								]).catch(() => {})
+							}
+						} else if (key === "experiments") {
+							if (!value) {
+								continue
+							}
+
+							newValue = {
+								...(getGlobalState("experiments") ?? experimentDefault),
+								...(value as Record<ExperimentId, boolean>),
+							}
+						} else if (key === "customSupportPrompts") {
+							if (!value) {
+								continue
+							}
+						}
+
+						logLocalEdit("contextProxy.setValue:", key, newValue)
+						await provider.contextProxy.setValue(key as keyof RooCodeSettings, newValue)
+					}
+
+					await provider.postStateToWebview()
+					logLocalEdit("done -> posting settingsUpdated")
+					await provider.postMessageToWebview({ type: "settingsUpdated" })
+				} catch (error) {
+					const errMsg = error instanceof Error ? error.message : String(error)
+					provider.log(
+						`[LocalEdit:updateSettings] failed: ${error instanceof Error ? error.stack || errMsg : errMsg}`,
+					)
+					vscode.window.showErrorMessage(`保存设置失败: ${errMsg}`)
+					// 兜底：无论保存是否成功，都回发 settingsUpdated，避免前端保存按钮因收不到消息一直转圈
+					try {
+						await provider.postMessageToWebview({ type: "settingsUpdated" })
+					} catch {
+						/* ignore */
+					}
+				}
 			}
 
 			break
+		}
 
 		case "terminalOperation":
 			if (message.terminalOperation) {

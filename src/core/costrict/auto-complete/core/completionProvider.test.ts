@@ -31,7 +31,7 @@ describe("CompletionProvider", () => {
 
 	it("does not fetch localhost:undefined when completion-agent is missing", async () => {
 		const onError = vi.fn()
-		const provider = new CompletionProvider(onError)
+		const provider = new CompletionProvider(onError, async () => true)
 
 		const result = await provider.provideInlineCompletionItems(
 			{
@@ -85,7 +85,7 @@ describe("CompletionProvider", () => {
 			status: "running",
 		})
 
-		const provider = new CompletionProvider(vi.fn())
+		const provider = new CompletionProvider(vi.fn(), async () => true)
 		const result = await provider.provideInlineCompletionItems(
 			{
 				completionId: "completion-2",
@@ -127,5 +127,42 @@ describe("CompletionProvider", () => {
 				completionId: "cmpl-1",
 			}),
 		)
+	})
+
+	it("does not hit completion-agent when not logged in and no FIM model configured", async () => {
+		const provider = new CompletionProvider(vi.fn(), async () => false)
+		const result = await provider.provideInlineCompletionItems(
+			{
+				completionId: "completion-3",
+				languageId: "typescript",
+				previousCompletionId: "",
+				filepath: "src/test.ts",
+				calculateHideScore: {
+					is_whitespace_after_cursor: true,
+					document_length: 1,
+					prompt_end_pos: 1,
+					previous_label: 0,
+					previous_label_timestamp: 0,
+				},
+				promptOptions: {
+					prefix: "const a = ",
+					suffix: "",
+					project_path: "/tmp/project",
+					file_project_path: "src/test.ts",
+					import_content: "",
+					ast_context: "",
+					recently_edited_ranges: [],
+					recently_visited_ranges: [],
+					clipboard_content: [],
+					recently_opened_files: [],
+				},
+			},
+			AbortSignal.timeout(5000),
+		)
+
+		expect(result).toBeUndefined()
+		expect(fetch).not.toHaveBeenCalled()
+		expect(runtimeConfig.ensureCompletionRuntimeReady).not.toHaveBeenCalled()
+		expect(runtimeConfig.waitForCompletionAgentConfig).not.toHaveBeenCalled()
 	})
 })

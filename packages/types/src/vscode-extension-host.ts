@@ -326,6 +326,33 @@ export interface OpenAiCodexRateLimitsMessage {
 	error?: string
 }
 
+/**
+ * FIM (Fill-In-the-Middle) code completion model settings.
+ *
+ * These are persisted to VS Code configuration (IntelligentCodeCompletion.fim.*)
+ * rather than globalState, because the completion engine reads them directly
+ * from vscode.workspace.getConfiguration(...).
+ */
+export interface FimCompletionSettings {
+	fimEnabled?: boolean
+	fimApiUrl?: string
+	fimModelName?: string
+	fimApiKey?: string
+	fimPreset?: string
+	fimMaxPrefixTokens?: number
+	fimMaxSuffixTokens?: number
+	fimMaxOutputTokens?: number
+	fimTemperature?: number | null
+	fimTopP?: number
+	fimTopK?: number
+	fimRepetitionPenalty?: number | null
+	fimDoSample?: boolean
+	fimStopSequences?: string[]
+	fimTimeoutMs?: number
+	fimDebounceMs?: number
+	fimDebug?: boolean
+}
+
 export type ExtensionState = Pick<
 	GlobalSettings,
 	| "currentApiConfigName"
@@ -394,108 +421,109 @@ export type ExtensionState = Pick<
 	| "experimentSettings"
 	| "showWorktreesInHomeScreen"
 	| "disabledTools"
-> & {
-	lockApiConfigAcrossModes?: boolean
-	version: string
-	clineMessages: ClineMessage[]
-	currentTaskId?: string
-	currentTaskItem?: HistoryItem
-	currentTaskTodos?: TodoItem[] // Initial todos for the current task
-	apiConfiguration: ProviderSettings
-	uriScheme?: string
-	shouldShowAnnouncement: boolean
+> &
+	FimCompletionSettings & {
+		lockApiConfigAcrossModes?: boolean
+		version: string
+		clineMessages: ClineMessage[]
+		currentTaskId?: string
+		currentTaskItem?: HistoryItem
+		currentTaskTodos?: TodoItem[] // Initial todos for the current task
+		apiConfiguration: ProviderSettings
+		uriScheme?: string
+		shouldShowAnnouncement: boolean
 
-	taskHistory: HistoryItem[]
+		taskHistory: HistoryItem[]
 
-	writeDelayMs: number
+		writeDelayMs: number
 
-	customStoragePath?: string
-	enableCheckpoints: boolean
-	checkpointTimeout: number // Timeout for checkpoint initialization in seconds (default: 15)
-	maxOpenTabsContext: number // Maximum number of VSCode open tabs to include in context (0-500)
-	maxWorkspaceFiles: number // Maximum number of files to include in current working directory details (0-500)
-	showRooIgnoredFiles: boolean // Whether to show .rooignore'd files in listings
-	enableSubfolderRules: boolean // Whether to load rules from subdirectories
-	maxReadFileLine?: number // Maximum line limit for read_file tool (-1 for default)
-	maxImageFileSize: number // Maximum size of image files to process in MB
-	maxTotalImageSize: number // Maximum total size for all images in a single read operation in MB
+		customStoragePath?: string
+		enableCheckpoints: boolean
+		checkpointTimeout: number // Timeout for checkpoint initialization in seconds (default: 15)
+		maxOpenTabsContext: number // Maximum number of VSCode open tabs to include in context (0-500)
+		maxWorkspaceFiles: number // Maximum number of files to include in current working directory details (0-500)
+		showRooIgnoredFiles: boolean // Whether to show .rooignore'd files in listings
+		enableSubfolderRules: boolean // Whether to load rules from subdirectories
+		maxReadFileLine?: number // Maximum line limit for read_file tool (-1 for default)
+		maxImageFileSize: number // Maximum size of image files to process in MB
+		maxTotalImageSize: number // Maximum total size for all images in a single read operation in MB
 
-	experiments: Experiments // Map of experiment IDs to their enabled state
+		experiments: Experiments // Map of experiment IDs to their enabled state
 
-	mcpEnabled: boolean
+		mcpEnabled: boolean
 
-	// mode: Mode
-	costrictCodeMode?: CostrictCodeMode
-	mode: string
-	customModes: ModeConfig[]
-	toolRequirements?: Record<string, boolean> // Map of tool names to their requirements (e.g. {"apply_diff": true})
+		// mode: Mode
+		costrictCodeMode?: CostrictCodeMode
+		mode: string
+		customModes: ModeConfig[]
+		toolRequirements?: Record<string, boolean> // Map of tool names to their requirements (e.g. {"apply_diff": true})
 
-	cwd?: string // Current working directory
-	telemetrySetting: TelemetrySetting
-	telemetryKey?: string
-	machineId?: string
+		cwd?: string // Current working directory
+		telemetrySetting: TelemetrySetting
+		telemetryKey?: string
+		machineId?: string
 
-	renderContext: "sidebar" | "editor"
-	settingsImportedAt?: number
-	historyPreviewCollapsed?: boolean
+		renderContext: "sidebar" | "editor"
+		settingsImportedAt?: number
+		historyPreviewCollapsed?: boolean
 
-	cloudUserInfo: CloudUserInfo | null
-	cloudIsAuthenticated: boolean
-	cloudAuthSkipModel?: boolean // Flag indicating auth completed without model selection (user should pick 3rd-party provider)
-	cloudApiUrl?: string
-	cloudOrganizations?: CloudOrganizationMembership[]
-	sharingEnabled: boolean
-	publicSharingEnabled: boolean
-	organizationAllowList: OrganizationAllowList
-	organizationSettingsVersion?: number
+		cloudUserInfo: CloudUserInfo | null
+		cloudIsAuthenticated: boolean
+		cloudAuthSkipModel?: boolean // Flag indicating auth completed without model selection (user should pick 3rd-party provider)
+		cloudApiUrl?: string
+		cloudOrganizations?: CloudOrganizationMembership[]
+		sharingEnabled: boolean
+		publicSharingEnabled: boolean
+		organizationAllowList: OrganizationAllowList
+		organizationSettingsVersion?: number
 
-	autoCondenseContext: boolean
-	autoCondenseContextPercent: number
-	marketplaceItems?: MarketplaceItem[]
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	marketplaceInstalledMetadata?: { project: Record<string, any>; global: Record<string, any> }
-	profileThresholds: Record<string, number>
-	hasOpenedModeSelector: boolean
-	hasClosedCodeReviewWelcomeTips: boolean
-	openRouterImageApiKey?: string
-	/** OpenWebUI knowledge base service address (used by @kb:// mentions) */
-	openWebUIBaseUrl?: string
-	/** OpenWebUI API token, stored in SecretStorage (used by @kb:// mentions) */
-	openWebUIToken?: string
-	/** Optional route override for the knowledge base list query triggered by "@" */
-	openWebUIKnowledgeListUrl?: string
-	/** Optional route override for the file list query of a knowledge base ("{id}" placeholder) */
-	openWebUIKnowledgeFilesUrl?: string
-	/** Retrieval strategy for @kb:// mentions: "direct" (host injects results) or "mcp" (LLM calls tools) */
-	openWebUIRetrievalMode?: "direct" | "mcp"
-	/** Developer mode: when enabled, debug-related popup notifications are shown */
-	developerMode?: boolean
-	messageQueue?: QueuedMessage[]
-	lastShownAnnouncementId?: string
-	apiModelId?: string
-	mcpServers?: McpServer[]
-	mcpAsyncTaskRecords?: McpAsyncTaskSummary[]
-	mdmCompliant?: boolean
-	taskSyncEnabled: boolean
-	// featureRoomoteControlEnabled: boolean
-	claudeCodeIsAuthenticated?: boolean
-	openAiCodexIsAuthenticated?: boolean
-	debug?: boolean
+		autoCondenseContext: boolean
+		autoCondenseContextPercent: number
+		marketplaceItems?: MarketplaceItem[]
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		marketplaceInstalledMetadata?: { project: Record<string, any>; global: Record<string, any> }
+		profileThresholds: Record<string, number>
+		hasOpenedModeSelector: boolean
+		hasClosedCodeReviewWelcomeTips: boolean
+		openRouterImageApiKey?: string
+		/** OpenWebUI knowledge base service address (used by @kb:// mentions) */
+		openWebUIBaseUrl?: string
+		/** OpenWebUI API token, stored in SecretStorage (used by @kb:// mentions) */
+		openWebUIToken?: string
+		/** Optional route override for the knowledge base list query triggered by "@" */
+		openWebUIKnowledgeListUrl?: string
+		/** Optional route override for the file list query of a knowledge base ("{id}" placeholder) */
+		openWebUIKnowledgeFilesUrl?: string
+		/** Retrieval strategy for @kb:// mentions: "direct" (host injects results) or "mcp" (LLM calls tools) */
+		openWebUIRetrievalMode?: "direct" | "mcp"
+		/** Developer mode: when enabled, debug-related popup notifications are shown */
+		developerMode?: boolean
+		messageQueue?: QueuedMessage[]
+		lastShownAnnouncementId?: string
+		apiModelId?: string
+		mcpServers?: McpServer[]
+		mcpAsyncTaskRecords?: McpAsyncTaskSummary[]
+		mdmCompliant?: boolean
+		taskSyncEnabled: boolean
+		// featureRoomoteControlEnabled: boolean
+		claudeCodeIsAuthenticated?: boolean
+		openAiCodexIsAuthenticated?: boolean
+		debug?: boolean
 
-	/**
-	 * Monotonically increasing sequence number for clineMessages state pushes.
-	 * When present, the frontend should only apply clineMessages from a state push
-	 * if its seq is greater than the last applied seq. This prevents stale state
-	 * (captured during async getStateToPostToWebview) from overwriting newer messages.
-	 */
-	clineMessagesSeq?: number
+		/**
+		 * Monotonically increasing sequence number for clineMessages state pushes.
+		 * When present, the frontend should only apply clineMessages from a state push
+		 * if its seq is greater than the last applied seq. This prevents stale state
+		 * (captured during async getStateToPostToWebview) from overwriting newer messages.
+		 */
+		clineMessagesSeq?: number
 
-	/**
-	 * Indicates whether extension is currently streaming responses from AI.
-	 * This state is managed by backend and updated via streamingStatusUpdated messages.
-	 */
-	isStreaming?: boolean
-}
+		/**
+		 * Indicates whether extension is currently streaming responses from AI.
+		 * This state is managed by backend and updated via streamingStatusUpdated messages.
+		 */
+		isStreaming?: boolean
+	}
 
 export interface Command {
 	name: string
@@ -857,7 +885,7 @@ export interface WebviewMessage {
 		codebaseIndexVercelAiGatewayApiKey?: string
 		codebaseIndexOpenRouterApiKey?: string
 	}
-	updatedSettings?: RooCodeSettings
+	updatedSettings?: RooCodeSettings & FimCompletionSettings
 	/** Task configuration applied via `createTask()` when starting a cloud task. */
 	taskConfiguration?: RooCodeSettings
 	// Worktree properties

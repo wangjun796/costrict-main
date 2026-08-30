@@ -589,6 +589,147 @@
 					"default": {},
 					"markdownDescription": "%intelligentCodeCompletion.disableLanguages.description%"
 				},
+				"IntelligentCodeCompletion.fim.enabled": {
+					"type": "boolean",
+					"default": true,
+					"order": 10,
+					"description": "%intelligentCodeCompletion.fim.enabled.description%"
+				},
+				"IntelligentCodeCompletion.fim.apiUrl": {
+					"type": "string",
+					"default": "http://127.0.0.1:11434/api/generate",
+					"order": 11,
+					"description": "%intelligentCodeCompletion.fim.apiUrl.description%"
+				},
+				"IntelligentCodeCompletion.fim.modelName": {
+					"type": "string",
+					"default": "deepseek-coder:1.3b",
+					"order": 12,
+					"description": "%intelligentCodeCompletion.fim.modelName.description%"
+				},
+				"IntelligentCodeCompletion.fim.apiKey": {
+					"type": "string",
+					"default": "",
+					"order": 13,
+					"description": "%intelligentCodeCompletion.fim.apiKey.description%"
+				},
+				"IntelligentCodeCompletion.fim.fimPreset": {
+					"type": "string",
+					"default": "deepseek",
+					"order": 14,
+					"enum": [
+						"starcoder",
+						"deepseek",
+						"codellama",
+						"qwen",
+						"custom"
+					],
+					"description": "%intelligentCodeCompletion.fim.fimPreset.description%"
+				},
+				"IntelligentCodeCompletion.fim.customMarkers.begin": {
+					"type": "string",
+					"default": "<fim_prefix>",
+					"order": 15,
+					"description": "%intelligentCodeCompletion.fim.customMarkers.begin.description%"
+				},
+				"IntelligentCodeCompletion.fim.customMarkers.hole": {
+					"type": "string",
+					"default": "<fim_suffix>",
+					"order": 16,
+					"description": "%intelligentCodeCompletion.fim.customMarkers.hole.description%"
+				},
+				"IntelligentCodeCompletion.fim.customMarkers.end": {
+					"type": "string",
+					"default": "<fim_middle>",
+					"order": 17,
+					"description": "%intelligentCodeCompletion.fim.customMarkers.end.description%"
+				},
+				"IntelligentCodeCompletion.fim.maxPrefixTokens": {
+					"type": "number",
+					"default": 2048,
+					"order": 18,
+					"description": "%intelligentCodeCompletion.fim.maxPrefixTokens.description%"
+				},
+				"IntelligentCodeCompletion.fim.maxSuffixTokens": {
+					"type": "number",
+					"default": 512,
+					"order": 19,
+					"description": "%intelligentCodeCompletion.fim.maxSuffixTokens.description%"
+				},
+				"IntelligentCodeCompletion.fim.maxOutputTokens": {
+					"type": "number",
+					"default": 256,
+					"order": 20,
+					"description": "%intelligentCodeCompletion.fim.maxOutputTokens.description%"
+				},
+				"IntelligentCodeCompletion.fim.temperature": {
+					"type": "number",
+					"default": 0.1,
+					"minimum": 0,
+					"maximum": 2,
+					"order": 21,
+					"description": "%intelligentCodeCompletion.fim.temperature.description%"
+				},
+				"IntelligentCodeCompletion.fim.topP": {
+					"type": "number",
+					"default": 0.95,
+					"minimum": 0,
+					"maximum": 1,
+					"order": 22,
+					"description": "%intelligentCodeCompletion.fim.topP.description%"
+				},
+				"IntelligentCodeCompletion.fim.stopSequences": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [],
+					"order": 23,
+					"description": "%intelligentCodeCompletion.fim.stopSequences.description%"
+				},
+				"IntelligentCodeCompletion.fim.timeoutMs": {
+					"type": "number",
+					"default": 3000,
+					"minimum": 0,
+					"maximum": 600000,
+					"order": 24,
+					"description": "%intelligentCodeCompletion.fim.timeoutMs.description%"
+				},
+				"IntelligentCodeCompletion.fim.debounceMs": {
+					"type": "number",
+					"default": 300,
+					"minimum": 0,
+					"maximum": 5000,
+					"order": 28,
+					"description": "%intelligentCodeCompletion.fim.debounceMs.description%"
+				},
+				"IntelligentCodeCompletion.fim.debug": {
+					"type": "boolean",
+					"default": false,
+					"order": 29,
+					"description": "%intelligentCodeCompletion.fim.debug.description%"
+				},
+				"IntelligentCodeCompletion.fim.topK": {
+					"type": "number",
+					"default": 50,
+					"minimum": 0,
+					"order": 25,
+					"description": "%intelligentCodeCompletion.fim.topK.description%"
+				},
+				"IntelligentCodeCompletion.fim.repetitionPenalty": {
+					"type": "number",
+					"default": 1,
+					"minimum": 1,
+					"maximum": 2,
+					"order": 26,
+					"description": "%intelligentCodeCompletion.fim.repetitionPenalty.description%"
+				},
+				"IntelligentCodeCompletion.fim.doSample": {
+					"type": "boolean",
+					"default": true,
+					"order": 27,
+					"description": "%intelligentCodeCompletion.fim.doSample.description%"
+				},
 				"FunctionQuickCommands.enabled": {
 					"type": "boolean",
 					"default": false,
@@ -664,7 +805,7 @@
 						}
 					}
 				},
-				"sddAgent.allowedCommands": {
+				"costrict.allowedCommands": {
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -676,7 +817,7 @@
 					],
 					"description": "%commands.allowedCommands.description%"
 				},
-				"sddAgent.deniedCommands": {
+				"costrict.deniedCommands": {
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -684,14 +825,14 @@
 					"default": [],
 					"description": "%commands.deniedCommands.description%"
 				},
-				"sddAgent.commandExecutionTimeout": {
+				"costrict.commandExecutionTimeout": {
 					"type": "number",
 					"default": 0,
 					"minimum": 0,
 					"maximum": 600,
 					"description": "%commands.commandExecutionTimeout.description%"
 				},
-				"sddAgent.commandTimeoutAllowlist": {
+				"costrict.commandTimeoutAllowlist": {
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -699,12 +840,12 @@
 					"default": [],
 					"description": "%commands.commandTimeoutAllowlist.description%"
 				},
-				"sddAgent.preventCompletionWithOpenTodos": {
+				"costrict.preventCompletionWithOpenTodos": {
 					"type": "boolean",
 					"default": false,
 					"description": "%commands.preventCompletionWithOpenTodos.description%"
 				},
-				"sddAgent.vsCodeLmModelSelector": {
+				"costrict.vsCodeLmModelSelector": {
 					"type": "object",
 					"properties": {
 						"vendor": {
@@ -718,12 +859,12 @@
 					},
 					"description": "%settings.vsCodeLmModelSelector.description%"
 				},
-				"sddAgent.customStoragePath": {
+				"costrict.customStoragePath": {
 					"type": "string",
 					"default": "",
 					"description": "%settings.customStoragePath.description%"
 				},
-				"sddAgent.uiMode": {
+				"costrict.uiMode": {
 					"type": "string",
 					"enum": [
 						"classic",
@@ -732,17 +873,17 @@
 					"default": "classic",
 					"description": "Controls which UI mode ssdAgent loads on startup. Changes apply after reloading the window."
 				},
-				"sddAgent.csCloudBaseUrl": {
+				"costrict.csCloudBaseUrl": {
 					"type": "string",
 					"default": "http://127.0.0.1:34961",
 					"description": "Base URL for the local cs-cloud control plane used by Cloud UI mode."
 				},
-				"sddAgent.assistantUI.enabled": {
+				"costrict.assistantUI.enabled": {
 					"type": "boolean",
 					"default": true,
 					"description": "Enable the isolated Assistant UI / cs-cloud mode."
 				},
-				"sddAgent.assistantUI.defaultCli": {
+				"costrict.assistantUI.defaultCli": {
 					"type": "string",
 					"enum": [
 						"csc",
@@ -751,29 +892,29 @@
 					"default": "csc",
 					"description": "CLI binary used to start and query cs-cloud (e.g. csc cloud start)."
 				},
-				"sddAgent.assistantUI.port": {
+				"costrict.assistantUI.port": {
 					"type": "number",
 					"default": 45489,
 					"minimum": 1,
 					"maximum": 65535,
 					"description": "Local port used by Assistant UI mode when starting cs-cloud."
 				},
-				"sddAgent.assistantUI.autoStartCsCloud": {
+				"costrict.assistantUI.autoStartCsCloud": {
 					"type": "boolean",
 					"default": true,
 					"description": "Automatically start cs-cloud when opening Assistant UI mode if no service is already available on the configured port."
 				},
-				"sddAgent.assistantUI.baseUrl": {
+				"costrict.assistantUI.baseUrl": {
 					"type": "string",
 					"default": "",
 					"description": "Explicit OpenCode-compatible cs-cloud API base URL for Assistant UI mode, for example http://127.0.0.1:45489/api/v1. When set, the extension will not start cs-cloud."
 				},
-				"sddAgent.assistantUI.webUrl": {
+				"costrict.assistantUI.webUrl": {
 					"type": "string",
 					"default": "http://127.0.0.1:3000",
 					"description": "Temporary Assistant UI web app URL loaded by the VSCode Webview demo. Use the with-opencode Next dev server until static Webview assets are added."
 				},
-				"sddAgent.assistantUI.webviewMode": {
+				"costrict.assistantUI.webviewMode": {
 					"type": "string",
 					"enum": [
 						"static",
@@ -782,29 +923,29 @@
 					"default": "static",
 					"description": "Assistant UI Webview loading mode. Use static for bundled Phase 4B assets or iframe for the local Next.js development server fallback."
 				},
-				"sddAgent.assistantUI.debug": {
+				"costrict.assistantUI.debug": {
 					"type": "boolean",
 					"default": false,
 					"description": "Show Assistant UI diagnostics and pass assistantUIDebug=1 to the iframe fallback. Keep disabled for normal isolated static mode."
 				},
-				"sddAgent.enableCodeActions": {
+				"costrict.enableCodeActions": {
 					"type": "boolean",
 					"default": true,
 					"description": "%settings.enableCodeActions.description%"
 				},
-				"sddAgent.autoImportSettingsPath": {
+				"costrict.autoImportSettingsPath": {
 					"type": "string",
 					"default": "",
 					"description": "%settings.autoImportSettingsPath.description%"
 				},
-				"sddAgent.maximumIndexedFilesForFileSearch": {
+				"costrict.maximumIndexedFilesForFileSearch": {
 					"type": "number",
 					"default": 10000,
 					"minimum": 5000,
 					"maximum": 500000,
 					"description": "%settings.maximumIndexedFilesForFileSearch.description%"
 				},
-				"sddAgent.useAgentRules": {
+				"costrict.useAgentRules": {
 					"type": "boolean",
 					"default": true,
 					"description": "%settings.useAgentRules.description%"
@@ -817,14 +958,14 @@
 						"experimental"
 					]
 				},
-				"sddAgent.apiRequestTimeout": {
+				"costrict.apiRequestTimeout": {
 					"type": "number",
 					"default": 300,
 					"minimum": 0,
 					"maximum": 3600,
 					"description": "%settings.apiRequestTimeout.description%"
 				},
-				"sddAgent.apiResponseRenderMode": {
+				"costrict.apiResponseRenderMode": {
 					"type": "string",
 					"enum": [
 						"noLimit",
@@ -835,36 +976,36 @@
 					"default": "noLimit",
 					"description": "%settings.apiResponseRenderMode.description%"
 				},
-				"sddAgent.newTaskRequireTodos": {
+				"costrict.newTaskRequireTodos": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.newTaskRequireTodos.description%"
 				},
-				"sddAgent.codeIndex.embeddingBatchSize": {
+				"costrict.codeIndex.embeddingBatchSize": {
 					"type": "number",
 					"default": 60,
 					"minimum": 1,
 					"maximum": 200,
 					"description": "%settings.codeIndex.embeddingBatchSize.description%"
 				},
-				"sddAgent.commit.useConventionalCommits": {
+				"costrict.commit.useConventionalCommits": {
 					"type": "boolean",
 					"default": true,
 					"description": "%settings.commit.useConventionalCommits.description%"
 				},
-				"sddAgent.commit.commitModelId": {
+				"costrict.commit.commitModelId": {
 					"type": "string",
 					"default": "",
 					"description": "%settings.commit.commitModelId.description%"
 				},
-				"sddAgent.commit.maxLength": {
+				"costrict.commit.maxLength": {
 					"type": "number",
 					"default": 72,
 					"minimum": 20,
 					"maximum": 300,
 					"description": "%settings.commit.maxLength.description%"
 				},
-				"sddAgent.commit.language": {
+				"costrict.commit.language": {
 					"type": "string",
 					"enum": [
 						"auto",
@@ -875,24 +1016,24 @@
 					"default": "auto",
 					"description": "%settings.commit.language.description%"
 				},
-				"sddAgent.debug": {
+				"costrict.debug": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.debug.description%"
 				},
-				"sddAgent.debugProxy.enabled": {
+				"costrict.debugProxy.enabled": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.debugProxy.enabled.description%",
 					"markdownDescription": "%settings.debugProxy.enabled.description%"
 				},
-				"sddAgent.debugProxy.serverUrl": {
+				"costrict.debugProxy.serverUrl": {
 					"type": "string",
 					"default": "http://127.0.0.1:8888",
 					"description": "%settings.debugProxy.serverUrl.description%",
 					"markdownDescription": "%settings.debugProxy.serverUrl.description%"
 				},
-				"sddAgent.debugProxy.tlsInsecure": {
+				"costrict.debugProxy.tlsInsecure": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.debugProxy.tlsInsecure.description%",

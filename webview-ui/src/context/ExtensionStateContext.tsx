@@ -167,6 +167,24 @@ export interface ExtensionStateContextType extends ExtensionState {
 	showWorktreesInHomeScreen: boolean
 	setShowWorktreesInHomeScreen: (value: boolean) => void
 	skills?: SkillMetadata[]
+	// FIM Completion Model settings
+	fimEnabled?: boolean
+	fimApiUrl?: string
+	fimModelName?: string
+	fimApiKey?: string
+	fimPreset?: string
+	fimMaxPrefixTokens?: number
+	fimMaxSuffixTokens?: number
+	fimMaxOutputTokens?: number
+	fimTemperature?: number | null
+	fimTopP?: number
+	fimTopK?: number
+	fimRepetitionPenalty?: number | null
+	fimDoSample?: boolean
+	fimStopSequences?: string[]
+	fimTimeoutMs?: number
+	fimDebounceMs?: number
+	fimDebug?: boolean
 }
 
 export const ExtensionStateContext = createContext<ExtensionStateContextType | undefined>(undefined)
@@ -304,6 +322,24 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		includeCurrentTime: false,
 		includeCurrentCost: true,
 		lockApiConfigAcrossModes: true,
+		// FIM Completion Model settings
+		fimEnabled: true,
+		fimApiUrl: "http://127.0.0.1:11434/api/generate",
+		fimModelName: "deepseek-coder:1.3b",
+		fimApiKey: "",
+		fimPreset: "deepseek",
+		fimMaxPrefixTokens: 2048,
+		fimMaxSuffixTokens: 512,
+		fimMaxOutputTokens: 256,
+		fimTemperature: 0.1,
+		fimTopP: 0.95,
+		fimTopK: 50,
+		fimRepetitionPenalty: null,
+		fimDoSample: true,
+		fimStopSequences: [],
+		fimTimeoutMs: 3000,
+		fimDebounceMs: 300,
+		fimDebug: false,
 	})
 
 	const [didHydrateState, setDidHydrateState] = useState(false)
@@ -734,6 +770,24 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		showWorktreesInHomeScreen: state.showWorktreesInHomeScreen ?? true,
 		setShowWorktreesInHomeScreen: (value) =>
 			setState((prevState) => ({ ...prevState, showWorktreesInHomeScreen: value })),
+		// FIM Completion Model settings
+		fimEnabled: state.fimEnabled ?? true,
+		fimApiUrl: state.fimApiUrl ?? "http://127.0.0.1:11434/api/generate",
+		fimModelName: state.fimModelName ?? "deepseek-coder:1.3b",
+		fimApiKey: state.fimApiKey ?? "",
+		fimPreset: state.fimPreset ?? "deepseek",
+		fimMaxPrefixTokens: state.fimMaxPrefixTokens ?? 2048,
+		fimMaxSuffixTokens: state.fimMaxSuffixTokens ?? 512,
+		fimMaxOutputTokens: state.fimMaxOutputTokens ?? 256,
+		fimTemperature: state.fimTemperature ?? 0.1,
+		fimTopP: state.fimTopP ?? 0.95,
+		fimTopK: state.fimTopK ?? 50,
+		fimRepetitionPenalty: state.fimRepetitionPenalty ?? null,
+		fimDoSample: state.fimDoSample ?? true,
+		fimStopSequences: state.fimStopSequences ?? [],
+		fimTimeoutMs: state.fimTimeoutMs ?? 3000,
+		fimDebounceMs: state.fimDebounceMs ?? 300,
+		fimDebug: state.fimDebug ?? false,
 	}
 
 	return <ExtensionStateContext.Provider value={contextValue}>{children}</ExtensionStateContext.Provider>

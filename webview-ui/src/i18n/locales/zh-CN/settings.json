@@ -28,6 +28,7 @@
 	},
 	"sections": {
 		"providers": "提供商",
+		"completionModel": "代码补全模型",
 		"modes": "模式",
 		"mcp": "MCP 服务",
 		"worktrees": "Worktrees",
@@ -871,6 +872,34 @@
 	"promptCaching": {
 		"label": "禁用提示词缓存",
 		"description": "选中后，ssdAgent 将不会为此模型使用提示词缓存。"
+	},
+	"completionModel": {
+		"title": "代码补全模型",
+		"description": "配置用于 FIM（中间填充）代码补全的自托管模型，例如 StarCoder。",
+		"enabled": "启用自定义代码补全模型",
+		"apiUrl": "模型服务地址",
+		"apiUrlHint": "StarCoder 服务地址。支持 HuggingFace TGI（http://host:port，自动追加 /generate）或 OpenAI 兼容接口（http://host:port/v1/completions）。",
+		"modelName": "模型名称",
+		"apiKey": "API 密钥（可选）",
+		"fimPreset": "FIM 标记格式",
+		"maxPrefixTokens": "最大前缀 Token",
+		"maxSuffixTokens": "最大后缀 Token",
+		"maxOutputTokens": "最大输出 Token",
+		"temperature": "温度",
+		"topP": "Top-P",
+		"topK": "Top-K",
+		"topKHint": "Top-K 采样，0 表示禁用（使用服务默认值）。",
+		"repetitionPenalty": "重复惩罚",
+		"repetitionPenaltyHint": "重复惩罚系数，1.0 表示不惩罚，留空表示使用模型默认值。",
+		"doSample": "启用采样",
+		"stopSequences": "停止序列",
+		"stopSequencesHint": "逗号分隔的停止序列，例如 <|endoftext|>。",
+		"timeout": "请求超时（毫秒）",
+		"timeoutHint": "补全请求的超时时间。设置为 0 可关闭超时（适用于本地 CPU 慢模型；光标移动或新请求时仍会取消）。",
+		"debounce": "防抖延迟（毫秒）",
+		"debounceHint": "停止输入后等待多久再发起补全请求。设置为 0 可关闭防抖。",
+		"debug": "打印补全调试跟踪",
+		"debugHint": "在扩展宿主输出中打印补全流程的分阶段调试日志。补全不出现时请开启此项进行诊断。"
 	},
 	"temperature": {
 		"useCustom": "使用自定义温度",

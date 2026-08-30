@@ -28,6 +28,7 @@
 	},
 	"sections": {
 		"providers": "Providers",
+		"completionModel": "Code Completion Model",
 		"modes": "Modes",
 		"mcp": "MCP Servers",
 		"worktrees": "Worktrees",
@@ -978,6 +979,34 @@
 	"promptCaching": {
 		"label": "Disable prompt caching",
 		"description": "When checked, ssdAgent will not use prompt caching for this model."
+	},
+	"completionModel": {
+		"title": "Code Completion Model",
+		"description": "Configure a self-hosted FIM (Fill-In-the-Middle) completion model, such as StarCoder.",
+		"enabled": "Enable custom completion model",
+		"apiUrl": "Model server URL",
+		"apiUrlHint": "StarCoder server URL. Supports HuggingFace TGI (http://host:port, /generate appended automatically) or an OpenAI-compatible endpoint (http://host:port/v1/completions).",
+		"modelName": "Model name",
+		"apiKey": "API key (optional)",
+		"fimPreset": "FIM marker format",
+		"maxPrefixTokens": "Max prefix tokens",
+		"maxSuffixTokens": "Max suffix tokens",
+		"maxOutputTokens": "Max output tokens",
+		"temperature": "Temperature",
+		"topP": "Top-P",
+		"topK": "Top-K",
+		"topKHint": "Top-K sampling; 0 disables it (use server default).",
+		"repetitionPenalty": "Repetition penalty",
+		"repetitionPenaltyHint": "Repetition penalty factor; 1.0 means no penalty, leave empty for model default.",
+		"doSample": "Enable sampling",
+		"stopSequences": "Stop sequences",
+		"stopSequencesHint": "Comma-separated stop sequences, e.g. <|endoftext|>.",
+		"timeout": "Request timeout (ms)",
+		"timeoutHint": "Timeout for completion requests. Set to 0 to disable the timeout (useful for slow local/CPU models; cancellation still happens on cursor move or new request).",
+		"debounce": "Debounce delay (ms)",
+		"debounceHint": "Delay before sending a completion request after you stop typing. Set to 0 to disable debouncing.",
+		"debug": "Print completion debug traces",
+		"debugHint": "Prints stage-by-stage debug logs for the completion pipeline to the Extension Host output. Enable this when diagnosing why completions do not appear."
 	},
 	"temperature": {
 		"useCustom": "Use custom temperature",
