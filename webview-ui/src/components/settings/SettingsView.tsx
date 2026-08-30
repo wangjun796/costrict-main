@@ -289,31 +289,23 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	// 一次性水合：didHydrateState 从 false 翻转到 true 那一刻（host 首条 state
 	// 消息处理完），用 host 真实持久化值覆盖 cachedState 中的 initialState 残留。
 	//
-	// 关键：依赖只 [didHydrateState]。不要把 extensionState 放进依赖——useExtensionState()
-	// 每次 Provider render 都返回新字面量对象，会让 effect 在水合后被反复触发（虽然
-	// hasHydratedFromHost 锁住 setCachedState，但会让 React 调度器白跑）。也不要依赖
-	// isChangeDetected——上次的"保存即还原"教训：保存 setChangeDetected(false) 与
-	// host 推回新 state 之间的同渲染窗口会让 effect 误触。
-	//
-	// 闭包内读到的 extensionState 是 didHydrateState 翻转那一刻的值——彼时 host
-	// state 消息已处理，extensionState 已是真实持久化值。
+	// 注意：SettingsView 是 React.lazy 加载的，可能在 didHydrateState 已经为 true
+	// 之后才 mount。App.tsx 已经用 key={didHydrateState ? ... : ...} 强制它在首次
+	// state 推送后 remount，所以本 effect 主要作为非 lazy / 未来代码路径的保险。
 	useEffect(() => {
 		if (!didHydrateState || hasHydratedFromHost.current) {
 			return
 		}
 		hasHydratedFromHost.current = true
 		setCachedState((prevCachedState) => {
-			// 仅在 developer mode 打印——可打开 Webview DevTools (Help > Toggle
-			// Developer Tools) 在 Console 里看实际水合到 cachedState 的值。
-			if (developerModeRef.current) {
-				console.log("[SettingsView] one-shot hydration", {
-					fimModelName: extensionState.fimModelName,
-					fimApiUrl: extensionState.fimApiUrl,
-					fimEnabled: extensionState.fimEnabled,
-					fimPreset: extensionState.fimPreset,
-					fimMaxPrefixTokens: extensionState.fimMaxPrefixTokens,
-				})
-			}
+			console.log("[SettingsView] one-shot hydration", {
+				didHydrateState,
+				fimModelName: extensionState.fimModelName,
+				fimApiUrl: extensionState.fimApiUrl,
+				fimEnabled: extensionState.fimEnabled,
+				fimPreset: extensionState.fimPreset,
+				fimMaxPrefixTokens: extensionState.fimMaxPrefixTokens,
+			})
 			debugLocalEdit(
 				developerModeRef.current,
 				"cachedState ← extensionState (one-shot host hydration)",

@@ -382,7 +382,16 @@ const App = () => {
 			)}
 			{tab === "settings" && (
 				<React.Suspense fallback={<LoadingView />}>
-					<LazySettingsView ref={settingsRef} onDone={() => setTab("chat")} targetSection={currentSection} />
+					{/* key 绑定 didHydrateState：webview 启动后 host 首次推送真实 state
+					    时，强制 SettingsView remount，从而让 useState 初始化从
+					    extensionState（真实持久化值）开始，避免 lazy-loaded 的
+					    SettingsView 在 state 水合前 mount 并一直卡在未水合默认值。*/}
+					<LazySettingsView
+						key={didHydrateState ? "settings-hydrated" : "settings-unhydrated"}
+						ref={settingsRef}
+						onDone={() => setTab("chat")}
+						targetSection={currentSection}
+					/>
 				</React.Suspense>
 			)}
 			{/* {tab === "marketplace" && (

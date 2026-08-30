@@ -399,9 +399,14 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		(event: MessageEvent) => {
 			const message: ExtensionMessage = event.data
 			switch (message.type) {
-				case "state": {
-					const newState = message.state ?? {}
-					setState((prevState) => mergeExtensionState(prevState, newState))
+			case "state": {
+				const newState = message.state ?? {}
+				console.log("[ExtensionStateContext] state message received", {
+					fimModelName: (newState as any).fimModelName,
+					fimPreset: (newState as any).fimPreset,
+					fimEnabled: (newState as any).fimEnabled,
+				})
+				setState((prevState) => mergeExtensionState(prevState, newState))
 
 					setShowWelcome(!checkExistKey(newState.apiConfiguration))
 					setDidHydrateState(true)
