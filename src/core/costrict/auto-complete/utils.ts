@@ -1,4 +1,5 @@
 import { TextDocument, Position } from "vscode"
+import { isCompletionDebugEnabled } from "./fim/debug"
 /**
  * Extract prefix and suffix from a document at a given position
  */
@@ -128,7 +129,9 @@ export function getDependencyImports(filePath: string, codeContent: string): str
 			break
 
 		default:
-			console.log(`Unsupported file extension: ${fileExtension}`)
+			if (isCompletionDebugEnabled()) {
+				console.log(`Unsupported file extension: ${fileExtension}`)
+			}
 			break
 	}
 

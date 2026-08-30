@@ -100,13 +100,22 @@ export function completionDebug(
 	emit("log", [`[Completion ${completionId}][${stage}] ${message}${formatDetail(detail)}`])
 }
 
-/** Always-visible variant for failures that must never be silent. */
+/**
+ * Emit a warn line, gated by the `fim.debug` setting.
+ *
+ * 调试开关关闭时跳过 —— 日常使用 output channel 保持安静，避免 CPU 慢模型场景下
+ * 的高频日志噪音（completionWarn 在 fallback / 过滤 / abort 路径都会触发）。
+ * 真错误走 completionError，始终可见。
+ */
 export function completionWarn(
 	completionId: string,
 	stage: string,
 	message: string,
 	detail?: Record<string, unknown>,
 ): void {
+	if (!isCompletionDebugEnabled()) {
+		return
+	}
 	emit("warn", [`[Completion ${completionId}][${stage}] ${message}${formatDetail(detail)}`])
 }
 

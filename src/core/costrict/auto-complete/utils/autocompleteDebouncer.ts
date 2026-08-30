@@ -4,6 +4,7 @@
  * Licensed under Apache-2.0
  */
 import { randomUUID } from "node:crypto"
+import { isCompletionDebugEnabled } from "../fim/debug"
 
 export class AutocompleteDebouncer {
 	private debounceTimeout: NodeJS.Timeout | undefined = undefined
@@ -29,11 +30,15 @@ export class AutocompleteDebouncer {
 			// 取消回调：立即 resolve，不等待 timeout
 			const onAbort = () => {
 				if (this.debounceTimeout) {
-					console.log("[Debouncer] clear timeout")
+					if (isCompletionDebugEnabled()) {
+						console.log("[Debouncer] clear timeout")
+					}
 					clearTimeout(this.debounceTimeout)
 					this.debounceTimeout = undefined
 				}
-				console.log("[Debouncer] resolve true")
+				if (isCompletionDebugEnabled()) {
+					console.log("[Debouncer] resolve true")
+				}
 				resolve(true) // 返回 true 表示应该跳过
 			}
 

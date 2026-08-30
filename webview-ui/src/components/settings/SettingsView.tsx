@@ -139,7 +139,8 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	const { t } = useAppTranslation()
 
 	const extensionState = useExtensionState()
-	const { currentApiConfigName, listApiConfigMeta, uriScheme, settingsImportedAt } = extensionState
+	const { currentApiConfigName, listApiConfigMeta, uriScheme, settingsImportedAt, didHydrateState } =
+		extensionState
 
 	const [isDiscardDialogShow, setDiscardDialogShow] = useState(false)
 	const [isChangeDetected, setChangeDetected] = useState(false)
@@ -158,6 +159,11 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 
 	const prevApiConfigName = useRef(currentApiConfigName)
 	const confirmDialogHandler = useRef<() => void>()
+
+	// 标记是否已用 host 推送的真实持久化状态初始化过表单（一次性水合）。
+	// 置位后，后续任何 extensionState 更新（包括保存后的状态回推）都不会再覆盖
+	// cachedState，从而杜绝"点击保存即还原"以及编辑中被外部状态打断的问题。
+	const hasHydratedFromHost = useRef(false)
 
 	const [cachedState, setCachedState] = useState(() => extensionState)
 
@@ -279,6 +285,42 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			setChangeDetected(false)
 		}
 	}, [settingsImportedAt, extensionState])
+
+	// 一次性水合：didHydrateState 从 false 翻转到 true 那一刻（host 首条 state
+	// 消息处理完），用 host 真实持久化值覆盖 cachedState 中的 initialState 残留。
+	//
+	// 关键：依赖只 [didHydrateState]。不要把 extensionState 放进依赖——useExtensionState()
+	// 每次 Provider render 都返回新字面量对象，会让 effect 在水合后被反复触发（虽然
+	// hasHydratedFromHost 锁住 setCachedState，但会让 React 调度器白跑）。也不要依赖
+	// isChangeDetected——上次的"保存即还原"教训：保存 setChangeDetected(false) 与
+	// host 推回新 state 之间的同渲染窗口会让 effect 误触。
+	//
+	// 闭包内读到的 extensionState 是 didHydrateState 翻转那一刻的值——彼时 host
+	// state 消息已处理，extensionState 已是真实持久化值。
+	useEffect(() => {
+		if (!didHydrateState || hasHydratedFromHost.current) {
+			return
+		}
+		hasHydratedFromHost.current = true
+		setCachedState((prevCachedState) => {
+			// 仅在 developer mode 打印——可打开 Webview DevTools (Help > Toggle
+			// Developer Tools) 在 Console 里看实际水合到 cachedState 的值。
+			if (developerModeRef.current) {
+				console.log("[SettingsView] one-shot hydration", {
+					fimModelName: extensionState.fimModelName,
+					fimApiUrl: extensionState.fimApiUrl,
+					fimEnabled: extensionState.fimEnabled,
+					fimPreset: extensionState.fimPreset,
+					fimMaxPrefixTokens: extensionState.fimMaxPrefixTokens,
+				})
+			}
+			debugLocalEdit(
+				developerModeRef.current,
+				"cachedState ← extensionState (one-shot host hydration)",
+			)
+			return { ...prevCachedState, ...extensionState }
+		})
+	}, [didHydrateState])
 
 	const setCachedStateField: SetCachedStateField<keyof ExtensionStateContextType> = useCallback((field, value) => {
 		setCachedState((prevState) => {
@@ -511,23 +553,31 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					useCostrictCustomConfig: useCostrictCustomConfig ?? false,
 					autoCleanup,
 					debug,
-					fimEnabled: fimEnabled ?? false,
-					fimApiUrl: fimApiUrl ?? "",
-					fimModelName: fimModelName ?? "bigcode/starcoder2-7b",
-					fimApiKey: fimApiKey ?? "",
-					fimPreset: fimPreset ?? "starcoder",
-					fimMaxPrefixTokens: fimMaxPrefixTokens ?? 2048,
-					fimMaxSuffixTokens: fimMaxSuffixTokens ?? 512,
-					fimMaxOutputTokens: fimMaxOutputTokens ?? 256,
-					fimTemperature: fimTemperature ?? null,
-					fimTopP: fimTopP ?? 0.95,
-					fimTopK: fimTopK ?? 50,
-					fimRepetitionPenalty: fimRepetitionPenalty ?? null,
-					fimDoSample: fimDoSample ?? true,
-					fimStopSequences: fimStopSequences ?? [],
-					fimTimeoutMs: fimTimeoutMs ?? 3000,
-					fimDebounceMs: fimDebounceMs ?? 300,
-					fimDebug: fimDebug ?? false,
+					// FIM completion model fields: send cachedState 值原样（不带 ?? 兜底）。
+					// 原因：如果水合失败，cachedState.fimXxx 是 undefined；JSON.stringify
+					// 会省略 undefined 字段，host 端 `for (const [key, value] of Object.entries(...))`
+					// 不会处理该字段 → 不会写入 settings.json → 真实持久化值不被覆盖。
+					// 旧版用 `?? 兜底` 反而会把 undefined 写成的硬编码默认值（如
+					// "bigcode/starcoder2-7b"）当成"用户值"写入 settings.json，触发恶性
+					// 循环：reload → cachedState undefined → 兜底默认值写入 → 真实值被覆盖。
+					// 用户主动清空某字段（设为 ""）时仍会正常发送 ""，与"未设置"区分。
+					fimEnabled,
+					fimApiUrl,
+					fimModelName,
+					fimApiKey,
+					fimPreset,
+					fimMaxPrefixTokens,
+					fimMaxSuffixTokens,
+					fimMaxOutputTokens,
+					fimTemperature,
+					fimTopP,
+					fimTopK,
+					fimRepetitionPenalty,
+					fimDoSample,
+					fimStopSequences,
+					fimTimeoutMs,
+					fimDebounceMs,
+					fimDebug,
 				},
 			})
 			// These have more complex logic so they aren't (yet) handled
@@ -1017,17 +1067,22 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 						)}
 
 						{/* Completion Model Section */}
+						{/*
+						 * CompletionModelSettings 兜底值与 useExtensionState (ExtensionStateContext.tsx
+						 * line 774-790) 严格对齐——保证水合前后 UI 显示一致，避免"显示和实际
+						 * 不一致"；其它 tab 无 ?? 兜底所以不出这个问题。
+						 */}
 						{renderTab === "completionModel" && (
 							<CompletionModelSettings
-								fimEnabled={fimEnabled ?? false}
-								fimApiUrl={fimApiUrl ?? ""}
-								fimModelName={fimModelName ?? ""}
+								fimEnabled={fimEnabled ?? true}
+								fimApiUrl={fimApiUrl ?? "http://127.0.0.1:11434/api/generate"}
+								fimModelName={fimModelName ?? "deepseek-coder:1.3b"}
 								fimApiKey={fimApiKey ?? ""}
-								fimPreset={fimPreset ?? "starcoder"}
+								fimPreset={fimPreset ?? "deepseek"}
 								fimMaxPrefixTokens={fimMaxPrefixTokens ?? 2048}
 								fimMaxSuffixTokens={fimMaxSuffixTokens ?? 512}
 								fimMaxOutputTokens={fimMaxOutputTokens ?? 256}
-								fimTemperature={fimTemperature ?? null}
+								fimTemperature={fimTemperature ?? 0.1}
 								fimTopP={fimTopP ?? 0.95}
 								fimTopK={fimTopK ?? 50}
 								fimRepetitionPenalty={fimRepetitionPenalty ?? null}

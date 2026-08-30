@@ -3243,6 +3243,8 @@ export class ClineProvider
 		const fimDoSample = fimConfig.get<boolean>("fim.doSample", true)
 		const fimStopSequences = fimConfig.get<string[]>("fim.stopSequences", [])
 		const fimTimeoutMs = fimConfig.get<number>("fim.timeoutMs", 3000)
+		const fimDebounceMs = fimConfig.get<number>("fim.debounceMs", 300)
+		const fimDebug = fimConfig.get<boolean>("fim.debug", false)
 
 		// Return the same structure as before.
 		return {
@@ -3383,6 +3385,8 @@ export class ClineProvider
 			fimDoSample,
 			fimStopSequences,
 			fimTimeoutMs,
+			fimDebounceMs,
+			fimDebug,
 		}
 	}
 

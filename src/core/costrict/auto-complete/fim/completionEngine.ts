@@ -45,9 +45,14 @@ function setupAbort(timeoutMs: number, signal?: AbortSignal) {
 
 	const onExternalAbort = () => {
 		externalAborted = true
-		controller.abort()
+		controller.abort(signal?.reason)
 	}
-	signal?.addEventListener("abort", onExternalAbort, { once: true })
+	if (signal?.aborted) {
+		// "abort" events already fired before we attached.
+		onExternalAbort()
+	} else {
+		signal?.addEventListener("abort", onExternalAbort, { once: true })
+	}
 
 	const getReason = (): AbortReason => {
 		if (timedOut) {
@@ -70,14 +75,26 @@ function setupAbort(timeoutMs: number, signal?: AbortSignal) {
 }
 
 /** Build a human-readable abort message so the logs say *why* it stopped. */
-function describeAbort(reason: AbortReason, timeoutMs: number, elapsedMs: number): string {
+function describeAbort(
+	reason: AbortReason,
+	timeoutMs: number,
+	elapsedMs: number,
+	externalDetail?: string,
+): string {
 	if (reason === "timeout") {
 		return `request timed out after ${timeoutMs}ms (elapsed ${elapsedMs}ms) - raise fim.timeoutMs, or set it to 0 for no timeout`
 	}
 	if (reason === "external") {
-		return "request cancelled by caller (typing / cursor move / new request)"
+		return externalDetail
+			? `request cancelled by caller: ${externalDetail} (elapsed ${elapsedMs}ms)`
+			: "request cancelled by caller (typing / cursor move / new request)"
 	}
 	return `request aborted (unknown reason, elapsed ${elapsedMs}ms)`
+}
+
+/** Extract a human-readable abort reason passed via AbortController.abort(reason). */
+function externalAbortDetail(signal?: AbortSignal): string | undefined {
+	return typeof signal?.reason === "string" ? signal.reason : undefined
 }
 
 /** StarCoder-compatible completion request body */
@@ -252,11 +269,13 @@ async function sendOllamaCompletion(
 			})
 			return null
 		} catch (error) {
-			if (error instanceof Error && error.name === "AbortError") {
+			// fetch rejects with the raw abort reason when abort(reason) carries a
+			// custom value, so `error` may be a plain string instead of an AbortError.
+			if (controller.signal.aborted || (error instanceof Error && error.name === "AbortError")) {
 				completionWarn(
 					completionId,
 					"http:ollama",
-					describeAbort(getReason(), config.timeoutMs, trace.elapsed()),
+					describeAbort(getReason(), config.timeoutMs, trace.elapsed(), externalAbortDetail(signal)),
 				)
 				return null
 			}
@@ -280,6 +299,11 @@ async function sendOllamaCompletion(
 
 	// 2. 兜底：模型不支持 insert 时，把 FIM 标记直接拼进 prompt 并去掉 suffix 字段。
 	//    配合 raw:true，Ollama 不会套模板，模型会读到自己家族的 FIM 特殊 token 并填空。
+	//    重试前检查 signal 是否已被取消（第一次尝试耗时较长，signal 可能已被外部取消）。
+	if (signal?.aborted) {
+		trace.step("http:ollama", "signal aborted before fallback retry, skipping")
+		return null
+	}
 	const markers = getFimMarkers(config)
 	const fimPrompt = `${markers.begin}${prompt}${markers.hole}${suffix}${markers.end}`
 	trace.step("http:ollama", "native insert unsupported, retrying with embedded FIM markers", {
@@ -587,8 +611,14 @@ async function postCompletionRequest(
 		})
 		return null
 	} catch (error) {
-		if (error instanceof Error && error.name === "AbortError") {
-			completionWarn(completionId, "http:generic", describeAbort(getReason(), config.timeoutMs, trace.elapsed()))
+		// See the note in the Ollama path: a custom abort reason makes fetch reject
+		// with that raw value instead of an AbortError.
+		if (controller.signal.aborted || (error instanceof Error && error.name === "AbortError")) {
+			completionWarn(
+				completionId,
+				"http:generic",
+				describeAbort(getReason(), config.timeoutMs, trace.elapsed(), externalAbortDetail(signal)),
+			)
 			return "aborted"
 		}
 		completionError(completionId, "http:generic", "request error", {

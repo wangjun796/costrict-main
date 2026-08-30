@@ -1,0 +1,11 @@
+﻿TotalRAM_GB     = 6.94
+FreeRAM_GB      = 0.66
+CommitLimit_GB  = 19.44
+CommitFree_GB   = 1.8
+AutoManagedPF   = False
+PF_Usage: D:\pagefile.sys  alloc=12798MB  peak=6549MB
+PF_Setting:   init=0  max=50
+--- Defender Exclusions ---
+ExclPath: 
+ExclProc: G:\eclipse-committers-2024-09-R-win32-x86_64\eclipse\eclipse.exe
+RealTime: True

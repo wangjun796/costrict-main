@@ -1,6 +1,7 @@
 import {
 	InlineCompletionItemProvider,
 	InlineCompletionItem,
+	InlineCompletionTriggerKind,
 	TextDocument,
 	Position,
 	Range,
@@ -32,7 +33,7 @@ import { TelemetryService } from "@roo-code/telemetry"
 import { CodeCompletionError } from "../telemetry"
 import { TextAcceptanceAction } from "./utils/autocompleteLoggingService"
 import { Package } from "shared/package"
-import { CompletionTrace } from "./fim/debug"
+import { CompletionTrace, isCompletionDebugEnabled } from "./fim/debug"
 import type { CompletionPosition } from "./core/completionProvider"
 
 export class InlineCompletionProvider implements InlineCompletionItemProvider {
@@ -42,6 +43,47 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 	private recentlyEditedTracker: RecentlyEditedTracker
 	private recentlyVisitedRanges: RecentlyVisitedRangesService
 	private completionStatusBar: CompletionStatusBar
+	/**
+	 * 编辑器"近因事件"环形缓冲：窗口失焦 / 切换编辑器 / 文档被改 / 选择变化 /
+	 * provider 被触发。补全被取消时把最近几条事件打进日志，用来回答
+	 * 「到底是哪个动作杀掉了在飞请求」。扩展 API 拿不到窗口内部面板级焦点，
+	 * 只能用这些信号逼近。
+	 */
+	private recentEditorEvents: { at: number; text: string }[] = []
+	/**
+	 * [DEBUG] 是否已经用「直接写入编辑器」的方式验证过补全结果。
+	 * 只在 fim.debug 开启时才会被 _debugInsertCompletion 置位；只插入一次，
+	 * 避免插入触发新一轮补全又插入，形成死循环。
+	 */
+	private debugInsertedCompletion = false
+
+	private pushEditorEvent(text: string): void {
+		this.recentEditorEvents.push({ at: Date.now(), text })
+		if (this.recentEditorEvents.length > 12) {
+			this.recentEditorEvents.shift()
+		}
+	}
+
+	/** 最近 n 条事件，渲染成 `text(-123ms)` 形式（相对 now 的毫秒差）。 */
+	private recentEventsSummary(n = 4): string {
+		const now = Date.now()
+		const tail = this.recentEditorEvents.slice(-n)
+		return tail.map((ev) => `${ev.text}(-${Math.max(0, now - ev.at)}ms)`).join(" ") || "none"
+	}
+
+	private _setupEditorEventProbe(): void {
+		this.disposables.push(
+			vscode.window.onDidChangeWindowState((s) => this.pushEditorEvent(`windowFocus=${s.focused}`)),
+			vscode.window.onDidChangeActiveTextEditor((e) =>
+				this.pushEditorEvent(`activeEditor=${e ? vscode.workspace.asRelativePath(e.document.uri) : "none"}`),
+			),
+			vscode.workspace.onDidChangeTextDocument((e) =>
+				this.pushEditorEvent(
+					`edit ${vscode.workspace.asRelativePath(e.document.uri)} v${e.document.version} x${e.contentChanges.length}`,
+				),
+			),
+		)
+	}
 
 	constructor(
 		private readonly context: ExtensionContext,
@@ -59,6 +101,7 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 		this.completionProvider = new CompletionProvider(onError, () => this.host.isCostrictLoggedIn())
 		this._setupActiveTextEditorChangeListener()
 		this._setupCursorMoveCancellation()
+		this._setupEditorEventProbe()
 	}
 
 	/**
@@ -71,6 +114,16 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 	private _setupCursorMoveCancellation(): void {
 		this.disposables.push(
 			vscode.window.onDidChangeTextEditorSelection((event) => {
+				const kind =
+					event.kind === vscode.TextEditorSelectionChangeKind.Keyboard
+						? "keyboard"
+						: event.kind === vscode.TextEditorSelectionChangeKind.Mouse
+							? "mouse"
+							: event.kind === vscode.TextEditorSelectionChangeKind.Command
+								? "command"
+								: "unknown"
+				const first = event.selections[0]
+				this.pushEditorEvent(`select kind=${kind}${first ? ` -> ${first.active.line}:${first.active.character}` : ""}`)
 				// 多光标场景下不做补全，也不需要取消逻辑
 				if (event.selections.length !== 1) {
 					return
@@ -100,9 +153,35 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 		const trace = new CompletionTrace("gate")
 		const abortController = new AbortController()
 		const signal = abortController.signal
+		const startVersion = document.version
+		const startPos = `${position.line}:${position.character}`
 		token.onCancellationRequested(() => {
-			abortController.abort()
+			const editor = vscode.window.activeTextEditor
+			const sameDoc = editor?.document.uri.toString() === document.uri.toString()
+			const active = sameDoc ? editor!.selection.active : undefined
+			const cursorMoved =
+				!!active && (active.line !== position.line || active.character !== position.character)
+			const docChanged = document.version !== startVersion
+			// VS Code 的 CancellationToken 在很多与光标无关的事件下也会触发：
+			//   - 窗口失焦 / 聚焦（鼠标移到其它窗口、Alt-Tab）
+			//   - 视图滚动、面板展开/折叠
+			//   - 鼠标 hover、状态栏交互
+			// 这些事件不应打断仍在飞的补全请求 —— 否则本地 CPU 慢模型在「永不超时」
+			// 模式下永远也拿不到结果。只有真正影响补全有效性的变化（光标移动 / 文档被改 /
+			// 切到其它编辑器）才需要取消。
+			if (!cursorMoved && !docChanged && sameDoc) {
+				this.pushEditorEvent("token-cancelled (ignored: same pos/doc/editor)")
+				return
+			}
+			const nowPos = active ? `${active.line}:${active.character}` : "other-editor"
+			abortController.abort(
+				`VS Code cancelled the provider invocation (start ${startPos} v${startVersion} -> now ${nowPos} v${document.version}, windowFocused=${vscode.window.state.focused}) recentEvents: ${this.recentEventsSummary()}`,
+			)
 		})
+
+		this.pushEditorEvent(
+			`trigger kind=${context.triggerKind === InlineCompletionTriggerKind.Invoke ? "manual" : "auto"} suggestInfo=${!!context.selectedCompletionInfo} at ${position.line}:${position.character}`,
+		)
 
 		trace.step("gate", "provider triggered", {
 			file: document.uri.toString(true),
@@ -168,8 +247,6 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 
 		const input = await this._prepareInput(document, position)
 
-		// _prepareInput 是异步的（剪贴板 / AST / 最近编辑范围），期间光标可能
-		// 已经移动，此时这份输入已经失效，直接丢弃，避免把过期结果插到新位置。
 		if (signal.aborted || this._hasCursorMoved(document, position)) {
 			trace.end("gate", "cursor moved while preparing input")
 			return []
@@ -180,6 +257,14 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 		if (!result || !result.completion) {
 			trace.end("result", "no completion produced")
 			this.completionStatusBar.noSuggest()
+			return []
+		}
+		// 当用户开启「打印补全调试跟踪」（fim.debug）时，把补全结果直接写入编辑器，
+		// 绕过 VS Code 对过期 ghost text 的丢弃，直观验证补全逻辑。平时这里只是一次
+		// 布尔判断（带 1s 缓存），零开销。
+		// 插入已改变文档版本，直接 return，避免再返回过期的 ghost item 造成双写。
+		if (isCompletionDebugEnabled()) {
+			await this._debugInsertCompletion(result.completion)
 			return []
 		}
 		this.host.log(`[Completions]: ${JSON.stringify(result)}`)
@@ -215,6 +300,32 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 		const active = editor.selection.active
 		return active.line !== position.line || active.character !== position.character
 	}
+
+	/**
+	 * [DEBUG] 把补全结果直接写入当前光标位置，绕过 VS Code 对「过期 ghost text」
+	 * 的丢弃。无论请求等了多久（永不超时模式下甚至几分钟），只要补全文本回来了
+	 * 就落盘到编辑器里，用于直观验证补全逻辑本身是否 OK。
+	 *
+	 * 双重门控：调用方（provideInlineCompletionItems）与方法内部都会检查
+	 * fim.debug 开关；只执行一次（debugInsertedCompletion 置位），避免插入触发
+	 * 新一轮补全又插入形成死循环。
+	 */
+	private async _debugInsertCompletion(text: string): Promise<void> {
+		if (this.debugInsertedCompletion || !isCompletionDebugEnabled()) {
+			return
+		}
+		this.debugInsertedCompletion = true
+		const editor = vscode.window.activeTextEditor
+		if (!editor) {
+			return
+		}
+		const pos = editor.selection.active
+		await editor.edit((editBuilder) => {
+			editBuilder.insert(pos, text)
+		})
+		vscode.window.showInformationMessage(`[DEBUG] 补全已插入 ${text.length} 字符（验证补全逻辑 OK）`)
+	}
+
 	private async _prepareInput(document: TextDocument, position: Position): Promise<AutoCompleteInput> {
 		const completionId = uuidv7()
 		const { prefix, suffix } = extractPrefixSuffix(document, position)

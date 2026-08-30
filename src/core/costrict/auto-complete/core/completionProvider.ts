@@ -12,7 +12,7 @@ import {
 } from "../../runtime-config"
 import { TextAcceptanceAction } from "../utils/autocompleteLoggingService"
 import { requestFimCompletion, getCompletionModelConfig } from "../fim"
-import { CompletionTrace, completionDebug, completionWarn } from "../fim/debug"
+import { CompletionTrace, completionDebug, completionWarn, isCompletionDebugEnabled } from "../fim/debug"
 
 export interface AutoCompleteInput {
 	completionId: string
@@ -186,9 +186,21 @@ export class CompletionProvider {
 	): Promise<AutocompleteOutcome | undefined> {
 		const trace = new CompletionTrace(input.completionId)
 
-		// 1. 单飞：取消上一次仍在飞行的补全（包括它内部的 HTTP 请求）。
-		//    没有这一步时，超时设为 0（永不超时）会让慢请求永远挂着并把结果
-		//    写到已经过期的光标位置上。
+		// 1. 单飞：只有当新请求的位置与在飞请求不同时，才取消旧请求。
+		//    同位置上的重复触发（窗口失焦/聚焦、滚动、鼠标移开等）不应打断仍在飞的
+		//    请求 —— 否则在「永不超时」模式下慢请求永远也跑不完，且结果会被丢弃。
+		if (
+			this.inflight &&
+			this.inflight.position &&
+			input.position &&
+			!this.isPositionChanged(input.position)
+		) {
+			// 同位置已有在飞请求：直接返回 undefined，让旧请求在后台跑完并写入缓存；
+			// 下次再触发（同位置或光标移动后回来）时就能从缓存里拿到结果，
+			// 同时避免重复发起网络请求（model server 不需要被双倍打）。
+			trace.step("start", "skip: same position already in-flight, returning undefined (result will appear in cache)")
+			return undefined
+		}
 		this.cancelInflight(input.completionId, "superseded-by-new-request")
 
 		// 2. 取消 loggingService 里残留的历史 controller
@@ -249,14 +261,14 @@ export class CompletionProvider {
 			} else {
 				trace.step("cache", "cache miss - requesting from model")
 
-				// 7. 发起网络请求
-				await this.fetchAndCacheSuggestions(input, signal)
+			// 7. 发起网络请求
+			await this.fetchAndCacheSuggestions(input, signal)
 
-				// 8. 竞态检查
-				if (signal.aborted) {
-					trace.end("request", "aborted during request")
-					return undefined
-				}
+			// 8. 竞态检查
+			if (signal.aborted) {
+				trace.end("request", "aborted during request")
+				return undefined
+			}
 
 				const suggestion = findMatchingSuggestion(prefix, suffix, this.suggestionsHistory)
 				if (!suggestion) {
@@ -324,7 +336,7 @@ export class CompletionProvider {
 		}
 
 		this.inflight = undefined
-		inflight.controller.abort()
+		inflight.controller.abort(reason)
 		completionDebug(reasonId, "cancel", `cancelled inflight completion (${reason})`, {
 			inflightId: inflight.completionId,
 			inflightAgeMs: Date.now() - inflight.startedAt,
@@ -441,7 +453,10 @@ export class CompletionProvider {
 		}
 		const { prefix, suffix } = input.promptOptions
 		const serverHost = await this.resolveServerHost()
-		console.log(`[Completion Request ${input.completionId}]: ${serverHost}`)
+		const debug = isCompletionDebugEnabled()
+		if (debug) {
+			console.log(`[Completion Request ${input.completionId}]: ${serverHost}`)
+		}
 		const response = await fetch(`${serverHost}/completion-agent/api/v1/completions`, {
 			method: "post",
 			headers,
@@ -458,7 +473,9 @@ export class CompletionProvider {
 			}),
 		})
 		if (!response.ok) {
-			console.log(`[Completion Request ${input.completionId}]: ${response.statusText}`)
+			if (debug) {
+				console.log(`[Completion Request ${input.completionId}]: ${response.statusText}`)
+			}
 			throw new Error(`Failed to fetch completion: ${input.completionId} ${response.statusText}`)
 		}
 		const data = await response.json()
