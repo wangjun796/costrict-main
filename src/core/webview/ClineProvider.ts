@@ -2913,6 +2913,23 @@ export class ClineProvider
 			debug,
 			hasClosedCodeReviewWelcomeTips,
 			lockApiConfigAcrossModes,
+			fimEnabled,
+			fimApiUrl,
+			fimModelName,
+			fimApiKey,
+			fimPreset,
+			fimMaxPrefixTokens,
+			fimMaxSuffixTokens,
+			fimMaxOutputTokens,
+			fimTemperature,
+			fimTopP,
+			fimTopK,
+			fimRepetitionPenalty,
+			fimDoSample,
+			fimStopSequences,
+			fimTimeoutMs,
+			fimDebounceMs,
+			fimDebug,
 		} = await this.buildBaseState({ includeTaskHistory: options?.includeTaskHistory ?? true })
 
 		// let cloudOrganizations: CloudOrganizationMembership[] = []
@@ -3106,6 +3123,25 @@ export class ClineProvider
 					return false
 				}
 			})(),
+			// FIM completion model settings (must be included here so webview
+			// receives them on reload; without these the UI falls back to defaults)
+			fimEnabled,
+			fimApiUrl,
+			fimModelName,
+			fimApiKey,
+			fimPreset,
+			fimMaxPrefixTokens,
+			fimMaxSuffixTokens,
+			fimMaxOutputTokens,
+			fimTemperature,
+			fimTopP,
+			fimTopK,
+			fimRepetitionPenalty,
+			fimDoSample,
+			fimStopSequences,
+			fimTimeoutMs,
+			fimDebounceMs,
+			fimDebug,
 		}
 	}
 
