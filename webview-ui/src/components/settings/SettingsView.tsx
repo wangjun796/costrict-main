@@ -139,8 +139,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	const { t } = useAppTranslation()
 
 	const extensionState = useExtensionState()
-	const { currentApiConfigName, listApiConfigMeta, uriScheme, settingsImportedAt, didHydrateState } =
-		extensionState
+	const { currentApiConfigName, listApiConfigMeta, uriScheme, settingsImportedAt, didHydrateState } = extensionState
 
 	const [isDiscardDialogShow, setDiscardDialogShow] = useState(false)
 	const [isChangeDetected, setChangeDetected] = useState(false)
@@ -230,6 +229,9 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		fimTimeoutMs,
 		fimDebounceMs,
 		fimDebug,
+		fimCustomMarkerBegin,
+		fimCustomMarkerHole,
+		fimCustomMarkerEnd,
 		profileThresholds,
 		alwaysAllowFollowupQuestions,
 		followupAutoApproveTimeoutMs,
@@ -306,13 +308,10 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 				fimPreset: extensionState.fimPreset,
 				fimMaxPrefixTokens: extensionState.fimMaxPrefixTokens,
 			})
-			debugLocalEdit(
-				developerModeRef.current,
-				"cachedState ← extensionState (one-shot host hydration)",
-			)
+			debugLocalEdit(developerModeRef.current, "cachedState ← extensionState (one-shot host hydration)")
 			return { ...prevCachedState, ...extensionState }
 		})
-	}, [didHydrateState])
+	}, [didHydrateState, extensionState])
 
 	const setCachedStateField: SetCachedStateField<keyof ExtensionStateContextType> = useCallback((field, value) => {
 		setCachedState((prevState) => {
@@ -570,6 +569,9 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					fimTimeoutMs,
 					fimDebounceMs,
 					fimDebug,
+					fimCustomMarkerBegin,
+					fimCustomMarkerHole,
+					fimCustomMarkerEnd,
 				},
 			})
 			// These have more complex logic so they aren't (yet) handled
@@ -1083,6 +1085,9 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 								fimTimeoutMs={fimTimeoutMs ?? 3000}
 								fimDebounceMs={fimDebounceMs ?? 300}
 								fimDebug={fimDebug ?? false}
+								fimCustomMarkerBegin={fimCustomMarkerBegin ?? "<fim_prefix>"}
+								fimCustomMarkerHole={fimCustomMarkerHole ?? "<fim_suffix>"}
+								fimCustomMarkerEnd={fimCustomMarkerEnd ?? "<fim_middle>"}
 								onFimEnabledChange={(v) => setCachedStateField("fimEnabled", v)}
 								onFimApiUrlChange={(v) => setCachedStateField("fimApiUrl", v)}
 								onFimModelNameChange={(v) => setCachedStateField("fimModelName", v)}
@@ -1100,6 +1105,9 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 								onFimTimeoutMsChange={(v) => setCachedStateField("fimTimeoutMs", v)}
 								onFimDebounceMsChange={(v) => setCachedStateField("fimDebounceMs", v)}
 								onFimDebugChange={(v) => setCachedStateField("fimDebug", v)}
+								onFimCustomMarkerBeginChange={(v) => setCachedStateField("fimCustomMarkerBegin", v)}
+								onFimCustomMarkerHoleChange={(v) => setCachedStateField("fimCustomMarkerHole", v)}
+								onFimCustomMarkerEndChange={(v) => setCachedStateField("fimCustomMarkerEnd", v)}
 							/>
 						)}
 

@@ -36,6 +36,9 @@
 !assets/costrict/**
 # Include bundled skills
 !bundled-skills/**
+
+# Include bundled portable Git (Windows) used by the checkpoints feature
+!assets/git/**
 # Exclude files flagged by VS Marketplace virus scan.
 # Wildcard matches across all locale subdirectories (en/, zh-CN/, etc.).
 bundled-skills/*/security-review/knowledge/languages/php_deserialization.md

@@ -9,6 +9,7 @@ import { Task } from "../task/Task"
 import { getWorkspacePath } from "../../utils/path"
 import { isPathWithin } from "../../utils/pathUtils"
 import { checkGitInstalled } from "../../utils/git"
+import { getBundledGitBinaryPath } from "../../utils/bundledGit"
 import { t } from "../../i18n"
 
 import { getApiMetrics } from "../../shared/getApiMetrics"
@@ -111,11 +112,18 @@ export async function getCheckpointService(task: Task, { interval = 250 }: { int
 			return undefined
 		}
 
+		// Resolve the bundled portable Git (Windows build shipped with the
+		// extension). On first use this extracts the self-extracting installer
+		// into globalStorage. Returns undefined when no bundled binary is
+		// available, in which case checkpoints fall back to a system `git`.
+		const bundledGitPath = await getBundledGitBinaryPath(provider?.context?.extensionPath, globalStorageDir)
+
 		const options: CheckpointServiceOptions = {
 			taskId: task.taskId,
 			workspaceDir,
 			shadowDir: globalStorageDir,
 			log,
+			gitBinaryPath: bundledGitPath,
 		}
 
 		if (task.checkpointServiceInitializing) {
@@ -155,7 +163,7 @@ export async function getCheckpointService(task: Task, { interval = 250 }: { int
 
 		const service = RepoPerTaskCheckpointService.create(options)
 		task.checkpointServiceInitializing = true
-		await checkGitInstallation(task, service, log, provider)
+		await checkGitInstallation(task, service, log, provider, bundledGitPath)
 		task.checkpointService = service
 		if (task.enableCheckpoints) {
 			sendCheckpointInitWarn(task)
@@ -177,9 +185,10 @@ async function checkGitInstallation(
 	service: RepoPerTaskCheckpointService,
 	log: (message: string) => void,
 	provider: any,
+	gitBinaryPath?: string,
 ) {
 	try {
-		const gitInstalled = await checkGitInstalled()
+		const gitInstalled = await checkGitInstalled(gitBinaryPath)
 
 		if (!gitInstalled) {
 			log("[Task#getCheckpointService] Git is not installed, disabling checkpoints")
@@ -429,6 +438,7 @@ export async function checkpointDiff(task: Task, { ts, previousCommitHash, commi
 		)
 	} catch (err) {
 		const provider = task.providerRef.deref()
+
 		provider?.log("[checkpointDiff] disabling checkpoints for this task")
 		task.enableCheckpoints = false
 	}

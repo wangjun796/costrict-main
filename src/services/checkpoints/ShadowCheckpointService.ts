@@ -24,7 +24,7 @@ import { getExcludePatterns } from "./excludes"
  * @param baseDir - The directory where git operations should be executed
  * @returns A SimpleGit instance with sanitized environment
  */
-function createSanitizedGit(baseDir: string): SimpleGit {
+function createSanitizedGit(baseDir: string, gitBinaryPath?: string): SimpleGit {
 	// Create a clean environment by explicitly unsetting git-related environment variables
 	// that could interfere with checkpoint operations
 	const sanitizedEnv: Record<string, string> = {}
@@ -79,6 +79,12 @@ function createSanitizedGit(baseDir: string): SimpleGit {
 	// Create git instance and set the sanitized environment
 	const git = simpleGit(options)
 
+	// When a bundled Git binary is shipped with the extension, point simple-git
+	// at it so checkpoints work without a system-installed `git` on PATH.
+	if (gitBinaryPath) {
+		git.customBinary(gitBinaryPath)
+	}
+
 	// Use the .env() method to set the complete sanitized environment
 	// This replaces the inherited environment with our sanitized version
 	git.env(sanitizedEnv)
@@ -113,6 +119,8 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 	protected git?: SimpleGit
 	protected readonly log: (message: string) => void
 	protected shadowGitConfigWorktree?: string
+	/** Absolute path to a bundled Git binary, when one is shipped with the extension. */
+	protected readonly gitBinaryPath?: string
 
 	public get baseHash() {
 		return this._baseHash
@@ -130,7 +138,13 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 		return this._checkpoints.slice()
 	}
 
-	constructor(taskId: string, checkpointsDir: string, workspaceDir: string, log: (message: string) => void) {
+	constructor(
+		taskId: string,
+		checkpointsDir: string,
+		workspaceDir: string,
+		log: (message: string) => void,
+		gitBinaryPath?: string,
+	) {
 		super()
 
 		const homedir = os.homedir()
@@ -149,6 +163,7 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 
 		this.dotGitDir = path.join(this.checkpointsDir, ".git")
 		this.log = log
+		this.gitBinaryPath = gitBinaryPath
 	}
 
 	public async initShadowGit(onInit?: () => Promise<void>) {
@@ -171,7 +186,7 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 		}
 
 		await fs.mkdir(this.checkpointsDir, { recursive: true })
-		const git = createSanitizedGit(this.checkpointsDir)
+		const git = createSanitizedGit(this.checkpointsDir, this.gitBinaryPath)
 		const gitVersion = await git.version()
 		this.log(`[${this.constructor.name}#create] git = ${gitVersion}`)
 
@@ -556,14 +571,16 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 		taskId,
 		globalStorageDir,
 		workspaceDir,
+		gitBinaryPath,
 	}: {
 		taskId: string
 		globalStorageDir: string
 		workspaceDir: string
+		gitBinaryPath?: string
 	}) {
 		const workspaceRepoDir = this.workspaceRepoDir({ globalStorageDir, workspaceDir })
 		const branchName = `costrict-${taskId}`
-		const git = createSanitizedGit(workspaceRepoDir)
+		const git = createSanitizedGit(workspaceRepoDir, gitBinaryPath)
 		const success = await this.deleteBranch(git, branchName)
 
 		if (success) {

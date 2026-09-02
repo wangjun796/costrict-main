@@ -185,6 +185,10 @@ export interface ExtensionStateContextType extends ExtensionState {
 	fimTimeoutMs?: number
 	fimDebounceMs?: number
 	fimDebug?: boolean
+	// Custom FIM markers (only used when fimPreset === "custom")
+	fimCustomMarkerBegin?: string
+	fimCustomMarkerHole?: string
+	fimCustomMarkerEnd?: string
 }
 
 export const ExtensionStateContext = createContext<ExtensionStateContextType | undefined>(undefined)
@@ -340,6 +344,9 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		fimTimeoutMs: 3000,
 		fimDebounceMs: 300,
 		fimDebug: false,
+		fimCustomMarkerBegin: "<fim_prefix>",
+		fimCustomMarkerHole: "<fim_suffix>",
+		fimCustomMarkerEnd: "<fim_middle>",
 	})
 
 	const [didHydrateState, setDidHydrateState] = useState(false)
@@ -399,14 +406,14 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		(event: MessageEvent) => {
 			const message: ExtensionMessage = event.data
 			switch (message.type) {
-			case "state": {
-				const newState = message.state ?? {}
-				console.log("[ExtensionStateContext] state message received", {
-					fimModelName: (newState as any).fimModelName,
-					fimPreset: (newState as any).fimPreset,
-					fimEnabled: (newState as any).fimEnabled,
-				})
-				setState((prevState) => mergeExtensionState(prevState, newState))
+				case "state": {
+					const newState = message.state ?? {}
+					console.log("[ExtensionStateContext] state message received", {
+						fimModelName: (newState as any).fimModelName,
+						fimPreset: (newState as any).fimPreset,
+						fimEnabled: (newState as any).fimEnabled,
+					})
+					setState((prevState) => mergeExtensionState(prevState, newState))
 
 					setShowWelcome(!checkExistKey(newState.apiConfiguration))
 					setDidHydrateState(true)
@@ -793,6 +800,9 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		fimTimeoutMs: state.fimTimeoutMs ?? 3000,
 		fimDebounceMs: state.fimDebounceMs ?? 300,
 		fimDebug: state.fimDebug ?? false,
+		fimCustomMarkerBegin: state.fimCustomMarkerBegin ?? "<fim_prefix>",
+		fimCustomMarkerHole: state.fimCustomMarkerHole ?? "<fim_suffix>",
+		fimCustomMarkerEnd: state.fimCustomMarkerEnd ?? "<fim_middle>",
 	}
 
 	return <ExtensionStateContext.Provider value={contextValue}>{children}</ExtensionStateContext.Provider>

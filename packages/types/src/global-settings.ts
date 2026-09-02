@@ -279,6 +279,15 @@ export const globalSettingsSchema = z.object({
 	 * Tools in this list will be excluded from prompt generation and rejected at execution time.
 	 */
 	disabledTools: z.array(toolNamesSchema).optional(),
+
+	/**
+	 * FIM (Fill-In-the-Middle) custom marker strings, used only when
+	 * fimPreset === "custom". Persisted to globalState so the completion engine
+	 * and the webview stay in sync.
+	 */
+	fimCustomMarkerBegin: z.string().optional(),
+	fimCustomMarkerHole: z.string().optional(),
+	fimCustomMarkerEnd: z.string().optional(),
 })
 
 export type GlobalSettings = z.infer<typeof globalSettingsSchema>

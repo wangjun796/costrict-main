@@ -31,6 +31,7 @@ import { customToolRegistry } from "@roo-code/core"
 import "./utils/path" // Necessary to have access to String.prototype.toPosix.
 // import { createOutputChannelLogger, createDualLogger } from "./utils/outputChannelLogger"
 import { initializeNetworkProxy } from "./utils/networkProxy"
+import { getBundledGitBinaryPath } from "./utils/bundledGit"
 
 import { Package } from "./shared/package"
 import { formatLanguage } from "./shared/language"
@@ -151,6 +152,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	void initializeNetworkProxy(context, outputChannel).catch((error) => {
 		outputChannel.appendLine(
 			`[NetworkProxy] Failed to initialize network proxy: ${error instanceof Error ? error.message : String(error)}`,
+		)
+	})
+
+	// Pre-extract the bundled portable Git (Windows only) at startup so the
+	// checkpoints feature works without the user installing Git on their machine.
+	// Runs in the background and never blocks activation or throws; the extracted
+	// path is cached so the first checkpoint initialization is instant.
+	void getBundledGitBinaryPath(context.extensionPath, context.globalStorageUri.fsPath).catch((error) => {
+		outputChannel.appendLine(
+			`[BundledGit] Failed to extract bundled Git: ${error instanceof Error ? error.message : String(error)}`,
 		)
 	})
 

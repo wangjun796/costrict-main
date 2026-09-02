@@ -144,7 +144,7 @@
 		},
 		"AST_CONTEXT_EXPANSION": {
 			"name": "AST 上下文扩充",
-			"description": "启用后，代码补全才会将基于 AST 分析的跨文件上下文扩充到前缀（Prefix）"
+			"description": "AST 分析的跨文件上下文扩充"
 		}
 	},
 	"modelPicker": {

@@ -122,6 +122,9 @@ const FIM_SETTING_KEYS: Record<string, string> = {
 	fimTimeoutMs: "fim.timeoutMs",
 	fimDebounceMs: "fim.debounceMs",
 	fimDebug: "fim.debug",
+	fimCustomMarkerBegin: "fim.customMarkers.begin",
+	fimCustomMarkerHole: "fim.customMarkers.hole",
+	fimCustomMarkerEnd: "fim.customMarkers.end",
 }
 
 // Cache to prevent duplicate calls - stores ongoing requests

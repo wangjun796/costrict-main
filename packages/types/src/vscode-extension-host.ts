@@ -421,6 +421,9 @@ export type ExtensionState = Pick<
 	| "experimentSettings"
 	| "showWorktreesInHomeScreen"
 	| "disabledTools"
+	| "fimCustomMarkerBegin"
+	| "fimCustomMarkerHole"
+	| "fimCustomMarkerEnd"
 > &
 	FimCompletionSettings & {
 		lockApiConfigAcrossModes?: boolean

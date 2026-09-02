@@ -95,6 +95,7 @@ import { fileExistsAtPath } from "../../utils/fs"
 import { setTtsEnabled, setTtsSpeed } from "../../utils/tts"
 import { getWorkspaceGitInfo } from "../../utils/git"
 import { getWorkspacePath, toRelativePath } from "../../utils/path"
+import { getBundledGitBinaryPath } from "../../utils/bundledGit"
 import { OrganizationAllowListViolationError } from "../../utils/errors"
 
 import { setPanel } from "../../activate/registerCommands"
@@ -2489,9 +2490,18 @@ export class ClineProvider
 			const { getTaskDirectoryPath } = await import("../../utils/storage")
 			const globalStoragePath = this.contextProxy.globalStorageUri.fsPath
 
+			// Resolve the bundled portable Git (Windows) so task-branch cleanup works
+			// even when no system `git` is installed.
+			const bundledGitPath = await getBundledGitBinaryPath(this.context.extensionPath, globalStorageDir)
+
 			for (const taskId of allIdsToDelete) {
 				try {
-					await ShadowCheckpointService.deleteTask({ taskId, globalStorageDir, workspaceDir })
+					await ShadowCheckpointService.deleteTask({
+						taskId,
+						globalStorageDir,
+						workspaceDir,
+						gitBinaryPath: bundledGitPath,
+					})
 				} catch (error) {
 					console.error(
 						`[deleteTaskWithId${taskId}] failed to delete associated shadow repository or branch: ${error instanceof Error ? error.message : String(error)}`,
@@ -2547,10 +2557,27 @@ export class ClineProvider
 	async postStateToWebview(options?: { force?: boolean }): Promise<void> {
 		// If force is true, execute immediately without batching
 		if (options?.force) {
-			const state = await this.getStateToPostToWebview()
-			this.clineMessagesSeq++
-			state.clineMessagesSeq = this.clineMessagesSeq
-			this.postMessageToWebview({ type: "state", state })
+			try {
+				const state = await this.getStateToPostToWebview()
+				this.clineMessagesSeq++
+				state.clineMessagesSeq = this.clineMessagesSeq
+				this.postMessageToWebview({ type: "state", state })
+			} catch (error) {
+				this.log(
+					`[postStateToWebview] Non-critical error building state (UI will still load): ${error instanceof Error ? error.message : String(error)}`,
+					"error",
+				)
+				// Post a minimal fallback state so the webview exits "Initializing interface..."
+				this.postMessageToWebview({
+					type: "state",
+					state: {
+						version: this.context.extension?.packageJSON?.version ?? "",
+						debug: false,
+						mode: defaultModeSlug,
+						apiConfiguration: { apiProvider: "", model: { id: "" } },
+					} as any,
+				})
+			}
 			return
 		}
 
@@ -2576,7 +2603,12 @@ export class ClineProvider
 					await this.postMessageToWebview({ type: "state", state })
 					pending?.resolve?.()
 				} catch (error) {
-					pending?.reject?.(error)
+					this.log(
+						`[postStateToWebview] Non-critical error in batched state push: ${error instanceof Error ? error.message : String(error)}`,
+						"error",
+					)
+					// Don't reject — a failed state push shouldn't break callers.
+					pending?.resolve?.()
 				}
 			}, ClineProvider.STATE_PUSH_BATCH_MS)
 		})
@@ -2628,12 +2660,18 @@ export class ClineProvider
 	 *   (cloud auth, org settings, profiles, etc.) without interfering with task message streaming.
 	 */
 	async postStateToWebviewWithoutClineMessages(): Promise<void> {
-		const state = await this.buildStateForWebview({ includeClineMessages: false, includeTaskHistory: false })
-		this.postMessageToWebview({ type: "state", state })
-
-		// Preserve existing MDM redirect behavior
-		if (this.mdmService?.requiresCloudAuth() && !this.checkMdmCompliance()) {
-			await this.postMessageToWebview({ type: "action", action: "cloudButtonClicked" })
+		try {
+			const state = await this.buildStateForWebview({ includeClineMessages: false, includeTaskHistory: false })
+			this.postMessageToWebview({ type: "state", state })
+			// Preserve existing MDM redirect behavior
+			if (this.mdmService?.requiresCloudAuth() && !this.checkMdmCompliance()) {
+				await this.postMessageToWebview({ type: "action", action: "cloudButtonClicked" })
+			}
+		} catch (error) {
+			this.log(
+				`[postStateToWebviewWithoutClineMessages] Non-critical error: ${error instanceof Error ? error.message : String(error)}`,
+				"error",
+			)
 		}
 	}
 
@@ -2930,6 +2968,9 @@ export class ClineProvider
 			fimTimeoutMs,
 			fimDebounceMs,
 			fimDebug,
+			fimCustomMarkerBegin,
+			fimCustomMarkerHole,
+			fimCustomMarkerEnd,
 		} = await this.buildBaseState({ includeTaskHistory: options?.includeTaskHistory ?? true })
 
 		// let cloudOrganizations: CloudOrganizationMembership[] = []
@@ -3142,6 +3183,9 @@ export class ClineProvider
 			fimTimeoutMs,
 			fimDebounceMs,
 			fimDebug,
+			fimCustomMarkerBegin,
+			fimCustomMarkerHole,
+			fimCustomMarkerEnd,
 		}
 	}
 
@@ -3281,6 +3325,9 @@ export class ClineProvider
 		const fimTimeoutMs = fimConfig.get<number>("fim.timeoutMs", 3000)
 		const fimDebounceMs = fimConfig.get<number>("fim.debounceMs", 300)
 		const fimDebug = fimConfig.get<boolean>("fim.debug", false)
+		const fimCustomMarkerBegin = fimConfig.get<string>("fim.customMarkers.begin", "<fim_prefix>")
+		const fimCustomMarkerHole = fimConfig.get<string>("fim.customMarkers.hole", "<fim_suffix>")
+		const fimCustomMarkerEnd = fimConfig.get<string>("fim.customMarkers.end", "<fim_middle>")
 
 		// Return the same structure as before.
 		return {
@@ -3423,6 +3470,9 @@ export class ClineProvider
 			fimTimeoutMs,
 			fimDebounceMs,
 			fimDebug,
+			fimCustomMarkerBegin,
+			fimCustomMarkerHole,
+			fimCustomMarkerEnd,
 		}
 	}
 

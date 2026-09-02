@@ -19,6 +19,14 @@ export interface CheckpointServiceOptions {
 	shadowDir: string // globalStorageUri.fsPath
 
 	log?: (message: string) => void
+
+	/**
+	 * Absolute path to a bundled Git binary (e.g. the portable Windows build
+	 * shipped with the extension). When provided, the checkpoint service uses
+	 * it instead of relying on a system `git` being installed on PATH.
+	 * Expected to be `undefined` when no bundled binary is available.
+	 */
+	gitBinaryPath?: string
 }
 
 export interface CheckpointEventMap {

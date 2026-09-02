@@ -214,9 +214,15 @@ async function checkGitRepo(cwd: string): Promise<boolean> {
  *   console.log("Git is not installed");
  * }
  */
-export async function checkGitInstalled(): Promise<boolean> {
+export async function checkGitInstalled(gitBinaryPath?: string): Promise<boolean> {
 	try {
-		await execAsync("git --version")
+		if (gitBinaryPath) {
+			// Use the bundled binary directly (no shell, avoids quoting issues
+			// with spaces in globalStorage paths).
+			await execFileAsync(gitBinaryPath, ["--version"])
+		} else {
+			await execAsync("git --version")
+		}
 		return true
 	} catch (error) {
 		return false

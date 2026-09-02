@@ -72,3 +72,6 @@ cos-cli-*.tar.gz*
 
 # Bundled modes (generated during build)
 src/bundled-modes/
+
+# Bundled portable Git SFX (large binary; downloaded by scripts/download-portable-git.mjs, packaged into vsix via .vscodeignore)
+src/assets/git/

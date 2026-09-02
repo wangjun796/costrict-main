@@ -136,7 +136,7 @@
 		},
 		"AST_CONTEXT_EXPANSION": {
 			"name": "AST 上下文擴充",
-			"description": "啟用後，程式碼補全才會將基於 AST 分析的跨檔案上下文擴充到前綴（Prefix）"
+			"description": "AST 分析的跨檔案上下文擴充"
 		},
 		"SMART_MISTAKE_DETECTION": {
 			"name": "強制完成模式",
