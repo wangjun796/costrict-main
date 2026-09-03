@@ -109,3 +109,37 @@ describe("ChatRow - api request speed info", () => {
 		expect(screen.getByText(/每秒Token/)).toBeInTheDocument()
 	})
 })
+
+describe("ChatRow - api request cost badge developer mode gating", () => {
+	beforeEach(() => {
+		mockPostMessage.mockClear()
+		mockDeveloperMode = false
+		mockShowSpeedInfo = true
+	})
+
+	const costMessage = {
+		ts: Date.now(),
+		type: "say" as const,
+		say: "api_req_started" as const,
+		text: JSON.stringify({
+			requestIdTimestamp: 1000,
+			responseIdTimestamp: 2500,
+			responseEndTimestamp: 5500,
+			completionTokens: 120,
+			cost: 0.05,
+		}),
+	}
+
+	it("hides the API cost badge when developerMode is false", () => {
+		renderChatRow(costMessage)
+
+		expect(screen.queryByText("$0.0500")).toBeNull()
+	})
+
+	it("shows the API cost badge when developerMode is true", () => {
+		mockDeveloperMode = true
+		renderChatRow(costMessage)
+
+		expect(screen.getByText("$0.0500")).toBeInTheDocument()
+	})
+})

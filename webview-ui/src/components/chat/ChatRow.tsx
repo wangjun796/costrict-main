@@ -1336,11 +1336,15 @@ export const ChatRowContent = ({
 										</div>
 									)}
 								</div>
-								<div
-									className="text-xs text-vscode-dropdown-foreground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
-									style={{ opacity: cost !== null && cost !== undefined && cost > 0 ? 1 : 0 }}>
-									${Number(cost || 0)?.toFixed(4)}
-								</div>
+								{developerMode && (
+									<div
+										className="text-xs text-vscode-dropdown-foreground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
+										style={{
+											opacity: cost !== null && cost !== undefined && cost > 0 ? 1 : 0,
+										}}>
+										${Number(cost || 0)?.toFixed(4)}
+									</div>
+								)}
 								{!isApiRequestInProgress && deleteMessageTs > -1 && (
 									<StandardTooltip
 										content={
