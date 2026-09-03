@@ -40,6 +40,7 @@ let mockExtensionState: {
 	apiConfiguration: ProviderSettings
 	currentTaskItem: { id: string } | null
 	clineMessages: any[]
+	developerMode: boolean
 } = {
 	apiConfiguration: {
 		apiProvider: "anthropic",
@@ -48,6 +49,7 @@ let mockExtensionState: {
 	} as ProviderSettings,
 	currentTaskItem: { id: "test-task-id" },
 	clineMessages: [],
+	developerMode: true,
 }
 
 // Mock the ExtensionStateContext
@@ -215,6 +217,7 @@ describe("TaskHeader", () => {
 				} as ProviderSettings,
 				currentTaskItem: { id: "test-task-id" },
 				clineMessages: [],
+				developerMode: true,
 			}
 		})
 
@@ -440,6 +443,7 @@ describe("TaskHeader", () => {
 			// Reset mocks
 			mockModelInfo = undefined
 			mockMaxOutputTokens = 0
+			mockExtensionState.developerMode = true
 		})
 
 		it("should calculate percentage based on available input space, not total context window", () => {
@@ -468,6 +472,99 @@ describe("TaskHeader", () => {
 
 			// Should show 0% when available input space is 0
 			expect(screen.getByText("0%")).toBeInTheDocument()
+		})
+
+		it("should hide context window percentage when developerMode is false", () => {
+			mockExtensionState.developerMode = false
+			mockModelInfo = { contextWindow: 1000, maxTokens: 200 }
+			mockMaxOutputTokens = 200
+
+			renderTaskHeader({ contextTokens: 200 })
+
+			// Percentage should not be rendered when developerMode is off
+			expect(screen.queryByText("25%")).not.toBeInTheDocument()
+		})
+	})
+
+	describe("Expanded task header technical telemetry developer mode gating", () => {
+		const expand = () => {
+			fireEvent.click(screen.getByText("Test task"))
+		}
+
+		afterEach(() => {
+			mockExtensionState.developerMode = true
+			mockExtensionState.currentTaskItem = { id: "test-task-id" }
+		})
+
+		it("should show tokens row when developerMode is true (expanded)", () => {
+			renderTaskHeader()
+			expand()
+			expect(screen.getByText("chat:task.tokens")).toBeInTheDocument()
+			expect(screen.getByText("↑ 100")).toBeInTheDocument()
+			expect(screen.getByText("↓ 50")).toBeInTheDocument()
+		})
+
+		it("should hide tokens row when developerMode is false (expanded)", () => {
+			mockExtensionState.developerMode = false
+			renderTaskHeader()
+			expand()
+			expect(screen.queryByText("chat:task.tokens")).not.toBeInTheDocument()
+			expect(screen.queryByText("↑ 100")).not.toBeInTheDocument()
+			expect(screen.queryByText("↓ 50")).not.toBeInTheDocument()
+		})
+
+		it("should show cache row when developerMode is true (expanded)", () => {
+			renderTaskHeader({ cacheReads: 100, cacheWrites: 50 })
+			expand()
+			expect(screen.getByText("chat:task.cache")).toBeInTheDocument()
+		})
+
+		it("should hide cache row when developerMode is false (expanded)", () => {
+			mockExtensionState.developerMode = false
+			renderTaskHeader({ cacheReads: 100, cacheWrites: 50 })
+			expand()
+			expect(screen.queryByText("chat:task.cache")).not.toBeInTheDocument()
+		})
+
+		it("should show API cost row when developerMode is true (expanded)", () => {
+			renderTaskHeader({ totalCost: 0.05 })
+			expand()
+			expect(screen.getByText("chat:task.apiCost")).toBeInTheDocument()
+		})
+
+		it("should hide API cost row when developerMode is false (expanded)", () => {
+			mockExtensionState.developerMode = false
+			renderTaskHeader({ totalCost: 0.05 })
+			expand()
+			expect(screen.queryByText("chat:task.apiCost")).not.toBeInTheDocument()
+		})
+
+		it("should show size row when developerMode is true (expanded)", () => {
+			mockExtensionState.currentTaskItem = { id: "test-task-id", size: 1024 } as any
+			renderTaskHeader()
+			expand()
+			expect(screen.getByText("chat:task.size")).toBeInTheDocument()
+		})
+
+		it("should hide size row when developerMode is false (expanded)", () => {
+			mockExtensionState.developerMode = false
+			mockExtensionState.currentTaskItem = { id: "test-task-id", size: 1024 } as any
+			renderTaskHeader()
+			expand()
+			expect(screen.queryByText("chat:task.size")).not.toBeInTheDocument()
+		})
+
+		it("should hide cost in collapsed header when developerMode is false", () => {
+			mockExtensionState.developerMode = false
+			// Collapsed state shows cost via the (developerMode || !!totalCost) wrapper;
+			// the cost block itself must now also be gated by developerMode.
+			renderTaskHeader({ totalCost: 0.05 })
+			expect(screen.queryByText("$0.05")).not.toBeInTheDocument()
+		})
+
+		it("should still show cost in collapsed header when developerMode is true", () => {
+			renderTaskHeader({ totalCost: 0.05 })
+			expect(screen.getByText("$0.05")).toBeInTheDocument()
 		})
 	})
 })

@@ -228,6 +228,7 @@ export const ChatRowContent = ({
 		apiConfiguration,
 		clineMessages,
 		showSpeedInfo,
+		developerMode,
 		language,
 		collapseMarkdownWithoutScroll,
 		enableCheckpoints,
@@ -1364,38 +1365,41 @@ export const ChatRowContent = ({
 								)}
 							</div>
 							{/* speed Info */}
-							{(selectReason || firstTokenLatency !== undefined || tokensPerSecond !== undefined) && (
-								<div className="mt-2 flex items-center flex-wrap gap-2">
-									{selectReason && (
-										<div
-											className="text-xs text-vscode-descriptionForeground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
-											title="Selection Reason">
-											{t("chat:autoMode.selectReason", { selectReason })}
-										</div>
-									)}
-									{showSpeedInfo && firstTokenLatency !== undefined && (
-										<div
-											className="text-xs text-vscode-descriptionForeground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
-											title={t("chat:performance.firstToken")}>
-											{t("chat:performance.firstToken")}: {firstTokenLatency}s
-										</div>
-									)}
-									{showSpeedInfo && totalDuration !== undefined && (
-										<div
-											className="text-xs text-vscode-descriptionForeground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
-											title={t("chat:performance.totalDuration")}>
-											{t("chat:performance.totalDuration")}: {totalDuration}s
-										</div>
-									)}
-									{showSpeedInfo && tokensPerSecond !== undefined && (
-										<div
-											className="text-xs text-vscode-descriptionForeground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
-											title={t("chat:performance.tokensPerSecond", { time: tokensPerSecond })}>
-											{t("chat:performance.tokensPerSecond", { time: tokensPerSecond })}
-										</div>
-									)}
-								</div>
-							)}
+							{developerMode &&
+								(selectReason || firstTokenLatency !== undefined || tokensPerSecond !== undefined) && (
+									<div className="mt-2 flex items-center flex-wrap gap-2">
+										{selectReason && (
+											<div
+												className="text-xs text-vscode-descriptionForeground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
+												title="Selection Reason">
+												{t("chat:autoMode.selectReason", { selectReason })}
+											</div>
+										)}
+										{showSpeedInfo && firstTokenLatency !== undefined && (
+											<div
+												className="text-xs text-vscode-descriptionForeground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
+												title={t("chat:performance.firstToken")}>
+												{t("chat:performance.firstToken")}: {firstTokenLatency}s
+											</div>
+										)}
+										{showSpeedInfo && totalDuration !== undefined && (
+											<div
+												className="text-xs text-vscode-descriptionForeground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
+												title={t("chat:performance.totalDuration")}>
+												{t("chat:performance.totalDuration")}: {totalDuration}s
+											</div>
+										)}
+										{showSpeedInfo && tokensPerSecond !== undefined && (
+											<div
+												className="text-xs text-vscode-descriptionForeground border-vscode-dropdown-border/50 border px-1.5 py-0.5 rounded-lg"
+												title={t("chat:performance.tokensPerSecond", {
+													time: tokensPerSecond,
+												})}>
+												{t("chat:performance.tokensPerSecond", { time: tokensPerSecond })}
+											</div>
+										)}
+									</div>
+								)}
 							{/* content */}
 							{showApiFetchErrorIcon ? (
 								<ErrorRow

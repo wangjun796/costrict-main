@@ -3,6 +3,7 @@
 import { render, screen, fireEvent } from "@/utils/test-utils"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
+import { useExtensionState } from "@src/context/ExtensionStateContext"
 import TaskHeader from "@src/components/chat/TaskHeader"
 
 // Mock formatLargeNumber function
@@ -20,6 +21,7 @@ vi.mock("@src/context/ExtensionStateContext", () => ({
 	useExtensionState: vi.fn(() => ({
 		apiConfiguration: { apiProvider: "openai" },
 		currentTaskItem: { id: "test-id", number: 1, size: 1024 },
+		developerMode: true,
 	})),
 }))
 
@@ -135,5 +137,24 @@ describe("ContextWindowProgress", () => {
 
 		// Verify the flex container has the expected structure
 		expect(progressBarContainer?.querySelector(".flex-1.relative")).toBeInTheDocument()
+	})
+
+	it("hides context window progress when developerMode is false", () => {
+		const mockedUseExtensionState = vi.mocked(useExtensionState)
+		mockedUseExtensionState.mockReturnValue({
+			apiConfiguration: { apiProvider: "openai" },
+			currentTaskItem: { id: "test-id", number: 1, size: 1024 },
+			developerMode: false,
+		} as any)
+
+		renderComponent({ contextTokens: 1000, contextWindow: 4000 })
+
+		// Expand the TaskHeader
+		const taskHeader = screen.getByText("Test task")
+		fireEvent.click(taskHeader)
+
+		// Context window progress should not be rendered
+		expect(screen.queryByTestId("context-tokens-count")).not.toBeInTheDocument()
+		expect(screen.queryByTestId("context-window-label")).not.toBeInTheDocument()
 	})
 })

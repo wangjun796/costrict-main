@@ -6,12 +6,12 @@ For each vulnerability class, follow the specific emulation methodology below. W
 
 For every attack path from the threat model:
 
-1. **Identify the entry point** ?? exact function, endpoint, or input field
-2. **Craft a malicious input** ?? the specific payload an attacker would send
-3. **Trace the data flow** ?? follow the input through every function, transformation, and branch
-4. **Identify the sink** ?? where the input reaches a dangerous operation (query, command, render, file write)
-5. **Check for controls** ?? is there validation, encoding, or authorization between entry and sink?
-6. **Verdict** ?? BLOCKED if a control stops the attack, VULNERABLE if it reaches the sink unmitigated
+1. **Identify the entry point** — exact function, endpoint, or input field
+2. **Craft a malicious input** — the specific payload an attacker would send
+3. **Trace the data flow** — follow the input through every function, transformation, and branch
+4. **Identify the sink** — where the input reaches a dangerous operation (query, command, render, file write)
+5. **Check for controls** — is there validation, encoding, or authorization between entry and sink?
+6. **Verdict** — BLOCKED if a control stops the attack, VULNERABLE if it reaches the sink unmitigated
 
 Document each emulation as:
 
@@ -19,7 +19,7 @@ Document each emulation as:
 [PATH-N] <attack name>
 Entry: <function/endpoint>
 Payload: <concrete example>
-Flow: <entry> ?? <step> ?? <step> ?? <sink>
+Flow: <entry> — <step> — <step> — <sink>
 Control: <what stops it, or "NONE">
 Verdict: BLOCKED | VULNERABLE
 ```

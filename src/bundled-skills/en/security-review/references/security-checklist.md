@@ -47,7 +47,7 @@ Apply every category to the plan. Mark: YES (addressed), NO (must fix before pro
 - [ ] TLS 1.2+ for all network communication
 - [ ] Sensitive data encrypted at rest using AES-256-GCM or equivalent
 - [ ] Cryptographic keys managed via secret store, never in source code
-- [ ] No custom crypto implementations ?? use vetted libraries only
+- [ ] No custom crypto implementations — use vetted libraries only
 - [ ] Random values use CSPRNG (e.g., secrets module, /dev/urandom)
 - [ ] Certificate validation enabled, no disabling of TLS verification
 - [ ] JWT: algorithm pinned (no "alg:none"), short expiry, signed server-side

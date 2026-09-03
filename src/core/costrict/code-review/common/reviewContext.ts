@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 import type { Mode } from "../../../../shared/modes"
 import { toRelativePath } from "../../../../utils/path"
 import { getWorkingState } from "../../../../utils/git"
+import { getBundledCppcheck } from "../../../../utils/bundledCppcheck"
 import { supportPrompt } from "../../../../shared/support-prompt"
 import { t } from "../../../../i18n"
 
@@ -106,6 +107,32 @@ export async function resolveGitChangesContent(cwd: string): Promise<string> {
 		const errorMsg = error instanceof Error ? error.message : String(error)
 		return `Working directory changes (see below for details)\n\n<git_working_state>\nError fetching working state: ${errorMsg}\n</git_working_state>`
 	}
+}
+
+// ─── Bundled static analysis tool ────────────────────────────────────
+
+/**
+ * Build a `<cppcheck_tool>` hint describing the bundled portable cppcheck, for
+ * inclusion in a C/C++ review prompt. Returns an empty string when the bundled
+ * binary is not shipped (non-Windows or excluded build), so the skill falls back
+ * to a system `cppcheck` on PATH.
+ */
+export function resolveCppcheckToolContent(extensionPath: string | undefined): string {
+	const cppcheck = getBundledCppcheck(extensionPath)
+	if (!cppcheck.binPath || !cppcheck.rootDir) {
+		return ""
+	}
+	return (
+		"\n\n<cppcheck_tool>\n" +
+		"A portable cppcheck static analyzer (C/C++) is bundled with the extension.\n" +
+		`- binary: ${cppcheck.binPath}\n` +
+		`- data dirs (cfg/platforms/addons): ${cppcheck.rootDir}\n` +
+		"When the reviewed code is C/C++ or embedded/firmware, run it over the sources and merge\n" +
+		"its findings into the review. Recommended invocation:\n" +
+		"  cppcheck --enable=all --inconclusive --std=c11 --suppress=missingIncludeSystem <files>\n" +
+		"  (add --platform=<mcu> for embedded targets, e.g. avr8, msp430, pic8, arm32-wchar_t4)\n" +
+		"</cppcheck_tool>"
+	)
 }
 
 // ─── Cloud labels ─────────────────────────────────────────────────────

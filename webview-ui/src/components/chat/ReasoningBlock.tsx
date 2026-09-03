@@ -17,7 +17,7 @@ interface ReasoningBlockProps {
 
 export const ReasoningBlock = ({ content, isStreaming, isLast }: ReasoningBlockProps) => {
 	const { t } = useTranslation()
-	const { reasoningBlockCollapsed } = useExtensionState()
+	const { reasoningBlockCollapsed, developerMode } = useExtensionState()
 
 	const [isCollapsed, setIsCollapsed] = useState(reasoningBlockCollapsed)
 
@@ -66,7 +66,7 @@ export const ReasoningBlock = ({ content, isStreaming, isLast }: ReasoningBlockP
 							<span className="font-bold text-vscode-foreground">{t("chat:reasoning.thinking")}</span>
 						</>
 					)}
-					{elapsed > 0 && (
+					{developerMode && elapsed > 0 && (
 						<span className="text-sm text-vscode-descriptionForeground mt-0.5">{secondsLabel}</span>
 					)}
 				</div>

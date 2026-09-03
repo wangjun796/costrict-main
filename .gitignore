@@ -75,3 +75,6 @@ src/bundled-modes/
 
 # Bundled portable Git SFX (large binary; downloaded by scripts/download-portable-git.mjs, packaged into vsix via .vscodeignore)
 src/assets/git/
+
+# Bundled portable cppcheck (large binary; downloaded by scripts/download-portable-cppcheck.mjs, packaged into vsix via .vscodeignore)
+src/assets/cppcheck/

@@ -49,6 +49,7 @@ import {
 	resolveFromReportFile,
 	resolveFromReportText,
 } from "./common/reviewIssueResolver"
+import { resolveCppcheckToolContent } from "./common/reviewContext"
 /**
  * Code Review Service - Singleton
  *
@@ -154,10 +155,10 @@ export class CodeReviewService {
 	async checkApiProviderSupport(): Promise<boolean> {
 		const provider = this.getProvider()!
 		const { apiConfiguration } = await provider.getState()
-		if (apiConfiguration.apiProvider !== "costrict") {
-			vscode.window.showInformationMessage(t("common:review.tip.api_provider_not_support"))
-			return false
-		}
+		// if (apiConfiguration.apiProvider !== "costrict") {
+		// 	vscode.window.showInformationMessage(t("common:review.tip.api_provider_not_support"))
+		// 	return false
+		// }
 		return true
 	}
 
@@ -173,32 +174,30 @@ export class CodeReviewService {
 	async buildReviewPrompt(mode: "review" | "security-review", arguments_: string): Promise<string> {
 		const { language } = await this.clineProvider!.getState()
 		const isZh = language === "zh-CN" || language === "zh-TW"
+
+		let prompt: string
 		if (mode === "security-review") {
-			if (isZh) {
-				return (
-					"# 安全代码审查\n\n请使用 Skill 工具加载 `security-review` 技能来对以下内容执行安全代码审查：" +
+			prompt = isZh
+				? "# 安全代码审查\n\n请使用 Skill 工具加载 `security-review` 技能来对以下内容执行安全代码审查：" +
 					arguments_ +
 					"\n\n使用默认配置，全程无需再次确认。全程请使用中文进行回答与文件写入。"
-				)
-			}
-			return (
-				"# Code Security Review\n\nPlease use the Skill tool to load the `security-review` skill to perform a security review on: " +
-				arguments_ +
-				"\n\nUse default configuration throughout the process without re-confirmation. Please respond and write all files in English throughout the entire process."
-			)
+				: "# Code Security Review\n\nPlease use the Skill tool to load the `security-review` skill to perform a security review on: " +
+					arguments_ +
+					"\n\nUse default configuration throughout the process without re-confirmation. Please respond and write all files in English throughout the entire process."
+		} else {
+			prompt = isZh
+				? "# 代码审查\n\n请使用 Skill 工具加载 `review` 技能来对以下内容执行代码审查：" +
+					arguments_ +
+					"\n\n使用默认配置，全程无需再次确认。全程请使用中文进行回答与文件写入。"
+				: "# Code Review\n\nPlease use the Skill tool to load the `review` skill to perform a code review on: " +
+					arguments_ +
+					"\n\nUse default configuration throughout the process without re-confirmation. Please respond and write all files in English throughout the entire process."
 		}
-		if (isZh) {
-			return (
-				"# 代码审查\n\n请使用 Skill 工具加载 `review` 技能来对以下内容执行代码审查：" +
-				arguments_ +
-				"\n\n使用默认配置，全程无需再次确认。全程请使用中文进行回答与文件写入。"
-			)
-		}
-		return (
-			"# Code Review\n\nPlease use the Skill tool to load the `review` skill to perform a code review on: " +
-			arguments_ +
-			"\n\nUse default configuration throughout the process without re-confirmation. Please respond and write all files in English throughout the entire process."
-		)
+
+		// Append the bundled cppcheck tool hint (empty when the binary is not shipped).
+		const extensionPath = this.clineProvider ? this.clineProvider.contextProxy.extensionUri.fsPath : undefined
+		const cppcheckContent = resolveCppcheckToolContent(extensionPath)
+		return prompt + cppcheckContent
 	}
 
 	private async getRequestOptions(): Promise<AxiosRequestConfig> {

@@ -10,7 +10,9 @@ description: >
     with CompTIA Security+ knowledge who reviews every output for authentication, authorization,
     encryption, logging, input validation, segmentation, privacy, and common vulnerability
     anti-patterns. Also triggers when the user asks to "review security", "threat model",
-    "harden", "pen test", or "check for vulnerabilities".
+    "harden", "pen test", or "check for vulnerabilities". For embedded/firmware systems,
+    additionally covers secure boot, firmware integrity, key storage, debug-interface lockdown,
+    OTA updates, and device communication security.
 ---
 
 # Security Review Skill
@@ -20,7 +22,7 @@ Every plan and every code output passes through this gate. No exceptions.
 ## Core Identity
 
 Operate as a security-focused reviewer with Security+ certification knowledge. The entire
-internet of breach postmortems, CVE databases, and OWASP reports has been ingested ?? use
+internet of breach postmortems, CVE databases, and OWASP reports has been ingested — use
 that pattern recognition to predict and prevent the next disaster, not recreate the last one.
 
 ## When This Skill Activates
@@ -38,19 +40,23 @@ This skill is **always active** as a background gate. Specifically:
 Every qualifying task follows this sequence. Do not skip steps.
 
 ```
-1. PLAN REVIEW        ?? Evaluate the plan against the security checklist
-2. THREAT MODEL       ?? Identify assets, threats, attack surfaces
-3. SECURE IMPL        ?? Write code that embeds security controls from the start
-4. ATTACK EMULATION   ?? Agentically walk each attack path from the threat model
-5. MITIGATE           ?? Fix every finding from step 4
-6. PEN TEST           ?? Agentically re-test mitigations; confirm they hold
-7. DELIVER            ?? Only after steps 1-6 pass
+1. PLAN REVIEW        — Evaluate the plan against the security checklist
+2. THREAT MODEL       — Identify assets, threats, attack surfaces
+3. SECURE IMPL        — Write code that embeds security controls from the start
+4. ATTACK EMULATION   — Agentically walk each attack path from the threat model
+5. MITIGATE           — Fix every finding from step 4
+6. PEN TEST           — Agentically re-test mitigations; confirm they hold
+7. DELIVER            — Only after steps 1-6 pass
 ```
 
 ### Step 1: Plan Review
 
 Before writing any code, review the plan against the security checklist.
 Load and apply `references/security-checklist.md` to the proposed plan.
+
+For embedded/firmware plans, also load and apply `references/embedded-security-checklist.md`,
+which covers secure boot, firmware integrity/signing, key storage, debug-interface lockdown,
+OTA update security, device communication security, and memory/runtime safety.
 
 For each checklist category, answer:
 
@@ -63,12 +69,12 @@ Block implementation until all applicable categories are addressed.
 
 Produce a lightweight threat model covering:
 
-1. **Assets** ?? What is being protected? (data, credentials, sessions, PII, secrets, availability)
-2. **Trust boundaries** ?? Where do privilege levels change? (client/server, service/service, user/admin, internal/external network)
-3. **Entry points** ?? Every input surface (API endpoints, form fields, file uploads, CLI args, env vars, message queues, webhooks)
-4. **Threat actors** ?? Who attacks this? (anonymous internet user, authenticated low-priv user, compromised dependency, malicious insider, automated scanner)
-5. **Attack paths** ?? For each entry point x threat actor, enumerate concrete attack scenarios. Reference `references/anti-patterns.md` for known-bad patterns.
-6. **Risk rating** ?? Rank each path: Critical / High / Medium / Low based on impact x likelihood
+1. **Assets** — What is being protected? (data, credentials, sessions, PII, secrets, availability)
+2. **Trust boundaries** — Where do privilege levels change? (client/server, service/service, user/admin, internal/external network)
+3. **Entry points** — Every input surface (API endpoints, form fields, file uploads, CLI args, env vars, message queues, webhooks)
+4. **Threat actors** — Who attacks this? (anonymous internet user, authenticated low-priv user, compromised dependency, malicious insider, automated scanner)
+5. **Attack paths** — For each entry point x threat actor, enumerate concrete attack scenarios. Reference `references/anti-patterns.md` for known-bad patterns.
+6. **Risk rating** — Rank each path: Critical / High / Medium / Low based on impact x likelihood
 
 Format as a numbered list of attack paths with ratings so step 4 can reference them by number.
 
@@ -89,13 +95,33 @@ Write code with security controls baked in from line one. Non-negotiable default
 - **Segmentation**: Isolate components by trust level. Separate data planes from control planes.
 - **Privacy**: Minimize data collection. Purpose-limit data use. Support deletion.
 
+#### Embedded & Firmware Security
+
+When the system targets an MCU, SoC, RTOS, or bare-metal firmware, embed these controls too:
+
+- **Secure boot** — verify the bootloader and application images with a signature chain before
+  execution; prevent rollback to known-vulnerable firmware (anti-rollback counters).
+- **Firmware integrity & confidentiality** — sign (and where required, encrypt) firmware images;
+  authenticate OTA update payloads; validate version and hash before applying.
+- **Key & secret storage** — keep keys in secure elements / hardware crypto / fuses, not in plain
+  flash or source; use per-device unique keys; never hardcode keys or certificates.
+- **Debug interface lockdown** — disable or password-protect JTAG/SWD/UART debug in production;
+  disable UART bootloader fallback; avoid leaving factory test backdoors.
+- **Device communication security** — authenticate and integrity-protect CAN/UART/SPI/I2C/radio
+  traffic; add anti-replay (nonce/sequence/timestamp) where integrity matters.
+- **Memory & runtime safety** — bounded buffers, no unsafe `strcpy`/`sprintf`/`memcpy`, integer
+  overflow guards, initialized variables, protected shared state (volatile + atomics/critical
+  sections), ISR-safe code (no blocking/allocation in interrupts).
+- **Least privilege & isolation** — MPU/MMU partitions for untrusted code, separate privilege
+  levels for the kernel vs. tasks, minimal peripheral access per task.
+
 ### Step 4: Attack Emulation
 
 For each attack path identified in step 2, agentically emulate the attack:
 
 1. Read the code or configuration you just wrote
 2. Trace the attack path through the actual implementation
-3. Attempt to construct a concrete exploit or proof-of-concept (in comments/pseudocode ?? do not produce weaponized exploits)
+3. Attempt to construct a concrete exploit or proof-of-concept (in comments/pseudocode — do not produce weaponized exploits)
 4. Document result: **BLOCKED** (control stops it) or **VULNERABLE** (attack succeeds or partially succeeds)
 
 See `references/attack-emulation-guide.md` for methodology per vulnerability class.
@@ -116,7 +142,7 @@ Repeat the step 4 / step 5 cycle until all paths return BLOCKED.
 
 ### Step 6: Pen Test Verification
 
-Final pass ?? agentically test the complete implementation:
+Final pass — agentically test the complete implementation:
 
 1. Re-run all attack paths from step 2 against the final code
 2. Additionally test for issues not in the original threat model:
@@ -125,6 +151,12 @@ Final pass ?? agentically test the complete implementation:
     - Path traversal beyond documented inputs
     - Deserialization attacks if serialization is used
     - Dependency confusion if packages are installed
+    - Firmware downgrade / rollback to a vulnerable image
+    - Debug interface re-enabling (fuse bit left set, bootloader fallback)
+    - Key extraction from firmware or plaintext storage
+    - Bus sniffing / injection / replay on device interfaces
+    - Stack/heap overflow in ISR or high-priority tasks
+    - Interrupt/concurrency races on shared MMIO or globals
 3. Verify all logging produces expected output for security events
 4. Confirm error handling does not leak internals
 5. Check that all secrets are externalized
@@ -155,6 +187,7 @@ If there is **any doubt**, run the full workflow.
 
 ## Reference Files
 
-- `references/security-checklist.md` ?? Category-level checklist applied in step 1
-- `references/anti-patterns.md` ?? Known-bad patterns from real-world breaches
-- `references/attack-emulation-guide.md` ?? Per-vulnerability-class emulation methodology
+- `references/security-checklist.md` — Category-level checklist applied in step 1
+- `references/anti-patterns.md` — Known-bad patterns from real-world breaches
+- `references/attack-emulation-guide.md` — Per-vulnerability-class emulation methodology
+- `references/embedded-security-checklist.md` — Embedded/firmware security checklist (secure boot, keys, OTA, debug lockdown, device communication)

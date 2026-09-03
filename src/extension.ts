@@ -32,6 +32,7 @@ import "./utils/path" // Necessary to have access to String.prototype.toPosix.
 // import { createOutputChannelLogger, createDualLogger } from "./utils/outputChannelLogger"
 import { initializeNetworkProxy } from "./utils/networkProxy"
 import { getBundledGitBinaryPath } from "./utils/bundledGit"
+import { getBundledCppcheck, describeCppcheckDataDirs } from "./utils/bundledCppcheck"
 
 import { Package } from "./shared/package"
 import { formatLanguage } from "./shared/language"
@@ -164,6 +165,18 @@ export async function activate(context: vscode.ExtensionContext) {
 			`[BundledGit] Failed to extract bundled Git: ${error instanceof Error ? error.message : String(error)}`,
 		)
 	})
+
+	// Log availability of the bundled portable cppcheck (Windows only), which the
+	// C/C++ code-review flow can invoke for static analysis. cppcheck ships flat
+	// (no runtime extraction), so this is a cheap diagnostic, not a pre-warm.
+	const bundledCppcheck = getBundledCppcheck(context.extensionPath)
+	if (bundledCppcheck.binPath && bundledCppcheck.rootDir) {
+		outputChannel.appendLine(
+			`[BundledCppcheck] Available at ${bundledCppcheck.binPath} (${describeCppcheckDataDirs(bundledCppcheck.rootDir)})`,
+		)
+	} else if (process.platform === "win32") {
+		outputChannel.appendLine("[BundledCppcheck] Not bundled in this build; falling back to system cppcheck on PATH")
+	}
 
 	// Set extension path for custom tool registry to find bundled esbuild
 	customToolRegistry.setExtensionPath(context.extensionPath)

@@ -39,6 +39,9 @@
 
 # Include bundled portable Git (Windows) used by the checkpoints feature
 !assets/git/**
+
+# Include bundled portable cppcheck (Windows) used by C/C++ code review
+!assets/cppcheck/**
 # Exclude files flagged by VS Marketplace virus scan.
 # Wildcard matches across all locale subdirectories (en/, zh-CN/, etc.).
 bundled-skills/*/security-review/knowledge/languages/php_deserialization.md

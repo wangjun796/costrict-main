@@ -1,20 +1,17 @@
 {
-  "version": "1.0.3",
-  "commitSha": "local",
-  "locales": [
-    "en",
-    "zh-CN"
-  ],
-  "skills": [
-    {
-      "name": "review",
-      "repo": "wangjun796/costrict",
-      "branch": "main"
-    },
-    {
-      "name": "security-review",
-      "repo": "wangjun796/costrict",
-      "branch": "main"
-    }
-  ]
+	"version": "1.0.5",
+	"commitSha": "local",
+	"locales": ["en", "zh-CN"],
+	"skills": [
+		{
+			"name": "review",
+			"repo": "wangjun796/costrict",
+			"branch": "main"
+		},
+		{
+			"name": "security-review",
+			"repo": "wangjun796/costrict",
+			"branch": "main"
+		}
+	]
 }

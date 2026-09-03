@@ -5,6 +5,8 @@ description: >
     当用户要求"review code"、"code review"、"review this PR"、
     "review my changes"或使用 /review 命令时触发。
     分析代码中的 bug、安全问题、性能问题、可维护性问题以及是否符合最佳实践。
+    对于 C、C++ 和嵌入式/固件项目，额外应用 MISRA C/C++ 和 CERT C/C++ 规则，
+    并可调用内置的 cppcheck 静态分析器。
     生成带有严重程度评级和可操作建议的结构化审查报告。
 ---
 
@@ -106,6 +108,25 @@ description: >
 - Mock/Stub 的使用是否恰当？
 - 关键路径是否有集成测试覆盖？
 
+#### 3.7 嵌入式系统与 C/C++
+
+当被审查代码为 C、C++ 或面向嵌入式/固件（MCU、RTOS、裸机、驱动、BSP）时，
+应用以下额外维度，并加载 `references/embedded-c-cpp-checklist.md` 中的详细清单：
+
+- **内存安全** —— 热路径/中断路径中无动态内存分配、栈使用量可预测、无缓冲区越界、
+  无 use-after-free、无内存泄漏、所有 `memcpy`/`strcpy`/`sprintf` 均做边界检查。
+- **整数与类型安全** —— 无有符号/无符号混用、无隐式窄化、溢出/下溢有防护、
+  硬件相关数据使用定宽类型（`uint8_t`..`uint32_t`）、不依赖平台字长（嵌入式中 `int` 可能为 16 位）。
+- **未定义行为** —— 移位宽度不超出类型、无有符号溢出、不解引用 NULL/未初始化指针、
+  不读取未初始化内存（上电时 RAM 内容不确定）。
+- **并发与中断** —— ISR 尽量短且不阻塞、ISR 与主循环共享数据用 `volatile` + 原子操作/临界区保护、
+  无优先级反转、无死锁、ISR 内不使用 `printf`/`malloc`。
+- **硬件交互** —— MMIO/寄存器访问使用 `volatile`、读-改-写为原子操作、处理字节序与对齐、
+  看门狗喂狗逻辑正确、外设初始化与错误路径完整。
+- **可移植性** —— 不假设 `char` 的有符号性、不依赖字节序、不依赖实现定义行为。
+- **标准符合性** —— 标记 MISRA C:2012/2023（Required/Advisory）与 CERT C/C++ 规则违反项，
+  并给出规则编号与修复建议。
+
 ### 第四步：报告
 
 生成结构化的审查报告：
@@ -159,6 +180,45 @@ description: >
 - **如果无法解释数据流，说明存在缺口** —— 不清晰的数据流意味着不清晰的逻辑
 - **如果缺少错误处理，生产环境必然失败** —— 假设一切都会出错
 - **如果没有测试，代码未经证实** —— 未测试的代码就是有问题的代码
+
+## 嵌入式与 C/C++ 项目
+
+审查 C/C++（或嵌入式/固件）代码时，务必：
+
+1. **加载** `references/embedded-c-cpp-checklist.md`，将其中的 MISRA C 与 CERT C 分类
+   与第 3.7 节的维度一并应用。
+2. **运行静态分析**：当存在源文件时调用 cppcheck，将其确认的发现合并进报告作为证据
+   （引用 cppcheck 检查编号，如 `[shiftTooManyBits]`）。
+
+### 调用 cppcheck
+
+按以下顺序定位 cppcheck 可执行文件：
+
+1. **系统安装** —— 运行 `cppcheck --version`，若打印出版本号则直接使用 `cppcheck`。
+2. **内置便携版** —— 否则扩展在安装目录下内置了 cppcheck，路径为
+   `assets/cppcheck/win32-x64/cppcheck.exe`。在 VS Code 扩展目录下用 glob 搜索
+   `**/assets/cppcheck/win32-x64/cppcheck.exe`（Windows 为 `~/.vscode/extensions`，
+   远程/WSL 为 `~/.vscode-server/extensions`）。
+
+推荐调用方式（C）：
+
+```bash
+cppcheck --enable=all --inconclusive --std=c11 --suppress=missingIncludeSystem <文件或目录>
+```
+
+对于嵌入式目标，加上匹配的 ABI 平台，以便正确检查整数位宽/字节序：
+
+```bash
+cppcheck --enable=all --inconclusive --std=c11 --platform=avr8 <文件>
+# 平台：avr8、msp430、pic8、pic16、arm32-wchar_t4、arm64、riscv32、riscv64 等
+```
+
+C++ 使用 `--std=c++17 --language=c++`。需要机器可解析输出时可加 `--xml` 或 `--template=gcc`。
+忽略 `missingIncludeSystem` 信息类消息；将 `error`/`warning`/`portability` 级别视为高价值发现。
+
+结合清单解读结果：将 cppcheck 检查编号映射到 CERT/MISRA 规则（清单中包含映射表），
+对每个确认的缺陷引用代码、说明风险、评定严重程度并给出修复方案。cppcheck 是辅助工具，
+存在误报，因此在作为问题上报前必须逐条对照源码核实。
 
 ## 轻量模式
 

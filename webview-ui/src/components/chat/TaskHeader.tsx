@@ -65,7 +65,7 @@ const TaskHeader = ({
 	isStreaming,
 }: TaskHeaderProps) => {
 	const { t } = useTranslation()
-	const { apiConfiguration, currentTaskItem /*, clineMessages */ } = useExtensionState()
+	const { apiConfiguration, currentTaskItem, developerMode /*, clineMessages */ } = useExtensionState()
 	const { id: modelId, info: model } = useSelectedModel(apiConfiguration)
 	const [isTaskExpanded, setIsTaskExpanded] = useState(false)
 	// const [showLongRunningTaskMessage, setShowLongRunningTaskMessage] = useState(false)
@@ -223,81 +223,83 @@ const TaskHeader = ({
 						</div>
 					</div>
 				</div>
-				{!isTaskExpanded && contextWindow > 0 && (
+				{!isTaskExpanded && contextWindow > 0 && (developerMode || !!totalCost) && (
 					<div
 						className="flex items-center justify-between text-sm text-muted-foreground/70"
 						onClick={(e) => e.stopPropagation()}>
 						<div className="flex items-center gap-2">
-							<StandardTooltip
-								content={(() => {
-									const availableSpace = contextWindow - (contextTokens || 0) - reservedForOutput
+							{developerMode && (
+								<StandardTooltip
+									content={(() => {
+										const availableSpace = contextWindow - (contextTokens || 0) - reservedForOutput
 
-									return (
-										<Table className="text-base ml-1.5">
-											<TableBody>
-												<TableRow>
-													<TableCell className="font-medium whitespace-nowrap">
-														{t("chat:tokenProgress.tokensUsedLabel")}
-													</TableCell>
-													<TableCell className="text-right text-[0.9em] font-mono">
-														{formatLargeNumber(contextTokens || 0)} /{" "}
-														{formatLargeNumber(contextWindow)}
-													</TableCell>
-												</TableRow>
-												{reservedForOutput > 0 && (
-													<TableRow>
-														<TableCell className="font-medium whitespace-nowrap">
-															{t("chat:tokenProgress.reservedForResponseLabel")}
-														</TableCell>
-														<TableCell className="text-right text-[0.9em] font-mono">
-															{formatLargeNumber(reservedForOutput)}
-														</TableCell>
-													</TableRow>
-												)}
-												{availableSpace > 0 && (
-													<TableRow>
-														<TableCell className="font-medium whitespace-nowrap">
-															{t("chat:tokenProgress.availableSpaceLabel")}
-														</TableCell>
-														<TableCell className="text-right text-[0.9em] font-mono">
-															{formatLargeNumber(availableSpace)}
-														</TableCell>
-													</TableRow>
-												)}
-											</TableBody>
-										</Table>
-									)
-								})()}
-								side="top"
-								sideOffset={8}>
-								<span className="flex items-center gap-1.5">
-									{(() => {
-										// Calculate percentage of available input space used
-										// Available input space = context window - reserved for output
-										const availableInputSpace = contextWindow - reservedForOutput
-										const percentage =
-											availableInputSpace > 0
-												? Math.round(((contextTokens || 0) / availableInputSpace) * 100)
-												: 0
-										const percentageClassName =
-											percentage < 70
-												? "text-vscode-charts-green"
-												: percentage < 85
-													? "text-vscode-charts-yellow"
-													: "text-vscode-charts-red"
 										return (
-											<>
-												<CircularProgress
-													percentage={percentage}
-													className={percentageClassName}
-												/>
-												<span>{percentage}%</span>
-											</>
+											<Table className="text-base ml-1.5">
+												<TableBody>
+													<TableRow>
+														<TableCell className="font-medium whitespace-nowrap">
+															{t("chat:tokenProgress.tokensUsedLabel")}
+														</TableCell>
+														<TableCell className="text-right text-[0.9em] font-mono">
+															{formatLargeNumber(contextTokens || 0)} /{" "}
+															{formatLargeNumber(contextWindow)}
+														</TableCell>
+													</TableRow>
+													{reservedForOutput > 0 && (
+														<TableRow>
+															<TableCell className="font-medium whitespace-nowrap">
+																{t("chat:tokenProgress.reservedForResponseLabel")}
+															</TableCell>
+															<TableCell className="text-right text-[0.9em] font-mono">
+																{formatLargeNumber(reservedForOutput)}
+															</TableCell>
+														</TableRow>
+													)}
+													{availableSpace > 0 && (
+														<TableRow>
+															<TableCell className="font-medium whitespace-nowrap">
+																{t("chat:tokenProgress.availableSpaceLabel")}
+															</TableCell>
+															<TableCell className="text-right text-[0.9em] font-mono">
+																{formatLargeNumber(availableSpace)}
+															</TableCell>
+														</TableRow>
+													)}
+												</TableBody>
+											</Table>
 										)
 									})()}
-								</span>
-							</StandardTooltip>
-							{!!totalCost && (
+									side="top"
+									sideOffset={8}>
+									<span className="flex items-center gap-1.5">
+										{(() => {
+											// Calculate percentage of available input space used
+											// Available input space = context window - reserved for output
+											const availableInputSpace = contextWindow - reservedForOutput
+											const percentage =
+												availableInputSpace > 0
+													? Math.round(((contextTokens || 0) / availableInputSpace) * 100)
+													: 0
+											const percentageClassName =
+												percentage < 70
+													? "text-vscode-charts-green"
+													: percentage < 85
+														? "text-vscode-charts-yellow"
+														: "text-vscode-charts-red"
+											return (
+												<>
+													<CircularProgress
+														percentage={percentage}
+														className={percentageClassName}
+													/>
+													<span>{percentage}%</span>
+												</>
+											)
+										})()}
+									</span>
+								</StandardTooltip>
+							)}
+							{developerMode && !!totalCost && (
 								<>
 									<span>·</span>
 									<StandardTooltip
@@ -364,7 +366,7 @@ const TaskHeader = ({
 						<div className="pt-3 mt-2 -mx-2.5 px-2.5 border-t border-vscode-sideBar-background">
 							<table className="w-full text-sm">
 								<tbody>
-									{contextWindow > 0 && (
+									{developerMode && contextWindow > 0 && (
 										<tr>
 											<th
 												className="font-medium text-left align-top w-1 whitespace-nowrap pr-3 h-[24px]"
@@ -384,48 +386,51 @@ const TaskHeader = ({
 										</tr>
 									)}
 
-									<tr>
-										<th className="font-medium text-left align-top w-1 whitespace-nowrap pr-3 h-[24px]">
-											{t("chat:task.tokens")}
-										</th>
-										<td className="font-light align-top">
-											<div className="flex items-center gap-1 flex-wrap">
-												{typeof tokensIn === "number" && tokensIn > 0 && (
-													<span>↑ {formatLargeNumber(tokensIn)}</span>
-												)}
-												{typeof tokensOut === "number" && tokensOut > 0 && (
-													<span>↓ {formatLargeNumber(tokensOut)}</span>
-												)}
-											</div>
-										</td>
-									</tr>
-
-									{((typeof cacheReads === "number" && cacheReads > 0) ||
-										(typeof cacheWrites === "number" && cacheWrites > 0)) && (
+									{developerMode && (
 										<tr>
 											<th className="font-medium text-left align-top w-1 whitespace-nowrap pr-3 h-[24px]">
-												{t("chat:task.cache")}
+												{t("chat:task.tokens")}
 											</th>
 											<td className="font-light align-top">
 												<div className="flex items-center gap-1 flex-wrap">
-													{typeof cacheWrites === "number" && cacheWrites > 0 && (
-														<>
-															<HardDriveDownload className="size-2.5" />
-															<span>{formatLargeNumber(cacheWrites)}</span>
-														</>
+													{typeof tokensIn === "number" && tokensIn > 0 && (
+														<span>↑ {formatLargeNumber(tokensIn)}</span>
 													)}
-													{typeof cacheReads === "number" && cacheReads > 0 && (
-														<>
-															<HardDriveUpload className="size-2.5" />
-															<span>{formatLargeNumber(cacheReads)}</span>
-														</>
+													{typeof tokensOut === "number" && tokensOut > 0 && (
+														<span>↓ {formatLargeNumber(tokensOut)}</span>
 													)}
 												</div>
 											</td>
 										</tr>
 									)}
 
-									{!!totalCost && (
+									{developerMode &&
+										((typeof cacheReads === "number" && cacheReads > 0) ||
+											(typeof cacheWrites === "number" && cacheWrites > 0)) && (
+											<tr>
+												<th className="font-medium text-left align-top w-1 whitespace-nowrap pr-3 h-[24px]">
+													{t("chat:task.cache")}
+												</th>
+												<td className="font-light align-top">
+													<div className="flex items-center gap-1 flex-wrap">
+														{typeof cacheWrites === "number" && cacheWrites > 0 && (
+															<>
+																<HardDriveDownload className="size-2.5" />
+																<span>{formatLargeNumber(cacheWrites)}</span>
+															</>
+														)}
+														{typeof cacheReads === "number" && cacheReads > 0 && (
+															<>
+																<HardDriveUpload className="size-2.5" />
+																<span>{formatLargeNumber(cacheReads)}</span>
+															</>
+														)}
+													</div>
+												</td>
+											</tr>
+										)}
+
+									{developerMode && !!totalCost && (
 										<tr>
 											<th className="font-medium text-left align-top w-1 whitespace-nowrap pr-3 h-[24px]">
 												{t("chat:task.apiCost")}
@@ -468,7 +473,7 @@ const TaskHeader = ({
 									)}
 
 									{/* Size display */}
-									{!!currentTaskItem?.size && currentTaskItem.size > 0 && (
+									{developerMode && !!currentTaskItem?.size && currentTaskItem.size > 0 && (
 										<tr>
 											<th className="font-medium text-left align-top w-1 whitespace-nowrap pr-2 h-[20px]">
 												{t("chat:task.size")}
