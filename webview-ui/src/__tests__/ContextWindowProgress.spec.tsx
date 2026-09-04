@@ -139,7 +139,7 @@ describe("ContextWindowProgress", () => {
 		expect(progressBarContainer?.querySelector(".flex-1.relative")).toBeInTheDocument()
 	})
 
-	it("hides context window progress when developerMode is false", () => {
+	it("hides the whole task header (and thus context window progress) when developerMode is false", () => {
 		const mockedUseExtensionState = vi.mocked(useExtensionState)
 		mockedUseExtensionState.mockReturnValue({
 			apiConfiguration: { apiProvider: "openai" },
@@ -149,11 +149,9 @@ describe("ContextWindowProgress", () => {
 
 		renderComponent({ contextTokens: 1000, contextWindow: 4000 })
 
-		// Expand the TaskHeader
-		const taskHeader = screen.getByText("Test task")
-		fireEvent.click(taskHeader)
-
-		// Context window progress should not be rendered
+		// TaskHeader is not rendered at all when developerMode is off,
+		// so neither the title nor the context window progress appears.
+		expect(screen.queryByText("Test task")).not.toBeInTheDocument()
 		expect(screen.queryByTestId("context-tokens-count")).not.toBeInTheDocument()
 		expect(screen.queryByTestId("context-window-label")).not.toBeInTheDocument()
 	})

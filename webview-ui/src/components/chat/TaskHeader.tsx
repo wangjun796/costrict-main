@@ -44,7 +44,7 @@ export interface TaskHeaderProps {
 	scrollToMessage?: (messageIndex?: number) => void
 }
 
-const TaskHeader = ({
+const TaskHeaderContent = ({
 	task,
 	tokensIn,
 	tokensOut,
@@ -517,6 +517,24 @@ const TaskHeader = ({
 			{/* <CloudUpsellDialog open={isOpen} onOpenChange={closeUpsell} onConnect={handleConnect} /> */}
 		</div>
 	)
+}
+
+// 仅开发者模式开启时渲染 task header；关闭时不渲染（wangj 2026-09-04）。
+//
+// 注意：不能直接在 TaskHeaderContent 顶部 return null —— TypeScript 仍会类型
+// 检查 return 之后的死代码（TS18048 等）。也不能在调用部分 hooks 后再提前
+// return —— 切换 developerMode 时组件调用 hooks 数量会变化，React 会抛
+// "Rendered fewer/more hooks than during the previous render"。
+// 因此拆两层：外层只调用 useExtensionState 判断 developerMode；真正的 header
+// 实现全部留在内层 TaskHeaderContent（hooks 只有在内层被渲染时才执行）。
+const TaskHeader = (props: TaskHeaderProps) => {
+	const { developerMode } = useExtensionState()
+
+	if (!developerMode) {
+		return null
+	}
+
+	return <TaskHeaderContent {...props} />
 }
 
 export default memo(TaskHeader)

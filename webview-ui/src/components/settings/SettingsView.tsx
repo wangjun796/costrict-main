@@ -697,7 +697,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			{ id: "mcp", icon: Server },
 			// { id: "worktrees", icon: GitBranch },
 			{ id: "checkpoints", icon: GitCommitVertical },
-			{ id: "contextManagement", icon: Database },
+			...(developerMode ? [{ id: "contextManagement" as SectionName, icon: Database }] : []),
 			{ id: "terminal", icon: SquareTerminal },
 			{ id: "prompts", icon: MessageSquare },
 			{ id: "experimental", icon: FlaskConical },
@@ -706,7 +706,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			{ id: "language", icon: Globe },
 			// { id: "about", icon: Info },
 		],
-		[], // No dependencies needed now
+		[developerMode],
 	)
 
 	// Update target section logic to set active tab
@@ -715,6 +715,13 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			setActiveTab(targetSection as SectionName)
 		}
 	}, [targetSection])
+
+	// If developerMode is turned off while on contextManagement tab, switch to a valid tab
+	useEffect(() => {
+		if (!developerMode && activeTab === "contextManagement") {
+			setActiveTab("terminal")
+		}
+	}, [developerMode, activeTab])
 
 	// Function to scroll the active tab into view for vertical layout
 	const scrollToActiveTab = useCallback(() => {
