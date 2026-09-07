@@ -1,0 +1,151 @@
+{
+	"_comment": "Costrict FIM 补全 C 语言测试用例集。每个用例给出 prefix(光标前)、suffix(光标后)、expectedMiddle(期望模型填充的内容)。可直接喂给 src/core/costrict/auto-complete/fim 的 preprocessPrompt()/requestFimCompletion()。markers 见 fim/types.ts 的 FIM_MARKERS。",
+	"presets": {
+		"starcoder": { "begin": "<fim_prefix>", "hole": "<fim_suffix>", "end": "<fim_middle>" },
+		"deepseek": { "begin": "<｜fim▁begin｜>", "hole": "<｜fim▁hole｜>", "end": "<｜fim▁end｜>" },
+		"codellama": { "begin": "<PRE>", "hole": "<SUF>", "end": "<MID>" },
+		"qwen": { "begin": "<fim_prefix>", "hole": "<fim_suffix>", "end": "<fim_middle>" }
+	},
+	"cases": [
+		{
+			"id": "c-func-add",
+			"category": "函数体实现",
+			"description": "最简单的返回值函数，仅测试基础生成与缩进。",
+			"context": "",
+			"prefix": "int add(int a, int b) {\n",
+			"suffix": "}",
+			"expectedMiddle": "    return a + b;",
+			"validates": ["基础返回", "缩进", "双向无关(纯前缀续写)"]
+		},
+		{
+			"id": "c-func-max",
+			"category": "条件分支",
+			"description": "if 分支 body 为空，需结合 else 分支推断出 a>b 时返回 a。",
+			"context": "",
+			"prefix": "int max(int a, int b) {\n    if (a > b) {\n",
+			"suffix": "    } else {\n        return b;\n    }\n}",
+			"expectedMiddle": "        return a;",
+			"validates": ["if/else 对称", "需理解 suffix 约束"]
+		},
+		{
+			"id": "c-loop-sum-array",
+			"category": "循环体",
+			"description": "for 循环累加数组，body 为空，需结合 return total 推断累加逻辑。",
+			"context": "",
+			"prefix": "int sum_array(const int *arr, int n) {\n    int total = 0;\n    for (int i = 0; i < n; i++) {\n",
+			"suffix": "    }\n    return total;\n}",
+			"expectedMiddle": "        total += arr[i];",
+			"validates": ["循环索引使用", "需理解 suffix 的返回变量"]
+		},
+		{
+			"id": "c-guard-null",
+			"category": "错误处理/护栏",
+			"description": "NULL 入参护栏，body 为空，需返回 NULL。",
+			"context": "",
+			"prefix": "char *duplicate(const char *s) {\n    if (s == NULL) {\n",
+			"suffix": "    }\n    size_t len = strlen(s);\n    char *copy = malloc(len + 1);",
+			"expectedMiddle": "        return NULL;",
+			"validates": ["NULL-guard 惯用法", "早期返回"]
+		},
+		{
+			"id": "c-strlen",
+			"category": "循环体",
+			"description": "while 遍历字符串直到 '\\0'，body 为空。",
+			"context": "",
+			"prefix": "size_t my_strlen(const char *s) {\n    size_t len = 0;\n    while (s[len] != '\\0') {\n",
+			"suffix": "    }\n    return len;\n}",
+			"expectedMiddle": "        len++;",
+			"validates": ["字符串遍历", "条件边界"]
+		},
+		{
+			"id": "c-strcpy-do-while",
+			"category": "循环体",
+			"description": "do-while 字符串拷贝，body 需同时赋值并自增，且要保证以 '\\0' 结尾。",
+			"context": "",
+			"prefix": "void my_strcpy(char *dest, const char *src) {\n    int i = 0;\n    do {\n",
+			"suffix": "    } while (src[i] != '\\0');\n}",
+			"expectedMiddle": "        dest[i] = src[i];\n        i++;",
+			"validates": ["do-while 结构", "多语句 body", "需理解 suffix 终止条件"]
+		},
+		{
+			"id": "c-struct-init",
+			"category": "结构体",
+			"description": "根据参数构造并初始化结构体后返回。",
+			"context": "",
+			"prefix": "typedef struct {\n    int x;\n    int y;\n} Point;\n\nPoint make_point(int x, int y) {\n",
+			"suffix": "}",
+			"expectedMiddle": "    Point p;\n    p.x = x;\n    p.y = y;\n    return p;",
+			"validates": ["结构体字段赋值", "局部变量 + 返回"]
+		},
+		{
+			"id": "c-fact-recursive",
+			"category": "递归",
+			"description": "递归基线条件 body 为空，需返回 1。",
+			"context": "",
+			"prefix": "long factorial(int n) {\n    if (n <= 1) {\n",
+			"suffix": "    }\n    return n * factorial(n - 1);\n}",
+			"expectedMiddle": "        return 1;",
+			"validates": ["递归基线", "需理解 suffix 的递归调用"]
+		},
+		{
+			"id": "c-switch-months",
+			"category": "switch/case",
+			"description": "switch 中已列出 31 天月份与 2 月，需补全 30 天月份分支。",
+			"context": "",
+			"prefix": "int days_in_month(int month) {\n    switch (month) {\n        case 2:\n            return 28;\n        case 1:\n        case 3:\n        case 5:\n        case 7:\n        case 8:\n        case 10:\n        case 12:\n            return 31;\n",
+			"suffix": "        default:\n            return 30;\n    }\n}",
+			"expectedMiddle": "        case 4:\n        case 6:\n        case 9:\n        case 11:\n            return 30;",
+			"validates": ["多 case 合并", "需理解 default 与已列分支"]
+		},
+		{
+			"id": "c-linkedlist-node",
+			"category": "结构体 + 内存",
+			"description": "创建链表节点并初始化 next 为 NULL，需 malloc 与字段赋值。",
+			"context": "typedef struct Node {\n    int value;\n    struct Node *next;\n} Node;",
+			"prefix": "Node *create_node(int value) {\n",
+			"suffix": "}",
+			"expectedMiddle": "    Node *n = malloc(sizeof(Node));\n    n->value = value;\n    n->next = NULL;\n    return n;",
+			"validates": ["struct 前置上下文(context)", "malloc + 指针字段", "NULL 初始化"]
+		},
+		{
+			"id": "c-resource-cleanup",
+			"category": "错误处理/资源释放",
+			"description": "读文件出错时需先 fclose 再返回错误码，测试双向约束与资源清理。",
+			"context": "",
+			"prefix": "int read_config(const char *path, char *buf, size_t size) {\n    FILE *f = fopen(path, \"r\");\n    if (!f) return -1;\n    size_t n = fread(buf, 1, size - 1, f);\n    if (n == 0 && ferror(f)) {\n",
+			"suffix": "    }\n    buf[n] = '\\0';\n    fclose(f);\n    return (int)n;\n}",
+			"expectedMiddle": "        fclose(f);\n        return -1;",
+			"validates": ["错误路径需释放资源", "需理解 suffix 中的 fclose/return"]
+		},
+		{
+			"id": "c-find-index",
+			"category": "循环 + 提前返回",
+			"description": "在数组中找到目标即返回下标，body 为空。",
+			"context": "",
+			"prefix": "int find_index(const int *arr, int n, int target) {\n    int i = 0;\n    while (i < n) {\n        if (arr[i] == target) {\n",
+			"suffix": "        }\n        i++;\n    }\n    return -1;\n}",
+			"expectedMiddle": "            return i;",
+			"validates": ["早退返回", "嵌套控制流"]
+		},
+		{
+			"id": "c-validate-guard",
+			"category": "条件 + 双向约束",
+			"description": "函数含已有早退，body 需补充额外长度限制护栏。",
+			"context": "",
+			"prefix": "bool is_valid(const char *s) {\n    if (s == NULL || *s == '\\0') {\n        return false;\n    }\n",
+			"suffix": "    for (size_t i = 0; s[i]; i++) {\n        if (!isalnum((unsigned char)s[i])) {\n            return false;\n        }\n    }\n    return true;\n}",
+			"expectedMiddle": "    if (strlen(s) > 64) {\n        return false;\n    }",
+			"validates": ["多段早退", "需理解 suffix 后续逻辑与返回类型"]
+		},
+		{
+			"id": "c-reverse-with-context",
+			"category": "带头文件上下文",
+			"description": "带 #include 上下文，反向打印字符串，body 为空。",
+			"context": "#include <stdio.h>\n#include <string.h>",
+			"prefix": "void print_reversed(const char *s) {\n    int len = (int)strlen(s);\n    for (int i = len - 1; i >= 0; i--) {\n",
+			"suffix": "    }\n    printf(\"\\n\");\n}",
+			"expectedMiddle": "        putchar(s[i]);",
+			"validates": ["import_content 上下文注入", "反向遍历", "需理解 suffix 的 printf"]
+		}
+	]
+}

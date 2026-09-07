@@ -35,11 +35,16 @@ export const FIM_MARKERS: Record<string, FimMarkers> = {
 		hole: "<SUF>",
 		end: "<MID>",
 	},
-	// Qwen-Coder format
+	// Qwen-Coder format (Qwen2.5-Coder / Qwen3-Coder)
+	//
+	// NOTE: Qwen's FIM special tokens are pipe-styled "<|fim_prefix|>" etc.,
+	// NOT StarCoder's "<fim_prefix>". Sending the StarCoder-style markers makes
+	// the tokenizer treat them as plain text: the model never enters FIM mode
+	// and free-generates garbage such as a closing "</fim_middle>" tag.
 	qwen: {
-		begin: "<fim_prefix>",
-		hole: "<fim_suffix>",
-		end: "<fim_middle>",
+		begin: "<|fim_prefix|>",
+		hole: "<|fim_suffix|>",
+		end: "<|fim_middle|>",
 	},
 }
 

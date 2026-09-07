@@ -134,9 +134,28 @@ export function stripSpecialTokens(completion: string): string {
 	const tokens = [
 		"<|endoftext|>",
 		"<｜end▁of▁sentence｜>",
+		// Qwen pipe-styled FIM/special tokens (Qwen2.5-Coder / Qwen3-Coder)
+		"<|fim_prefix|>",
+		"<|fim_suffix|>",
+		"<|fim_middle|>",
+		"<|fim_pad|>",
+		"<|file_sep|>",
+		"<|repo_name|>",
+		"<|im_start|>",
+		"<|im_end|>",
+		// StarCoder-style markers...
 		"<fim_prefix>",
 		"<fim_suffix>",
 		"<fim_middle>",
+		// ...and their closing-tag variants. When the configured markers don't
+		// match the model's real special tokens, the model treats them as plain
+		// text and "closes" them like XML tags (e.g. "</fim_middle>").
+		"</fim_prefix>",
+		"</fim_suffix>",
+		"</fim_middle>",
+		"</PRE>",
+		"</SUF>",
+		"</MID>",
 		"<｜f#fim_prefix#｜>",
 		"<｜fim▁begin｜>",
 		"<｜fimhole｜>",

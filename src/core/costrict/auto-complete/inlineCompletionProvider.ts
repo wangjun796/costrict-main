@@ -123,7 +123,9 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 								? "command"
 								: "unknown"
 				const first = event.selections[0]
-				this.pushEditorEvent(`select kind=${kind}${first ? ` -> ${first.active.line}:${first.active.character}` : ""}`)
+				this.pushEditorEvent(
+					`select kind=${kind}${first ? ` -> ${first.active.line}:${first.active.character}` : ""}`,
+				)
 				// 多光标场景下不做补全，也不需要取消逻辑
 				if (event.selections.length !== 1) {
 					return
@@ -159,8 +161,7 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 			const editor = vscode.window.activeTextEditor
 			const sameDoc = editor?.document.uri.toString() === document.uri.toString()
 			const active = sameDoc ? editor!.selection.active : undefined
-			const cursorMoved =
-				!!active && (active.line !== position.line || active.character !== position.character)
+			const cursorMoved = !!active && (active.line !== position.line || active.character !== position.character)
 			const docChanged = document.version !== startVersion
 			// VS Code 的 CancellationToken 在很多与光标无关的事件下也会触发：
 			//   - 窗口失焦 / 聚焦（鼠标移到其它窗口、Alt-Tab）
@@ -249,6 +250,7 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 
 		if (signal.aborted || this._hasCursorMoved(document, position)) {
 			trace.end("gate", "cursor moved while preparing input")
+			this.completionStatusBar.noSuggest()
 			return []
 		}
 
@@ -265,12 +267,34 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 		// 插入已改变文档版本，直接 return，避免再返回过期的 ghost item 造成双写。
 		if (isCompletionDebugEnabled()) {
 			await this._debugInsertCompletion(result.completion)
+			this.completionStatusBar.complete()
 			return []
 		}
 		this.host.log(`[Completions]: ${JSON.stringify(result)}`)
+
+		// 请求返回后再次检查光标是否移动
+		// debounce 期间用户可能继续输入/删除，导致当前光标位置与请求时不同
+		// 此时返回的 InlineCompletionItem range 与实际光标不匹配，VS Code 会静默丢弃
+		const activeEditor = vscode.window.activeTextEditor
+		const currentPos = activeEditor?.selection.active
+		const currentVersion = document.version
+		trace.step("result", "post-completion cursor check", {
+			requestPos: `${position.line}:${position.character}`,
+			requestVersion: startVersion,
+			currentPos: currentPos ? `${currentPos.line}:${currentPos.character}` : "no-editor",
+			currentVersion,
+		})
+
+		if (this._hasCursorMoved(document, position)) {
+			trace.end("result", "cursor moved after completion returned, skipped")
+			this.completionStatusBar.noSuggest()
+			return []
+		}
+
 		const willDisplay = this.willDisplay(document, selectedCompletionInfo, signal, result)
 		if (!willDisplay) {
 			trace.end("result", "willDisplay() rejected the completion", { reason: "aborted or prefix mismatch" })
+			this.completionStatusBar.noSuggest()
 			return []
 		}
 		this.completionProvider.markDisplayed(result.completionId, result)
@@ -281,7 +305,10 @@ export class InlineCompletionProvider implements InlineCompletionItemProvider {
 			command: `${Package.commandIDPrefix}-completion.logAutocompleteOutcome`,
 			arguments: [result.completionId, this.completionProvider],
 		})
-		trace.end("result", "returning inline completion item", { len: result.completion.length })
+		trace.end("result", "returning inline completion item", {
+			len: result.completion.length,
+			range: `${position.line}:${position.character}`,
+		})
 		// 返回 InlineCompletionItem
 		return [autocompleteItem]
 	}

@@ -164,6 +164,27 @@ export function buildStopSequences(config: CompletionModelConfig, suffix: string
 		stops.add("<|endoftext|>")
 	}
 
+	// FIM marker stops. Two failure modes are covered:
+	// 1. The model echoes a marker from the prompt (e.g. re-emitting the
+	//    "<|fim_middle|>" that precedes generation).
+	// 2. The configured markers don't match the model's real special tokens, so
+	//    the model treats them as plain text and "closes" them like XML tags
+	//    (e.g. "</fim_middle>") — everything past that point is template
+	//    garbage, not code.
+	const markers = getFimMarkers(config)
+	for (const marker of [markers.begin, markers.hole, markers.end]) {
+		if (!marker) {
+			continue
+		}
+		stops.add(marker)
+		// Plain XML-style tags also get a closing variant ("</fim_middle>");
+		// pipe-styled tokens ("<|fim_prefix|>") have no closing form.
+		const tag = marker.match(/^<([A-Za-z][A-Za-z0-9_-]*)>$/)
+		if (tag) {
+			stops.add(`</${tag[1]}>`)
+		}
+	}
+
 	// If suffix is empty or whitespace-only, add multi-line stops
 	// to prevent the model from generating too much
 	if (!suffix || suffix.trim() === "") {
