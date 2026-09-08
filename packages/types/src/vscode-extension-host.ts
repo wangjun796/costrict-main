@@ -424,6 +424,7 @@ export type ExtensionState = Pick<
 	| "fimCustomMarkerBegin"
 	| "fimCustomMarkerHole"
 	| "fimCustomMarkerEnd"
+	| "preserveReviewSession"
 > &
 	FimCompletionSettings & {
 		lockApiConfigAcrossModes?: boolean

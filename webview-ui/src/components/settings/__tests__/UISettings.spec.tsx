@@ -8,6 +8,7 @@ describe("UISettings", () => {
 		showSpeedInfo: false,
 		automaticallyFocus: false,
 		collapseMarkdownWithoutScroll: false,
+		preserveReviewSession: false,
 		apiConfiguration: {
 			apiProvider: "costrict",
 		},

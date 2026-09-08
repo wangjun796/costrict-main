@@ -414,7 +414,17 @@ export class CodeReviewService {
 						`[CodeReview] handleCompletion setTimeout(500ms) firing: about to call resetMode()`,
 					)
 					await resetMode()
-					await provider.removeClineFromStack()
+
+					// Check preserveReviewSession setting before removing task from stack
+					const state = await provider.getState()
+					const preserveSession = state.preserveReviewSession ?? false
+
+					if (!preserveSession) {
+						await provider.removeClineFromStack()
+					} else {
+						this.logger.debug(`[CodeReview] preserveReviewSession enabled, keeping review task in stack`)
+					}
+
 					await provider.refreshWorkspace()
 					options?.onTaskComplete?.()
 

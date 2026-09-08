@@ -191,6 +191,10 @@
 		"requireCtrlEnterToSend": {
 			"label": "Require {{primaryMod}}+Enter to send messages",
 			"description": "When enabled, you must press {{primaryMod}}+Enter to send messages instead of just Enter"
+		},
+		"preserveReviewSession": {
+			"label": "Preserve code review session",
+			"description": "When enabled, the code review session is preserved in the chat window after completion, instead of automatically returning to the task view."
 		}
 	},
 	"autoCleanup": {

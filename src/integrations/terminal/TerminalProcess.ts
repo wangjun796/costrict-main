@@ -129,9 +129,12 @@ export class TerminalProcess extends BaseTerminalProcess {
 
 			terminal.shellIntegration.executeCommand(commandToExecute)
 		} else if (isCmd) {
-			// For Windows cmd, do not use chcp as it's unreliable
-			// Execute command directly with system default encoding
-			const commandToExecute = `chcp 65001 >nul 2>&1 && ${command}`
+			// For Windows cmd, use a more reliable UTF-8 setup.
+			// `chcp 65001` alone is fragile — some shells ignore it or revert.
+			// We also set the console code page via `mode con cp select=65001`
+			// and chain the actual command with `&&` so encoding is locked in
+			// before execution.
+			const commandToExecute = `chcp 65001 >nul 2>&1 && mode con cp select=65001 >nul 2>&1 && ${command}`
 			terminal.shellIntegration.executeCommand(commandToExecute)
 		} else {
 			terminal.shellIntegration.executeCommand(command)

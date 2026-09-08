@@ -1040,6 +1040,10 @@
 		"requireCtrlEnterToSend": {
 			"label": "需要 {{primaryMod}}+Enter 发送消息",
 			"description": "启用后，必须按 {{primaryMod}}+Enter 发送消息，而不仅仅是 Enter"
+		},
+		"preserveReviewSession": {
+			"label": "保留代码审查会话",
+			"description": "启用后，代码审查完成后保留当前会话，而不是自动返回任务视图。审查结果将保留在聊天窗口中。"
 		}
 	},
 	"autoCleanup": {

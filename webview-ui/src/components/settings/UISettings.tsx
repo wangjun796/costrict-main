@@ -17,6 +17,7 @@ interface UISettingsProps extends HTMLAttributes<HTMLDivElement> {
 	automaticallyFocus: boolean
 	collapseMarkdownWithoutScroll: boolean
 	enterBehavior: "send" | "newline"
+	preserveReviewSession: boolean
 	experiments: Experiments
 	apiConfiguration?: any
 	setCachedStateField: SetCachedStateField<keyof ExtensionStateContextType>
@@ -29,6 +30,7 @@ export const UISettings = ({
 	automaticallyFocus,
 	collapseMarkdownWithoutScroll,
 	enterBehavior,
+	preserveReviewSession,
 	experiments,
 	apiConfiguration,
 	setCachedStateField,
@@ -94,6 +96,14 @@ export const UISettings = ({
 
 		// Track telemetry event
 		telemetryClient.capture("ui_settings_chat_search_changed", {
+			enabled,
+		})
+	}
+
+	const handlePreserveReviewSessionChange = (enabled: boolean) => {
+		setCachedStateField("preserveReviewSession", enabled)
+
+		telemetryClient.capture("ui_settings_preserve_review_session_changed", {
 			enabled,
 		})
 	}
@@ -210,6 +220,23 @@ export const UISettings = ({
 							</VSCodeCheckbox>
 							<div className="text-vscode-descriptionForeground text-sm ml-5 mt-1">
 								{t("settings:experimental.CHAT_SEARCH.description")}
+							</div>
+						</div>
+					</SearchableSetting>
+					{/* Preserve Review Session Setting */}
+					<SearchableSetting
+						settingId="ui-preserve-review-session"
+						section="ui"
+						label={t("settings:ui.preserveReviewSession.label")}>
+						<div className="flex flex-col gap-1">
+							<VSCodeCheckbox
+								checked={preserveReviewSession}
+								onChange={(e: any) => handlePreserveReviewSessionChange(e.target.checked)}
+								data-testid="preserve-review-session-checkbox">
+								<span className="font-medium">{t("settings:ui.preserveReviewSession.label")}</span>
+							</VSCodeCheckbox>
+							<div className="text-vscode-descriptionForeground text-sm ml-5 mt-1">
+								{t("settings:ui.preserveReviewSession.description")}
 							</div>
 						</div>
 					</SearchableSetting>

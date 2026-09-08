@@ -142,6 +142,7 @@ export interface ExtensionStateContextType extends ExtensionState {
 	collapseMarkdownWithoutScroll?: boolean
 	enterBehavior?: "send" | "newline"
 	setEnterBehavior: (value: "send" | "newline") => void
+	preserveReviewSession?: boolean
 	autoCondenseContext: boolean
 	setAutoCondenseContext: (value: boolean) => void
 	autoCondenseContextPercent: number
@@ -298,6 +299,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		automaticallyFocus: false, // Default to not showing speed info
 		collapseMarkdownWithoutScroll: true,
 		enterBehavior: "send", // Default: Enter sends, Shift+Enter creates newline
+		preserveReviewSession: false, // Default: review task is destroyed after completion
 		cloudUserInfo: null,
 		cloudIsAuthenticated: false,
 		// cloudOrganizations: [],
@@ -643,6 +645,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		reasoningBlockCollapsed: state.reasoningBlockCollapsed ?? true,
 		showSpeedInfo: state.showSpeedInfo ?? false,
 		automaticallyFocus: state.automaticallyFocus ?? false,
+		preserveReviewSession: state.preserveReviewSession ?? false,
 		didHydrateState,
 		showWelcome,
 		didHydrateCliState,

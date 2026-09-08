@@ -2,6 +2,12 @@
 
 > 有关完整的历史记录，请访问 [CHANGELOG_ARCHIVE.md](./CHANGELOG_ARCHIVE.md)
 
+## [1.0.6]
+
+- 新增「保留代码审查会话」设置：审查完成后可选择保留当前会话于聊天窗口，而非自动返回任务视图
+- 增强 Windows cmd 终端的 UTF-8 编码处理：组合 `chcp 65001` 与 `mode con cp select=65001`，提升中文输出稳定性
+- 更新内置 skill 索引（bundled-skills/index.json）
+
 ## [1.0.3]
 
 - 开发者模式默认关闭：仅手动开启后才显示调试相关的弹窗通知（如知识库请求调试信息）

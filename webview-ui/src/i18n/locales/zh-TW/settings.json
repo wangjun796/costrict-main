@@ -1040,6 +1040,10 @@
 		"requireCtrlEnterToSend": {
 			"label": "需要 {{primaryMod}}+Enter 傳送訊息",
 			"description": "啟用後，必須按 {{primaryMod}}+Enter 傳送訊息，而不只是 Enter"
+		},
+		"preserveReviewSession": {
+			"label": "保留程式碼審查會話",
+			"description": "啟用後，程式碼審查完成後保留當前會話，而不是自動返回任務檢視。審查結果將保留在聊天視窗中。"
 		}
 	},
 	"autoCleanup": {

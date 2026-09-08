@@ -251,6 +251,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		automaticallyFocus,
 		collapseMarkdownWithoutScroll,
 		enterBehavior,
+		preserveReviewSession,
 		includeCurrentTime,
 		includeCurrentCost,
 		maxGitStatusFiles,
@@ -525,6 +526,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					automaticallyFocus: automaticallyFocus ?? false,
 					collapseMarkdownWithoutScroll: collapseMarkdownWithoutScroll ?? true,
 					enterBehavior: enterBehavior ?? "send",
+					preserveReviewSession: preserveReviewSession ?? false,
 					includeCurrentTime: includeCurrentTime ?? false,
 					includeCurrentCost: includeCurrentCost ?? true,
 					maxGitStatusFiles: maxGitStatusFiles ?? 0,
@@ -1238,6 +1240,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 								automaticallyFocus={automaticallyFocus ?? false}
 								collapseMarkdownWithoutScroll={collapseMarkdownWithoutScroll ?? true}
 								enterBehavior={enterBehavior ?? "send"}
+								preserveReviewSession={preserveReviewSession ?? false}
 								experiments={experiments}
 								apiConfiguration={apiConfiguration}
 								setCachedStateField={setCachedStateField}

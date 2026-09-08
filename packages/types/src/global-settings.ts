@@ -288,6 +288,13 @@ export const globalSettingsSchema = z.object({
 	fimCustomMarkerBegin: z.string().optional(),
 	fimCustomMarkerHole: z.string().optional(),
 	fimCustomMarkerEnd: z.string().optional(),
+
+	/**
+	 * Whether to keep the code review session in the chat window after
+	 * completion, instead of automatically returning to the task view.
+	 * @default false
+	 */
+	preserveReviewSession: z.boolean().optional(),
 })
 
 export type GlobalSettings = z.infer<typeof globalSettingsSchema>
